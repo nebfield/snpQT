@@ -27,7 +27,7 @@ Channel
 // vcf to bed + fam https://www.biostars.org/p/313943/
 process check_sex {
     echo true
-    container 'quay.io/biocontainers/plink:1.90b6.12--heea4ae3_0'
+    container 'snpqt'
     publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
       pattern: "*.pdf"
 
@@ -96,7 +96,7 @@ process plot_sex {
 
 process extract_autosomal {
     echo true
-    container 'quay.io/biocontainers/plink:1.90b6.12--heea4ae3_0'
+    container 'snpqt'
 
     input:
     file sex_checked_bed   
@@ -119,13 +119,13 @@ process extract_autosomal {
 
 process missing {
     echo true
-    container 'quay.io/biocontainers/plink:1.90b6.12--heea4ae3_0'
+    container 'snpqt'
 
     input:
     file autosomal 
     
     output:
-    file "plink.imiss" into imiss_before
+    file "plink.imiss" into imiss_before, imiss_relatedness
     file "plink.lmiss" into lmiss_before
     file "cleaned*" into missing, missing_het
  
@@ -161,7 +161,7 @@ Channel
     .set { high_ld_file } 
 
 process heterozygosity_rate {
-    container 'quay.io/biocontainers/plink:1.90b6.12--heea4ae3_0'
+    container 'snpqt'
 
     input:
     file high_ld_file 
@@ -198,7 +198,7 @@ process plot_heterozygosity {
 
 process heterozygosity_prune {
     echo true
-    container 'quay.io/biocontainers/plink:1.90b6.12--heea4ae3_0'
+    container 'snpqt'
 
     input:
     file missing_het
@@ -217,14 +217,25 @@ process heterozygosity_prune {
 
 process relatedness {
     echo true
-    container 'quay.io/biocontainers/plink:1.90b6.12--heea4ae3_0'
+    container 'snpqt'
   
     input:
     file het_pruned
     file ind_SNPs
+    file imiss_relatedness
+
+    output:
+    file "pihat_pruned*" 
 
     """
     plink --bfile het_pruned --extract $ind_SNPs --genome --min 0.125 \
       --out pihat_0.125 &>/dev/null
+    ls 
+    # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
+    # relatives of each pair, having the most missingness. Output those failing
+    # samples to pihat_failed_samples.txt
+    run_IBD_QC.pl &>/dev/null
+    plink --bfile het_pruned --remove pihat_failed_samples.txt \
+      --make-bed --out pihat_pruned
     """
 }

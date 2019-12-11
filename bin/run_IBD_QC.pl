@@ -6,7 +6,7 @@ my %imiss;
 my %removed;
 
 open IMISS, '<', "plink.imiss"
-        or die "Cannot open genotypes file (pihat_0.125.genome): $!\n";
+        or die "Cannot open plink.imiss: $!\n";
 print "Reading PLINK .imiss file plink.imiss\n";
 while(<IMISS>){
 	s/^\s+//;
@@ -14,10 +14,10 @@ while(<IMISS>){
     $imiss{$fields[0]}{$fields[1]} = $fields[5];
 }
 
-open GENOME, '<', "pihat_min0.125.genome"
+open GENOME, '<', "pihat_0.125.genome"
         or die "Cannot open genotypes file (pihat_0.125.genome): $!\n";
 open OUT, '>', "pihat_failed_samples.txt";
-print "Reading PLINK .genome file pihat_min0.125.genome\n";
+print "Reading PLINK .genome file pihat_0.125.genome\n";
 while(<GENOME>){
     s/^\s+//;
     my @fields = split /\s+/, $_;
