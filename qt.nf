@@ -1,7 +1,7 @@
 
-params.infile = "$baseDir/data/wp2_good.vcf.gz"
+params.infile = "$baseDir/data/als.vcf.gz"
 params.outdir = "$baseDir/results"
-params.famfile = "$baseDir/data/wp2_good.fam"
+params.famfile = "$baseDir/data/plinkForDbgap12319.fam"
 params.sex_impute = false
 params.highldregion = "$baseDir/data/highldregion_37.txt" // TODO: update me 
 
@@ -36,7 +36,7 @@ process check_sex {
     file fam_file
 
     output:
-    file "*.pdf"
+    file "plink.sexcheck" into sexcheck 
     file "data_clean.bed" into sex_checked_bed
     file "data_clean.bim" into sex_checked_bim
     file "data_clean.fam" into sex_checked_fam
@@ -48,26 +48,22 @@ process check_sex {
     cp $fam_file data.fam
     plink --bfile data --check-sex &>/dev/null
 
-    gender_check.R &>/dev/null
+    # Remove samples with ambiguous sex phenotypes
+    if [ -f plink.nosex ]; then
+        plink --bfile data --remove plink.nosex --make-bed \
+          --out data_ambig &>/dev/null
+        mv data_ambig.bed data.bed
+        mv data_ambig.bim data.bim
+        mv data_ambig.fam data.fam
+    fi
 
     # Identify the samples with sex discrepancy 
     grep "PROBLEM" plink.sexcheck | awk '{print \$1,\$2}'> \
       problematic_samples.txt
-    
     # Delete all problematic samples
     plink --bfile data --remove problematic_samples.txt --make-bed \
       --out data_clean &>/dev/null
     echo 'Check sex output: ' && grep 'pass' data_clean.log
-
-    # Remove samples with ambiguous sex phenotypes
-    if [ -f plink.nosex ]; then
-        plink --bfile data_clean --remove plink.nosex --make-bed \
-          --out data_ambig
-        mv data_ambig.bed data_clean.bed
-        mv data_ambig.bim data_clean.bim
-        mv data_ambig.fam data_clean.fam
-        echo 'Check sex output:' && grep 'pass' data_ambig.log
-    fi
     """
 }
 
@@ -80,6 +76,22 @@ process sex_impute {
     """
     echo 'sex impute true!'
     """ 
+}
+
+process plot_sex {
+    publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
+      pattern: "*.png"
+    container 'rocker/tidyverse:3.6.1' 
+
+    input:
+    file sexcheck 
+
+    output:
+    file "*.pdf"
+
+    """
+    gender_check.R 
+    """
 }
 
 process extract_autosomal {

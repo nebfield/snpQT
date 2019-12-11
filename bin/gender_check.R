@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/bin/env Rscript
 
 gender <- read.table("plink.sexcheck", header=T,as.is=T)
 
