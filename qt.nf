@@ -230,12 +230,12 @@ process relatedness {
     """
     plink --bfile het_pruned --extract $ind_SNPs --genome --min 0.125 \
       --out pihat_0.125 &>/dev/null
-    ls 
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
     # relatives of each pair, having the most missingness. Output those failing
     # samples to pihat_failed_samples.txt
     run_IBD_QC.pl &>/dev/null
     plink --bfile het_pruned --remove pihat_failed_samples.txt \
-      --make-bed --out pihat_pruned
+      --make-bed --out pihat_pruned &>/dev/null
+    echo 'Check relatedness:' && grep 'pass' pihat_pruned.log
     """
 }
