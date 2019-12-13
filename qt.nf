@@ -225,7 +225,7 @@ process relatedness {
     file imiss_relatedness
 
     output:
-    file "pihat_pruned*" 
+    file "pihat_pruned*" into relatedness
 
     """
     plink --bfile het_pruned --extract $ind_SNPs --genome --min 0.125 \
@@ -237,5 +237,21 @@ process relatedness {
     plink --bfile het_pruned --remove pihat_failed_samples.txt \
       --make-bed --out pihat_pruned &>/dev/null
     echo 'Check relatedness:' && grep 'pass' pihat_pruned.log
+    """
+}
+
+process missing_phenotype {
+    echo true
+    container 'snpqt'
+
+    input:
+    file relatedness
+
+    output:
+    file "missing*" into missing_pheno
+
+    """
+    plink --bfile pihat_pruned --prune --make-bed --out missing &>/dev/null
+    echo 'Remove missing phenotypes:' && grep 'pass' missing.log 
     """
 }
