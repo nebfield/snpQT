@@ -47,22 +47,20 @@ process make_unique_ids {
 process qc_thousand_genomes {
     echo true
     container 'snpqt'
-
+    publishDir '../data/', copy: true 
     input:
     file nmids
 
     output:
-    file "1kG_MDS3" into thousand_genomes_qc
+    file "1kG_MDS3*" into thousand_genomes_qc
 
     """
-    # Remove individuals based on missing genotype data
-    plink -bfile 2of4intersection.20100804.genotypes_NMIDs --mind 0.02 \
-      --allow-no-sex --make-bed --out 1kG_MDS1
-    # Remove variants based on missing genotype data
-    plink --bfile 1kG_MDS1 --geno 0.02 --allow-no-sex --make-bed \
-      --out 1kG_MDS2
-    # Remove variants based on MAF
+    plink -bfile 2of4intersection.20100804.genotypes_NMIDs --geno 0.02 \
+      --allow-no-sex --make-bed --out 1kG_MDS1 &>/dev/null
+    plink --bfile 1kG_MDS1 --mind 0.02 --allow-no-sex --make-bed \
+      --out 1kG_MDS2 &>/dev/null
     plink --bfile 1kG_MDS2 --maf 0.05 --allow-no-sex --make-bed \
-      --out 1kG_MDS3
+      --out 1kG_MDS3 &>/dev/null
+    echo "QC: " && grep 'pass' 1kG_MDS3.log
     """
 } 
