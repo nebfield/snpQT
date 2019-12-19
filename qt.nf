@@ -249,7 +249,7 @@ process missing_phenotype {
     file relatedness
 
     output:
-    file "missing*" into missing_pheno
+    file "missing*" into missing_pheno, missing_pop_strat
 
     """
     plink --bfile pihat_pruned --prune --make-bed --out missing &>/dev/null
@@ -297,14 +297,30 @@ process mds_pop_strat {
     input:
     file pop_strat_mds
     file ind_SNPs_popstrat
+    file missing_pop_strat
+
+    output:
+    file "MDS_merge*" into mds
 
     """
-    ## Perform MDS on plink data anchored by 1000 Genomes data.
-    # Using a set of pruned SNPs
-    plink --bfile MDS_merge --extract independent_SNPs.prune.in --genome \
-      --out MDS_merge
-    plink --bfile MDS_merge --read-genome MDS_merge.genome --cluster \
-      --mds-plot 10 --out MDS_merge
+    mds.sh
+    """
+}
 
+process plot_mds {
+    echo true
+    container 'rocker/tidyverse:3.6.1' 
+    publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
+        pattern: "*.png"
+
+    input:
+    file racefile
+    file mds
+
+    output:
+    file "MDS.png"
+
+    """
+    plot_MDS.R 
     """
 }
