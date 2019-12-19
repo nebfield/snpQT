@@ -364,7 +364,7 @@ process maf {
     container 'snpqt'
 
     input:
-    file hwe_output
+    file hardy_output
 
     output:
     file "plink_8*" into maf_output
