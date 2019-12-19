@@ -47,7 +47,7 @@ process make_unique_ids {
 process qc_thousand_genomes {
     echo true
     container 'snpqt'
-    publishDir '../data/', copy: true 
+    publishDir '../data/', mode: 'copy'
     input:
     file nmids
 
