@@ -1,13 +1,14 @@
 
-params.infile = "$baseDir/data/als.vcf.gz"
+params.infile = "../data/als.vcf.gz"
 params.outdir = "$baseDir/results"
-params.famfile = "$baseDir/data/plinkForDbgap12319.fam"
+params.famfile = "../data/plinkForDbgap12319.fam"
 params.sex_impute = false
-params.highldregion = "$baseDir/data/highldregion_37.txt" // TODO: update me 
+params.highldregion = "../data/highldregion_37.txt" // TODO: update me 
+params.ref_file = "$baseDir/../data/1kG_MDS3*"
 
 log.info """\
          snpQT: make your SNPs cute 
-         input file : ${params.infile}
+         input file: ${params.infile}
          outdir: ${params.outdir}
          fam file: ${params.famfile}
          sex impute: ${params.sex_impute}
@@ -255,3 +256,37 @@ process missing_phenotype {
     echo 'Remove missing phenotypes:' && grep 'pass' missing.log 
     """
 }
+
+thousand_ref_file = Channel.fromPath(params.ref_file).collect()
+
+process download_pop_info {
+    echo true
+    container 'snpqt'
+    
+    output:
+    file "race_1kG.txt" into racefile_1kG
+
+    """
+    download_racefile.sh
+    """
+}
+
+process prep_pop_strat {
+    echo true
+    container 'snpqt'
+    stageInMode 'copy'
+
+    input:
+    file thousand_ref_file
+    file missing_pheno
+    file racefile_1kG
+
+    output:
+    file "MDS_merge*" into pop_strat_mds
+    file "racefile.txt" into racefile 
+
+    """
+    prep_pop_strat.sh 
+    """
+}
+
