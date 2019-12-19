@@ -358,3 +358,45 @@ process plot_hardy {
     hwe.R
     """
 }
+
+process maf {
+    echo true
+    container 'snpqt'
+
+    input:
+    file hwe_output
+
+    output:
+    file "plink_8*" into maf_output
+
+    """
+    plink --bfile plink_7 --freq --out MAF_check
+
+    # Remove SNPs with a low MAF frequency
+    plink --bfile plink_7 --maf 0.05 --make-bed --out plink_8
+    """
+}
+
+process plot_maf {
+    echo true
+    container 'rocker/tidyverse:3.6.1' 
+
+    """
+    # TODO: missing MAF_check.R
+    """
+}
+
+process case_control_status {
+    echo true
+    container 'snpqt'
+
+    input:
+    file maf_output
+
+    output:
+    file "plink_9*" into case_control_status_output
+
+    """
+    case_control_status.sh
+    """
+}
