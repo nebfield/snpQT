@@ -301,6 +301,7 @@ process mds_pop_strat {
 
     output:
     file "MDS_merge*" into mds
+    file "plink_6*" into hardy_in
 
     """
     mds.sh
@@ -322,5 +323,38 @@ process plot_mds {
 
     """
     plot_MDS.R 
+    """
+}
+
+process hardy {
+    echo true
+    container 'snpqt'
+
+    input:
+    file hardy_in
+
+    output:
+    file "*.hwe" into hwe
+    file "plink_7*" into hardy_out
+
+    """
+    hardy.sh
+    """
+}
+
+process plot_hardy {
+    echo true
+    container 'rocker/tidyverse:3.6.1' 
+    publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
+        pattern: "*.png"
+
+    input:
+    file hwe
+    
+    output:
+    file "*.png" 
+
+    """
+    hwe.R
     """
 }
