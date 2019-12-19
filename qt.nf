@@ -170,7 +170,7 @@ process heterozygosity_rate {
 
     output:
     file "only_indep_snps*" into plot_het
-    file "independent_SNPs.prune.in" into ind_SNPs
+    file "independent_SNPs.prune.in" into ind_SNPs, ind_SNPs_popstrat
 
     """
     plink --bfile cleaned --exclude $high_ld_file --indep-pairwise 50 5 0.2 \
@@ -290,3 +290,21 @@ process prep_pop_strat {
     """
 }
 
+process mds_pop_strat {
+    echo true
+    container 'snpqt'
+
+    input:
+    file pop_strat_mds
+    file ind_SNPs_popstrat
+
+    """
+    ## Perform MDS on plink data anchored by 1000 Genomes data.
+    # Using a set of pruned SNPs
+    plink --bfile MDS_merge --extract independent_SNPs.prune.in --genome \
+      --out MDS_merge
+    plink --bfile MDS_merge --read-genome MDS_merge.genome --cluster \
+      --mds-plot 10 --out MDS_merge
+
+    """
+}
