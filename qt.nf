@@ -302,6 +302,7 @@ process mds_pop_strat {
     output:
     file "MDS_merge*" into mds
     file "plink_6*" into hardy_in
+    file "covar_mds.txt" into covar_mds
 
     """
     mds.sh
@@ -338,7 +339,8 @@ process hardy {
     file "plink_7*" into hardy_out
 
     """
-    hardy.sh
+    hardy.sh &>/dev/null
+    grep 'pass' plink_7.log
     """
 }
 
@@ -364,16 +366,17 @@ process maf {
     container 'snpqt'
 
     input:
-    file hardy_output
+    file hardy_out
 
     output:
     file "plink_8*" into maf_output
 
     """
-    plink --bfile plink_7 --freq --out MAF_check
+    plink --bfile plink_7 --freq --out MAF_check &>/dev/null
 
     # Remove SNPs with a low MAF frequency
-    plink --bfile plink_7 --maf 0.05 --make-bed --out plink_8
+    plink --bfile plink_7 --maf 0.05 --make-bed --out plink_8 &>/dev/null
+    grep 'pass' plink_8.log
     """
 }
 
@@ -397,6 +400,40 @@ process case_control_status {
     file "plink_9*" into case_control_status_output
 
     """
-    case_control_status.sh
+    case_control_status.sh &>/dev/null
+    grep 'pass' plink_9.log
+    """
+}
+
+process log_reg {
+    echo true
+    container 'snpqt'
+
+    input:
+    file case_control_status_output
+    file covar_mds
+
+    """
+    ## adjusting for covariates doesn't work :/ 
+
+    plink --bfile plink_9 --covar covar_mds.txt --logistic --ci 0.95 \
+        --out logistic_results
+
+    plink --bfile plink_9 --logistic --ci 0.95 --out logistic_results1
+
+    plink --bfile plink_9 --covar covar_mds.txt --logistic --hide-covar \
+        --out logistic_results2
+
+    # Note, we use the option -–hide-covar to only show the additive 
+    # results of the SNPs in the output file.
+    # Remove NA values, those might give problems generating plots in later
+    # steps.
+
+    awk '!/'NA'/' logistic_results.assoc.logistic \
+        > logistic_results.assoc_3.logistic
+
+    # TODO: missing qqPlot.R
+    # R --vanilla --slave --args logistic_results.assoc.logistic ADD 
+    # qq_1.pdf< qqPlot.R
     """
 }
