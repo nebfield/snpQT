@@ -13,6 +13,12 @@
 * pihat file empty? 
 * High LD regions for 38 genome build? Crossmap them? 
 
+## Christina's Updates 
+* Remove the --remove HighLDRegions.txt flag from the pruning step. So, we do not need a high ld regions file for each build. 
+* Changed the --indep-pairwise thresholds from 50 5 0.2 to 50 5 0.5 at the same step/command
+* Clone my repository where I keep the QC generalised pipeline so that you see all the changes I am making instantly
+
+
 
 ## TODO
 
