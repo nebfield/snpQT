@@ -1,5 +1,4 @@
-
-params.infile = "../data/als.vcf"
+params.infile = "../data/als.vcf.gz"
 params.outdir = "$baseDir/results"
 params.famfile = "../data/plinkForDbgap12319.fam"
 params.sex_impute = false
