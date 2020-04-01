@@ -113,18 +113,3 @@ process vcf_index {
     bcftools index $dataset_5
     """
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
