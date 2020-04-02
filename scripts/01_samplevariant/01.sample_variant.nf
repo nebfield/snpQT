@@ -1,5 +1,9 @@
+// TODO: make sure parameters exist
+// TODO: use output directory to change publishDir
+// TODO: default sensible parameters? maybe a test data directory?
+
 params.infile = "../data/als_sub.vcf.gz"
-params.outdir = "$baseDir/results"
+params.outdir = "$baseDir/../../results"
 params.famfile = "../data/subset.fam"
 params.highldregion = "../data/highldregion_37.txt" // TODO: update me 
 
