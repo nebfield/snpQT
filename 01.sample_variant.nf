@@ -27,13 +27,13 @@ Channel
     .set { high_ld_file } 
 
 
-// STEP 1: Remove SNPs < 90% missingness --------------------------------------
+// STEP B1: Remove SNPs < 90% missingness --------------------------------------
 // TODO
 
-// STEP 2: Check missingness rate ---------------------------------------------
+// STEP B2: Check missingness rate ---------------------------------------------
 // TODO
 
-// STEP 3: Remove samples with sex mismatch -----------------------------------
+// STEP B3: Remove samples with sex mismatch -----------------------------------
 process check_sex {
     echo true
     container 'snpqt'
@@ -93,7 +93,7 @@ process plot_sex {
     """
 }
 
-// STEP 4: Remove sex chromosomes ---------------------------------------------
+// STEP B4: Remove sex chromosomes ---------------------------------------------
 process extract_autosomal {
     echo true
     container 'snpqt'
@@ -155,7 +155,7 @@ process plot_missing {
     """
 } 
 
-// STEP 5: Remove SNPs with extreme heterozygosity ----------------------------
+// STEP B5: Remove SNPs with extreme heterozygosity ----------------------------
 process heterozygosity_rate {
     container 'snpqt'
 
@@ -211,7 +211,7 @@ process heterozygosity_prune {
     """
 }
 
-// STEP 6: Remove relatives ---------------------------------------------------
+// STEP B6: Remove relatives ---------------------------------------------------
 process relatedness {
     echo true
     container 'snpqt'
@@ -237,7 +237,7 @@ process relatedness {
     """
 }
 
-// STEP 7: Remove samples with missing phenotypes -----------------------------
+// STEP B7: Remove samples with missing phenotypes -----------------------------
 process missing_phenotype {
     echo true
     container 'snpqt'
@@ -254,16 +254,16 @@ process missing_phenotype {
     """
 }
 
-// STEP 8: Missingness per variant --------------------------------------------
+// STEP B8: Missingness per variant --------------------------------------------
 // TODO
 
-// STEP 9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
+// STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
 // TODO
 
-// STEP 10: Remove low minor allele frequency (MAF) ---------------------------
+// STEP B10: Remove low minor allele frequency (MAF) ---------------------------
 // TODO
 
-// STEP 11: Test missingness in case / control status -------------------------
+// STEP B11: Test missingness in case / control status -------------------------
 // TODO
 
 // Finished! ------------------------------------------------------------------

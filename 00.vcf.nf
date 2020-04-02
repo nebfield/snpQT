@@ -14,6 +14,7 @@ Channel
     .ifEmpty { error "Cannot find: ${params.infile}" }
     .set { in_file } 
 
+// STEP A1 --------------------------------------------------------------------
 process convert_VCF {
     echo true
     container 'snpqt'
