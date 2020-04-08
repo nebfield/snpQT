@@ -1,11 +1,15 @@
-params.infile = "../data/format_8.vcf"
-params.outdir = "$baseDir/results"
-params.ref_fasta = "../data/human_g1k_v37.fasta"
+/* VCF sanity checking nextflow pipeline
+   Parameters:
+     params.infile:
+     params.outdir:
+     params.ref_fasta 
+*/
 
 log.info """\
-         snpQT: make your SNPs cute 
+         snpQT: VCF sanity checking 
          input file: ${params.infile}
-         outdir: ${params.outdir}
+         output directory: ${params.outdir}
+         reference fasta: ${params.ref_fasta}
          """
          .stripIndent()
 
@@ -14,7 +18,9 @@ Channel
     .ifEmpty { error "Cannot find: ${params.infile}" }
     .set { in_file } 
 
-// STEP A1 --------------------------------------------------------------------
+// STEP A1: map to hg37 (TODO) ------------------------------------------------
+
+// STEP A2: Convert VCF to PLINK format ---------------------------------------
 process convert_VCF {
     echo true
     container 'snpqt'
@@ -31,10 +37,12 @@ process convert_VCF {
     file "dataset_2*" into dataset_2
 
     """
-    plink --vcf $in_file --make-bed --keep-allele-order --out dataset_2 &>/dev/null
+    plink --vcf $in_file --make-bed --keep-allele-order --out dataset_2 
     """
 }
 
+// STEP A3: Flip SNPs with snpflip --------------------------------------------
+// TODO: move this to pre-imputation QC
 reference_fasta = Channel.fromPath(params.ref_fasta).collect()
     
 process flip_snp {
@@ -71,6 +79,11 @@ process SNP_flip_PLINK {
     """
  }
 
+// STEP A4: Remove ambiguous SNPs (TODO) --------------------------------------
+
+// STEP A5: Remove duplicated SNPs (TODO) -------------------------------------
+
+// STEP A6: Convert back to VCF (TODO: combine, plink can write bgzip)
 process plink_to_vcf {
     echo true
     container 'snpqt'
