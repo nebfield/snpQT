@@ -32,10 +32,52 @@ Channel
 
 
 // STEP B1: Remove SNPs < 90% missingness --------------------------------------
-// TODO
+process missingness {
+  echo true
+  container 'snpqt'
+
+  input:
+  file in_file
+  file fam_file
+
+  output:
+  file "missingness.log" into missingness_logs
+  file "plink_1*" into missingness_bfiles
+
+  """
+  plink --make-bed --vcf $in_file --out data &>/dev/null
+  # the input stage will change as the pipeline is developed 
+  echo 'Pipeline input: ' && grep 'pass' data.log
+  cp $fam_file data.fam
+  echo 'Step B1: missingness' >> log.txt
+  plink --bfile data --geno 0.1 --make-bed  --out plink_1 &>/dev/null
+  echo 'Missingness output: ' && grep 'pass' plink_1.log
+  cat *.log > missingness.log
+  """
+}
 
 // STEP B2: Check missingness rate ---------------------------------------------
-// TODO
+// TODO: user set threshold
+process plot_missingness {
+  echo true
+  container 'snpqt'
+  publishDir "$baseDir/../../results", mode: 'copy', overwrite: true, 
+      pattern: "*.png"
+
+  input:
+  file missingness_bfiles
+
+  output:
+  file "*.png"
+  file "plink_3*" into missingness_bfiles_pruned
+
+  """
+  plink --bfile plink_1 --missing --out plink_2 &>/dev/null
+  sample_missingness.R plink_2.imiss
+  # TODO user set mind threshold 
+  plink --bfile plink_1  --make-bed --mind 0.02 --out plink_3 &>/dev/null
+  """
+}
 
 // STEP B3: Remove samples with sex mismatch -----------------------------------
 process check_sex {
@@ -45,8 +87,7 @@ process check_sex {
       pattern: "*.pdf"
 
     input:
-    file in_file
-    file fam_file
+    file missingness_bfiles_pruned
 
     output:
     file "plink.sexcheck" into sexcheck 
@@ -56,15 +97,11 @@ process check_sex {
 
     // vcf to bed + fam https://www.biostars.org/p/313943/
     """
-    plink --make-bed --vcf $in_file  --out data &>/dev/null
-    # the input stage will change as the pipeline is developed 
-    echo 'Pipeline input: ' && grep 'pass' data.log
-    cp $fam_file data.fam
-    plink --bfile data --check-sex &>/dev/null
+    plink --bfile plink_3 --check-sex &>/dev/null
 
     # Remove samples with ambiguous sex phenotypes
     if [ -f plink.nosex ]; then
-        plink --bfile data --remove plink.nosex --make-bed \
+        plink --bfile plink_3 --remove plink.nosex --make-bed \
           --out data_ambig &>/dev/null
         mv data_ambig.bed data.bed
         mv data_ambig.bim data.bim
@@ -75,7 +112,7 @@ process check_sex {
     grep "PROBLEM" plink.sexcheck | awk '{print \$1,\$2}'> \
       problematic_samples.txt
     # Delete all problematic samples
-    plink --bfile data --remove problematic_samples.txt --make-bed \
+    plink --bfile plink_3 --remove problematic_samples.txt --make-bed \
       --out data_clean &>/dev/null
     echo 'Check sex output: ' && grep 'pass' data_clean.log
     """
