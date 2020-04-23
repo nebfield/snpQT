@@ -67,12 +67,12 @@ process plot_missingness {
   file missingness_bfiles
 
   output:
-  file "*.png"
+  file "sample_missingness.png"
   file "plink_3*" into missingness_bfiles_pruned
 
   """
   plink --bfile plink_1 --missing --out plink_2 &>/dev/null
-  sample_missingness.R plink_2.imiss
+  plot_sample_missingness.R plink_2.imiss
   # TODO user set mind threshold 
   plink --bfile plink_1  --make-bed --mind 0.02 --out plink_3 &>/dev/null
   """
