@@ -1,5 +1,6 @@
 // TODO: make sure parameters exist
 // TODO: default sensible parameters? maybe a test data directory?
+// TODO: single log file
 
 params.infile = "../data/als_sub.vcf.gz"
 params.outdir = "$baseDir/../../results"
@@ -42,7 +43,7 @@ process missingness {
   output:
   file "missingness.log" into missingness_logs
   file "plink_1*" into missingness_bfiles
-
+  
   """
   plink --make-bed --vcf $in_file --out data &>/dev/null
   # the input stage will change as the pipeline is developed 
@@ -68,6 +69,7 @@ process plot_missingness {
 
   output:
   file "sample_missingness.png"
+  file "plink.imiss" into imiss_relatedness
   file "plink_3*" into missingness_bfiles_pruned
 
   """
@@ -75,6 +77,7 @@ process plot_missingness {
   plot_sample_missingness.R plink_2.imiss
   # TODO user set mind threshold 
   plink --bfile plink_1  --make-bed --mind 0.02 --out plink_3 &>/dev/null
+  mv plink_2.imiss plink.imiss # run_IBD_QC.pl
   """
 }
 
@@ -133,7 +136,7 @@ process extract_autosomal {
     file sex_checked_fam
 
     output:
-    file "autosomal.*" into autosomal
+    file "autosomal.*" into autosomal, autosomal_het
 
     """
     # Extract only autosomal chromosomes (for studies that don't want to 
@@ -146,60 +149,22 @@ process extract_autosomal {
     """ 
 }
 
-process missing {
-    echo true
-    container 'snpqt'
-
-    input:
-    file autosomal 
-    
-    output:
-    file "plink.imiss" into imiss_before, imiss_relatedness
-    file "plink.lmiss" into lmiss_before
-    file "cleaned*" into missing, missing_het
- 
-    """
-    plink --bfile autosomal --missing --out plink &>/dev/null
-    plink --bfile autosomal --geno 0.1 --mind 0.1 --make-bed \
-      --out cleaned &>/dev/null
-    echo 'Check missing output:' && grep 'pass' cleaned.log 
-    """
-}
-
-process plot_missing {
-    publishDir params.outdir, mode: 'copy', overwrite: true, 
-      pattern: "*.png"
-    container 'rocker/tidyverse:3.6.1' 
- 
-    input:
-    file imiss_before
-    file lmiss_before
- 
-    output:
-    file "sample_callrate.png"
-    file "variant_callrate.png"
- 
-    """
-    plot_missing.R $imiss_before $lmiss_before
-    """
-} 
-
 // STEP B5: Remove SNPs with extreme heterozygosity ----------------------------
 process heterozygosity_rate {
     container 'snpqt'
 
     input:
     file high_ld_file 
-    file missing
+    file autosomal
 
     output:
     file "only_indep_snps*" into plot_het
     file "independent_SNPs.prune.in" into ind_SNPs, ind_SNPs_popstrat
 
     """
-    plink --bfile cleaned --exclude $high_ld_file --indep-pairwise 50 5 0.2 \
+    plink --bfile autosomal --exclude $high_ld_file --indep-pairwise 50 5 0.2 \
       --out independent_SNPs --range 
-    plink --bfile cleaned --extract independent_SNPs.prune.in --het \
+    plink --bfile autosomal --extract independent_SNPs.prune.in --het \
       --out only_indep_snps 
     """
 }
@@ -226,7 +191,7 @@ process heterozygosity_prune {
     container 'snpqt'
 
     input:
-    file missing_het
+    file autosomal_het
     file het_failed
 
     output:
@@ -234,7 +199,7 @@ process heterozygosity_prune {
 
     """
     cut -f 1,2 $het_failed > het_failed_plink.txt
-    plink --bfile cleaned --make-bed --out het_pruned --remove \
+    plink --bfile autosomal --make-bed --out het_pruned --remove \
       het_failed_plink.txt &>/dev/null
     echo 'Check heterozygosity rate:' && grep 'pass' het_pruned.log
     """
@@ -255,13 +220,13 @@ process relatedness {
 
     """
     plink --bfile het_pruned --extract $ind_SNPs --genome --min 0.125 \
-      --out pihat_0.125 &>/dev/null
+      --out pihat_0.125 
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
     # relatives of each pair, having the most missingness. Output those failing
     # samples to pihat_failed_samples.txt
-    run_IBD_QC.pl &>/dev/null
+    run_IBD_QC.pl 
     plink --bfile het_pruned --remove pihat_failed_samples.txt \
-      --make-bed --out pihat_pruned &>/dev/null
+      --make-bed --out pihat_pruned 
     echo 'Check relatedness:' && grep 'pass' pihat_pruned.log
     """
 }
