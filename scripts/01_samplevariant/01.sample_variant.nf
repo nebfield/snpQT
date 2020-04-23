@@ -43,7 +43,7 @@ process missingness {
   output:
   file "missingness.log" into missingness_logs
   file "plink_1*" into missingness_bfiles
-  
+
   """
   plink --make-bed --vcf $in_file --out data &>/dev/null
   # the input stage will change as the pipeline is developed 
@@ -109,7 +109,6 @@ process check_sex {
     """
 }
 
-// TODO: combine gender_check.R with scatterplot_sexcheck.R
 process plot_sex {
     publishDir params.outdir, mode: 'copy', overwrite: true
     container 'snpqt' 
