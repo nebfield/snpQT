@@ -61,7 +61,7 @@ process missingness {
 process plot_missingness {
   echo true
   container 'snpqt'
-  publishDir "$baseDir/../../results", mode: 'copy', overwrite: true, 
+  publishDir params.outdir, mode: 'copy', overwrite: true, 
       pattern: "*.png"
 
   input:
@@ -83,8 +83,6 @@ process plot_missingness {
 process check_sex {
     echo true
     container 'snpqt'
-    publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
-      pattern: "*.pdf"
 
     input:
     file missingness_bfiles_pruned
@@ -111,18 +109,17 @@ process check_sex {
 
 // TODO: combine gender_check.R with scatterplot_sexcheck.R
 process plot_sex {
-    publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
-      pattern: "*.png"
-    container 'rocker/tidyverse:3.6.1' 
+    publishDir params.outdir, mode: 'copy', overwrite: true
+    container 'snpqt' 
 
     input:
     file sexcheck 
 
     output:
-    file "*.pdf"
+    file "sexcheck.png"
 
     """
-    gender_check.R 
+    plot_sex.R $sexcheck
     """
 }
 
