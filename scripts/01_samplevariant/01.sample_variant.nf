@@ -34,7 +34,6 @@ Channel
 // STEP B1: Remove SNPs < 90% missingness --------------------------------------
 process missingness {
   echo true
-  container 'snpqt'
 
   input:
   file in_file
@@ -60,7 +59,6 @@ process missingness {
 // TODO: user set threshold
 process plot_missingness {
   echo true
-  container 'snpqt'
   publishDir params.outdir, mode: 'copy', overwrite: true, 
       pattern: "*.png"
 
@@ -84,7 +82,6 @@ process plot_missingness {
 // STEP B3: Remove samples with sex mismatch -----------------------------------
 process check_sex {
     echo true
-    container 'snpqt'
 
     input:
     file missingness_bfiles_pruned
@@ -111,7 +108,6 @@ process check_sex {
 
 process plot_sex {
     publishDir params.outdir, mode: 'copy', overwrite: true
-    container 'snpqt' 
 
     input:
     file sexcheck 
@@ -127,7 +123,6 @@ process plot_sex {
 // STEP B4: Remove sex chromosomes ---------------------------------------------
 process extract_autosomal {
     echo true
-    container 'snpqt'
 
     input:
     file sex_checked_bed   
@@ -150,8 +145,6 @@ process extract_autosomal {
 
 // STEP B5: Remove SNPs with extreme heterozygosity ----------------------------
 process heterozygosity_rate {
-    container 'snpqt'
-
     input:
     file high_ld_file 
     file autosomal
@@ -171,7 +164,6 @@ process heterozygosity_rate {
 process plot_heterozygosity { 
     publishDir params.outdir, mode: 'copy', overwrite: true, 
       pattern: "*.png"
-    container 'rocker/tidyverse:3.6.1' 
 
     input: 
     file plot_het
@@ -187,7 +179,6 @@ process plot_heterozygosity {
 
 process heterozygosity_prune {
     echo true
-    container 'snpqt'
 
     input:
     file autosomal_het
@@ -219,13 +210,13 @@ process relatedness {
 
     """
     plink --bfile het_pruned --extract $ind_SNPs --genome --min 0.125 \
-      --out pihat_0.125 
+      --out pihat_0.125 &>/dev/null
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
     # relatives of each pair, having the most missingness. Output those failing
     # samples to pihat_failed_samples.txt
-    run_IBD_QC.pl 
+    run_IBD_QC.pl &>/dev/null
     plink --bfile het_pruned --remove pihat_failed_samples.txt \
-      --make-bed --out pihat_pruned 
+      --make-bed --out pihat_pruned &>/dev/null
     echo 'Check relatedness:' && grep 'pass' pihat_pruned.log
     """
 }
