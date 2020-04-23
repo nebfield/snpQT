@@ -1,5 +1,4 @@
 // TODO: make sure parameters exist
-// TODO: use output directory to change publishDir
 // TODO: default sensible parameters? maybe a test data directory?
 
 params.infile = "../data/als_sub.vcf.gz"
@@ -168,7 +167,7 @@ process missing {
 }
 
 process plot_missing {
-    publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
+    publishDir params.outdir, mode: 'copy', overwrite: true, 
       pattern: "*.png"
     container 'rocker/tidyverse:3.6.1' 
  
@@ -206,7 +205,7 @@ process heterozygosity_rate {
 }
 
 process plot_heterozygosity { 
-    publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
+    publishDir params.outdir, mode: 'copy', overwrite: true, 
       pattern: "*.png"
     container 'rocker/tidyverse:3.6.1' 
 
