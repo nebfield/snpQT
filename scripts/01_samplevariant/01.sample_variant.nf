@@ -99,15 +99,6 @@ process check_sex {
     """
     plink --bfile plink_3 --check-sex &>/dev/null
 
-    # Remove samples with ambiguous sex phenotypes
-    if [ -f plink.nosex ]; then
-        plink --bfile plink_3 --remove plink.nosex --make-bed \
-          --out data_ambig &>/dev/null
-        mv data_ambig.bed data.bed
-        mv data_ambig.bim data.bim
-        mv data_ambig.fam data.fam
-    fi
-
     # Identify the samples with sex discrepancy 
     grep "PROBLEM" plink.sexcheck | awk '{print \$1,\$2}'> \
       problematic_samples.txt
@@ -118,6 +109,7 @@ process check_sex {
     """
 }
 
+// TODO: combine gender_check.R with scatterplot_sexcheck.R
 process plot_sex {
     publishDir "$baseDir/results", mode: 'copy', overwrite: true, 
       pattern: "*.png"
