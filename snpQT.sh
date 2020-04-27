@@ -18,8 +18,8 @@ dir=$(
 ) || exit
 
 # config variables
-NXF_WORK="$PWD/work" # keep work directories at top level 
-SNPQT_CONFIG="$dir/scripts/misc/nextflow.config"
+NXF_WORK=$(realpath work) # keep work directories at top level 
+SNPQT_CONFIG=$(realpath scripts/nextflow.config)
 
 # Step 0: ignore this for now -------------------------------------------------
 # nextflow run scripts/00_vcf/00.vcf.nf \
@@ -31,8 +31,7 @@ SNPQT_CONFIG="$dir/scripts/misc/nextflow.config"
 # Step 1 ----------------------------------------------------------------------
 nextflow run scripts/01_samplevariant/01.sample_variant.nf \
   -c $SNPQT_CONFIG \
-  --infile '../data/als_sub.vcf.gz' \
-  --famfile '../data/subset.fam' \
-  --highldregion '../data/highldregion_37.txt' \
-  --outdir "$PWD/results" \
+  --infile $(realpath '../data/als_sub.vcf.gz') \
+  --famfile $(realpath '../data/subset.fam') \
+  --outdir $(realpath 'results/') \
   -resume 

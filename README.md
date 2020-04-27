@@ -5,6 +5,14 @@
 * User needs to provide a fam file for sexcheck to work  
 * docker requires root
 
+# Set up 
+
+## Download and install reference databases 
+
+* Set `SNPQT_DB_DIR`e.g. /data/projects/qc_pipeline/db
+* Run `scripts/snpqt_db_install_scripts/download_db.sh` (~60GB)
+* Run `scripts/snpqt_db_install_scripts/install_db.sh`
+
 ## Problems 
 
 * Converting Christina's PLINK data to VCF caused some problems with underscores in sample names

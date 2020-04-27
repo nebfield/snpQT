@@ -1,8 +1,0 @@
-Files needed for pipeline. These should be bundled or a script written to fetch
-them before running the pipeline:
-
-* HG37 reference fasta
-ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz
-* LD regions file 
-???
-* reference databases for population stratification 

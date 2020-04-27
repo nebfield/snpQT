@@ -5,7 +5,7 @@
 params.infile = "../data/als_sub.vcf.gz"
 params.outdir = "$baseDir/../../results"
 params.famfile = "../data/subset.fam"
-params.exclude_regions = "$baseDir/../misc/PCA.exclude.regions.b37.txt"
+params.exclude_regions = "$baseDir/../../data/PCA.exclude.regions.b37.txt"
 outdir = params.outdir + '/sample_qc/'
 
 log.info """\

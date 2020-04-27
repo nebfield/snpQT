@@ -1,9 +1,8 @@
-params.infile = "../data/ALL.2of4intersection.20100804.genotypes.vcf.gz"
-
+// TODO: change to params.indir 
 log.info """\
          snpQT: make your SNPs cute 
-         make_ref: Download and process reference files
-         input file : ${params.infile}
+         make_ref: Process reference data downloaded by download_db.sh
+         input directory : ${params.infile}
          """
          .stripIndent()
 
@@ -11,7 +10,6 @@ Channel
     .fromPath( params.infile )
     .ifEmpty { error "Cannot find: ${params.infile}" }
     .set { in_file } 
-
 
 process make_vcf {
     echo true
