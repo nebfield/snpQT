@@ -13,6 +13,8 @@
 * Run `scripts/snpqt_db_install_scripts/download_db.sh` (~60GB)
 * Run `scripts/snpqt_db_install_scripts/install_db.sh`
 
+* e.g. env SNPQT_DB_DIR=/data/projects/qc_pipeline/db download_db.sh
+
 ## Problems 
 
 * Converting Christina's PLINK data to VCF caused some problems with underscores in sample names

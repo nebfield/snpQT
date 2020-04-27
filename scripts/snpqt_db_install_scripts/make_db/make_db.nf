@@ -1,64 +1,64 @@
-// TODO: change to params.indir 
 log.info """\
          snpQT: make your SNPs cute 
          make_ref: Process reference data downloaded by download_db.sh
-         input directory : ${params.infile}
+         input directory : ${params.indir}
          """
          .stripIndent()
 
-Channel
-    .fromPath( params.infile )
-    .ifEmpty { error "Cannot find: ${params.infile}" }
-    .set { in_file } 
+in_vcf = Channel.fromPath(params.indir + '/ALL.2of4intersection.20100804.genotypes.vcf.gz')
+in_panel = Channel.fromPath(params.indir + '/20100804.ALL.panel')
+in_race = Channel.fromPath(params.indir + '/race_1kG.txt')
 
-process make_vcf {
+process make_bed {
     echo true
-    container 'snpqt'
-
     input:
-    file in_file
+    file in_vcf
 
     output:
     file "ALL.2of4intersection*" into thousand_genomes
+
     """
-    plink --vcf $in_file --make-bed --out \
-      ALL.2of4intersection.20100804.genotypes &>/dev/null
+    plink --vcf $in_vcf --make-bed \
+      --out ALL.2of4intersection.20100804.genotypes 
     """
 }
-process make_unique_ids {
-    echo true
-    container 'snpqt'
 
+process make_unique_ids {
     input:
     file thousand_genomes
 
     output:
     file "2of4intersection.20100804.genotypes_NMIDs*" into nmids 
 
-    """
-    make_unique_ids.sh &>/dev/null
-    echo 'Make unique IDs:' && \
-      grep 'pass' 2of4intersection.20100804.genotypes_NMIDs.log
-    """
+    shell:
+    '''
+    plink --bfile ALL.2of4intersection.20100804.genotypes \
+      --set-missing-var-ids @:#[b37]$1,$2 --make-bed \
+      --out 2of4intersection.20100804.genotypes_NMIDs
+    '''
 }
 
 process qc_thousand_genomes {
-    echo true
-    container 'snpqt'
-    publishDir '../data/', mode: 'copy'
+    publishDir params.indir, mode: 'copy', overwrite: true, \
+      pattern: "1kG_PCA5.bed"
+    publishDir params.indir, mode: 'copy', overwrite: true, \
+      pattern: "1kG_PCA5.bim"
+      
     input:
     file nmids
 
     output:
-    file "1kG_MDS3*" into thousand_genomes_qc
+    file "1kG_PCA5*" into thousand_genomes_qc
 
     """
-    plink -bfile 2of4intersection.20100804.genotypes_NMIDs --geno 0.02 \
-      --allow-no-sex --make-bed --out 1kG_MDS1 &>/dev/null
-    plink --bfile 1kG_MDS1 --mind 0.02 --allow-no-sex --make-bed \
-      --out 1kG_MDS2 &>/dev/null
-    plink --bfile 1kG_MDS2 --maf 0.05 --allow-no-sex --make-bed \
-      --out 1kG_MDS3 &>/dev/null
-    echo "QC: " && grep 'pass' 1kG_MDS3.log
+    # Remove variants based on missing genotype data.
+    plink --bfile 2of4intersection.20100804.genotypes_NMIDs --geno 0.1 \
+      --allow-no-sex --make-bed --out 1kG_PCA2
+    # Remove individuals based on missing genotype data.
+    plink --bfile 1kG_PCA2 --mind 0.02 --allow-no-sex --make-bed --out 1kG_PCA3
+    # Remove variants based on missing genotype data.
+    plink --bfile 1kG_PCA3 --geno 0.02 --allow-no-sex --make-bed --out 1kG_PCA4
+    # Remove variants based on MAF.
+    plink --bfile 1kG_PCA4 --maf 0.05 --allow-no-sex --make-bed --out 1kG_PCA5
     """
 } 
