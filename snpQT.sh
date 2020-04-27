@@ -34,4 +34,5 @@ nextflow run scripts/01_samplevariant/01.sample_variant.nf \
   --infile '../data/als_sub.vcf.gz' \
   --famfile '../data/subset.fam' \
   --highldregion '../data/highldregion_37.txt' \
-  --outdir "$PWD/results"
+  --outdir "$PWD/results" \
+  -resume 
