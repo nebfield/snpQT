@@ -19,7 +19,6 @@
   * `tr '_' '-' < plinkForDbgap12319.fam > new.fam` # update fam file
   *  `plink -bfile plinkForDbgap12319 --recode vcf bgz --out als` # make a new bgzipped vcf
 * pihat file empty? 
-* High LD regions for 38 genome build? Crossmap them? 
 
 ## Christina's Updates 
 * Remove the --remove HighLDRegions.txt flag from the pruning step. So, we do not need a high ld regions file for each build. 

@@ -3,6 +3,5 @@
 .idea*
 work/
 results
-data/
 .DS_Store
 example_scripts/
