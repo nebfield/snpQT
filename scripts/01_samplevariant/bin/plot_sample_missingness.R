@@ -18,19 +18,17 @@ ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
   theme_classic() + 
   xlab("Missing call rate") + 
-  ylab("Sample count") +
-  ggtitle("Individual missingness") -> individual_missingness
+  ylab("Sample count") -> sample_missingness_plt
 
 n <- nrow(sample_missingness)
 ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter() +
   theme_classic() + 
-  ylab("Frequency of missing variants") +
+  ylab("Missing call rate") +
   xlab(glue::glue("Sample (n = {n})")) +
   theme(axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) + 
-  coord_flip() +
-  ggtitle("Individual missingness") -> missing_variants
+  coord_flip() -> sample_jitter
 
-ggsave("sample_missingness.png", arrangeGrob(individual_missingness, 
-  missing_variants, ncol=2), dpi = 300)
+ggsave("sample_missingness.png", arrangeGrob(sample_missingness_plt, 
+  sample_jitter, ncol=2), dpi = 300)
