@@ -5,7 +5,8 @@
 params.infile = "../data/als_sub.vcf.gz"
 params.outdir = "$baseDir/../../results"
 params.famfile = "../data/subset.fam"
-params.highldregion = "../data/highldregion_37.txt" // TODO: update me 
+params.exclude_regions = "$baseDir/../misc/PCA.exclude.regions.b37.txt"
+outdir = params.outdir + '/sample_qc/'
 
 log.info """\
          snpQT step01: sample variant quality control
@@ -26,9 +27,9 @@ Channel
     .set { fam_file } 
 
 Channel
-    .fromPath( params.highldregion )
-    .ifEmpty { error "Cannot find: ${params.highldregion}" }
-    .set { high_ld_file } 
+    .fromPath( params.exclude_regions )
+    .ifEmpty { error "Cannot find: ${params.exclude_regions}" }
+    .set { exclude_regions } 
 
 
 // STEP B1: Remove SNPs < 90% missingness --------------------------------------
@@ -59,8 +60,7 @@ process missingness {
 // TODO: user set threshold
 process plot_missingness {
   echo true
-  publishDir params.outdir, mode: 'copy', overwrite: true, 
-      pattern: "*.png"
+  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
   input:
   file missingness_bfiles
@@ -107,7 +107,7 @@ process check_sex {
 }
 
 process plot_sex {
-    publishDir params.outdir, mode: 'copy', overwrite: true
+    publishDir outdir, mode: 'copy', overwrite: true
 
     input:
     file sexcheck 
@@ -121,6 +121,7 @@ process plot_sex {
 }
 
 // STEP B4: Remove sex chromosomes ---------------------------------------------
+// shell for awk ($ confuses nextflow)
 process extract_autosomal {
     echo true
 
@@ -132,21 +133,24 @@ process extract_autosomal {
     output:
     file "autosomal.*" into autosomal, autosomal_het
 
-    """
+    shell:
+    '''
     # Extract only autosomal chromosomes (for studies that don't want to 
     # include sex chromosomes)
-    awk '{ if (\$1 >= 1 && \$1 <= 22) print \$2 }' $sex_checked_bim > \
+    awk '{ if ($1 >= 1 && $1 <= 22) print $2 }' !{sex_checked_bim} > \
       autosomal_SNPs.txt 
     plink --bfile data_clean --extract autosomal_SNPs.txt --make-bed \
       --out autosomal &>/dev/null
     echo 'Extract autosomal output:' && grep 'pass' autosomal.log
-    """ 
+    ''' 
 }
 
 // STEP B5: Remove SNPs with extreme heterozygosity ----------------------------
+// Extract highly independent SNPs based on LD and remove MHC region 
+
 process heterozygosity_rate {
     input:
-    file high_ld_file 
+    file exclude_regions 
     file autosomal
 
     output:
@@ -154,16 +158,15 @@ process heterozygosity_rate {
     file "independent_SNPs.prune.in" into ind_SNPs, ind_SNPs_popstrat
 
     """
-    plink --bfile autosomal --exclude $high_ld_file --indep-pairwise 50 5 0.2 \
-      --out independent_SNPs --range 
+    plink --bfile autosomal --exclude $exclude_regions \
+      --indep-pairwise 50 5 0.2 --out independent_SNPs --range
     plink --bfile autosomal --extract independent_SNPs.prune.in --het \
       --out only_indep_snps 
     """
 }
 
 process plot_heterozygosity { 
-    publishDir params.outdir, mode: 'copy', overwrite: true, 
-      pattern: "*.png"
+    publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
     input: 
     file plot_het
@@ -173,6 +176,7 @@ process plot_heterozygosity {
     file "heterozygosity_rate.png"
 
     """
+    # plot and get outliers list 
     plot_heterozygosity.R
     """
 }
@@ -230,7 +234,7 @@ process missing_phenotype {
     file relatedness
 
     output:
-    file "missing*" into missing_pheno, missing_pop_strat
+    file "missing*" into missing_pheno
 
     """
     plink --bfile pihat_pruned --prune --make-bed --out missing &>/dev/null
@@ -239,15 +243,81 @@ process missing_phenotype {
 }
 
 // STEP B8: Missingness per variant --------------------------------------------
-// TODO
+// TODO: user defined?
+
+process missingness_per_variant {
+    publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
+
+    input:
+    file missing_pheno
+
+    output:
+    file "*.png"
+    file "mpv.*" into mpv
+
+    """
+    plink --bfile missing --missing 
+    plot_variant_missingness.R plink.lmiss
+    plink --bfile missing --geno 0.05 --make-bed --out mpv 
+    """
+}
 
 // STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
-// TODO
+// shell for awk ($ confuses nextflow)
+process hardy {
+  input:
+  file mpv
+
+  output:
+  file "hwe.*" into hwe
+
+  shell: 
+  '''
+  plink --bfile mpv --hardy &>/dev/null
+  awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.0000001) print $0 }' \
+	  plink.hwe > plinkzoomhwe.hwe
+  plink --bfile mpv --hwe 1e-7 --make-bed --out hwe &>/dev/null
+  '''
+}
 
 // STEP B10: Remove low minor allele frequency (MAF) ---------------------------
-// TODO
+process maf {
+  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
+
+  input:
+  file hwe
+
+  output:
+  file "MAF_check.*" into maf_check
+  file "maf.png"
+
+  """
+  plink --bfile hwe --freq --out MAF_check
+  plot_maf.R MAF_check.frq
+  plink --bfile hwe --maf 0.05 --make-bed --out MAF_check
+  """
+}
 
 // STEP B11: Test missingness in case / control status -------------------------
-// TODO
+// shell for awk ($ confuses nextflow)
+process test_missing {
+  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bed"
+  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bim"
+  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.fam"
+
+  input:
+  file maf_check
+
+  output:
+  file "sample_variant_qc*"
+
+  shell:
+  '''
+  plink --bfile MAF_check --test-missing
+  awk '{ if ($5 < 10e-7) print $2 }' plink.missing > fail_missingness.txt
+  plink --bfile MAF_check --exclude fail_missingness.txt \
+    --make-bed --out sample_variant_qc
+  '''
+}
 
 // Finished! ------------------------------------------------------------------
