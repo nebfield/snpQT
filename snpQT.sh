@@ -18,7 +18,7 @@ dir=$(
 ) || exit
 
 # config variables
-NXF_WORK=$(realpath work) # keep work directories at top level 
+export NXF_WORK=$(realpath work) # keep work directories at top level 
 SNPQT_CONFIG=$(realpath scripts/nextflow.config)
 
 # Step 0: ignore this for now -------------------------------------------------
