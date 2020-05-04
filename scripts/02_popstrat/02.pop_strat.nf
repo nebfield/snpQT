@@ -103,7 +103,7 @@ process flip_snps {
     output:
     file "plink_PCA_Corr_2*" into user_flipped
     file "1kG_PCA5_Corr_2*" into ref_flipped
-    
+
     shell:
     '''
     # Run snpflip to identify ambiguous SNPs and SNPs that are located on 
@@ -161,6 +161,21 @@ process flip_snps {
 }
  
 // STEP C5: merge 1000 genomes data  -------------------------------------------
+
+process merge {
+    input:
+    file user_flipped
+    file ref_flipped
+
+    output:
+    file "PCA_merge*" into merged
+
+    """
+    plink --bfile plink_PCA_Corr_2 \
+      --bmerge 1kG_PCA5_Corr_2.bed 1kG_PCA5_Corr_2.bim 1kG_PCA5_Corr_2.fam \
+      --allow-no-sex --make-bed --out PCA_merge
+    """
+}
 
 // STEP C6: PCA anchored on 1000 genomes  --------------------------------------
 // TODO
