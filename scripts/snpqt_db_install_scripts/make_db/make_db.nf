@@ -10,7 +10,6 @@ in_panel = Channel.fromPath(params.indir + '/20100804.ALL.panel')
 in_race = Channel.fromPath(params.indir + '/race_1kG.txt')
 
 process make_bed {
-    echo true
     input:
     file in_vcf
 
@@ -43,6 +42,8 @@ process qc_thousand_genomes {
       pattern: "1kG_PCA5.bed"
     publishDir params.indir, mode: 'copy', overwrite: true, \
       pattern: "1kG_PCA5.bim"
+    publishDir params.indir, mode: 'copy', overwrite: true, \
+      pattern: "1kG_PCA5.fam"
       
     input:
     file nmids

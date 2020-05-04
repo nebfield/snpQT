@@ -18,5 +18,5 @@ fi
 
 nextflow run $PIPELINE_PATH \
   -c $SNPQT_CONFIG \
-  --indir $SNPQT_DB_DIR \ 
+  --indir $SNPQT_DB_DIR \
   -resume 

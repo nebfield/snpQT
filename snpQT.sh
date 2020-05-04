@@ -29,9 +29,20 @@ SNPQT_CONFIG=$(realpath scripts/nextflow.config)
 #   --ref_fasta "../data/human_g1k_v37.fasta" 
 
 # Step 1 ----------------------------------------------------------------------
-nextflow run scripts/01_samplevariant/01.sample_variant.nf \
+# Sample-variant QC 
+# nextflow run scripts/01_samplevariant/01.sample_variant.nf \
+#   -c $SNPQT_CONFIG \
+#   --infile $(realpath '../data/als_sub.vcf.gz') \
+#   --famfile $(realpath '../data/subset.fam') \
+#   --outdir $(realpath 'results/') \
+#   -resume 
+
+# Step 2 ----------------------------------------------------------------------
+# Population stratification
+nextflow run scripts/02_popstrat/02.pop_strat.nf \
   -c $SNPQT_CONFIG \
-  --infile $(realpath '../data/als_sub.vcf.gz') \
-  --famfile $(realpath '../data/subset.fam') \
+  --inbed $(realpath "results/sample_qc/sample_variant_qc.bed") \
+  --inbim $(realpath "results/sample_qc/sample_variant_qc.bim") \
+  --infam $(realpath "results/sample_qc/sample_variant_qc.fam") \
   --outdir $(realpath 'results/') \
   -resume 
