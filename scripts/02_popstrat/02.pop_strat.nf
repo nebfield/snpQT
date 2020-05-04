@@ -20,8 +20,11 @@ Channel.fromPath( params.infam ).set { infam }
 Channel.fromPath( params.refbed ).set { refbed } 
 Channel.fromPath( params.refbim ).set { refbim } 
 Channel.fromPath( params.reffam ).set { reffam } 
-
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
+Channel
+    .fromPath("$baseDir/../../data/PCA.exclude.regions.b37.txt")
+    .set { exclude_regions } 
+
 
 // STEP C3: filter minor allele frequency from user's dataset ------------------
 
@@ -178,7 +181,33 @@ process merge {
 }
 
 // STEP C6: PCA anchored on 1000 genomes  --------------------------------------
-// TODO
+
+process pca {
+    input:
+    file merged
+    file exclude_regions
+
+    output:
+    file "PCA_merged*"
+
+    """
+    # recalculate independent snps
+    plink --bfile PCA_merge \
+      --exclude $exclude_regions \
+      --indep-pairwise 50 5 0.2 \
+      --out independent_SNPs \
+      --range
+
+    # Perform PCA on plink data anchored by 1000 Genomes data
+    # Using a set of pruned SNPs
+    plink --bfile PCA_merge \
+      --extract independent_SNPs.prune.in \
+      --make-bed --out PCA_merge_indep
+    plink --bfile PCA_merge_indep \
+      --pca header \
+      --out PCA_merged
+    """
+}
 
 // STEP C7: make racefile  -----------------------------------------------------
 // TODO
