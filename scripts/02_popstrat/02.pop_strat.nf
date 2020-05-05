@@ -187,7 +187,8 @@ process pca {
     file exclude_regions
 
     output:
-    file "PCA_merged*"
+    file "PCA_merged.eigenvec" into pca_eigenvec
+    file "PCA_merged*" into pca_merged
 
     """
     # recalculate independent snps
@@ -209,7 +210,7 @@ process pca {
 }
 
 // STEP C7: make racefile  -----------------------------------------------------
-// TODO
+
 process racefile {
     input:
     file racefile
@@ -217,16 +218,31 @@ process racefile {
 
     output:
     file "racefile.txt" into racefile_concat
-    
-    """
-    awk '{print$1,$2,"OWN"}' $racefam > racefile_own.txt
+
+    shell:
+    '''
+    awk '{print$1,$2,"OWN"}' $(racefam) > racefile_own.txt
     cat 1kG_race.txt racefile_own.txt | \
-      sed -e '1i\FID IID race' > racefile.txt
-    """
+      sed -e '1i\\FID IID race' > racefile.txt
+    '''
 }
 
 // STEP C8: plot PCA  ----------------------------------------------------------
-// TODO
+
+process plot_pca {
+  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
+
+  input:
+  file pca_eigenvec
+  file racefile_concat
+
+  output:
+  file "PCA.png"
+
+  """
+  pop_strat.R $pca_eigenvec $racefile_concat
+  """
+}
 
 // STEP C9: extract homogenous ethnic group  -----------------------------------
 // TODO
