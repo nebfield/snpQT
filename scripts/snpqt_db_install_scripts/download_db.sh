@@ -10,22 +10,47 @@ gt_url="ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/release/20100804/ALL.2of4in
 panel_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20100804/20100804.ALL.panel"
 human_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz"
 
+# URL list ---------------------------------------------------------------------
+# vcf sanity checking
+
+picard_url="https://github.com/broadinstitute/picard/releases/download/2.22.4/picard.jar"
+chain_url="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz"
+hg19_url="https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz"
+
 mkdir -p $LIBRARY_DIR
 cd $LIBRARY_DIR
 
-if [ ! -e "download.complete" ]
+if [ ! -e "small.download.complete" ]
     then
-    echo "Downloading thousand genomes population information..."
     wget $panel_url
-    echo " finished."
-    echo "Downloading GRCh37..."
+    wget $picard_url
+    wget $chain_url
+    touch "small.download.complete"
+fi
+
+if [ ! -e "medium.download.complete" ]
+    then
+    echo "Downloading GRCh37 (~1GB)..."
     wget $human_url
     echo " finished."
+    echo "Downloading hg19 (~1GB)..."
+    wget $hg19_url
+    echo " finished."
+    touch "medium.download.complete"
+fi
+
+if [ ! -e "big.download.complete" ]
+    then
     echo "Downloading thousand genomes genotypes (~60GB)..."
     wget $gt_url 
     echo " finished."
-    touch "download.complete"
+    touch "big.download.complete"
 fi
+
+# process downloaded files
+gunzip hg19.fa.gz
+samtools faidx hg19.fa
+gunzip hg38ToHg19.over.chain.gz
 
 # Convert population codes into superpopulation codes (i.e., AFR,AMR,ASN,
 # and EUR).
