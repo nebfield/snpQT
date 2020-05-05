@@ -1,9 +1,6 @@
 params.inbed = "../../results/sample_qc/sample_variant_qc.*"
 params.inbim = "../../results/sample_qc/sample_variant_qc.bim"
 params.infam = "../../results/sample_qc/sample_variant_qc.fam"
-params.refbed = "$SNPQT_DB_DIR/1kG_PCA5.bed"
-params.refbim = "$SNPQT_DB_DIR/1kG_PCA5.bim"
-params.reffam = "$SNPQT_DB_DIR/1kG_PCA5.fam"
 params.outdir = "$baseDir/../../results"
 outdir = params.outdir + '/pop_strat/'
 
@@ -17,10 +14,12 @@ log.info """\
 Channel.fromPath( params.inbed ).set { inbed } 
 Channel.fromPath( params.inbim ).set { inbim } 
 Channel.fromPath( params.infam ).set { infam } 
-Channel.fromPath( params.refbed ).set { refbed } 
-Channel.fromPath( params.refbim ).set { refbim } 
-Channel.fromPath( params.reffam ).set { reffam } 
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bed").set { refbed } 
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bim").set { refbim } 
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { reffam }  
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
+Channel.fromPath("$SNPQT_DB_DIR/1kG_race.txt").set{ racefile }
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { racefam }
 Channel
     .fromPath("$baseDir/../../data/PCA.exclude.regions.b37.txt")
     .set { exclude_regions } 
@@ -211,6 +210,20 @@ process pca {
 
 // STEP C7: make racefile  -----------------------------------------------------
 // TODO
+process racefile {
+    input:
+    file racefile
+    file racefam
+
+    output:
+    file "racefile.txt" into racefile_concat
+    
+    """
+    awk '{print$1,$2,"OWN"}' $racefam > racefile_own.txt
+    cat 1kG_race.txt racefile_own.txt | \
+      sed -e '1i\FID IID race' > racefile.txt
+    """
+}
 
 // STEP C8: plot PCA  ----------------------------------------------------------
 // TODO
