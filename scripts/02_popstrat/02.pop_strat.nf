@@ -239,66 +239,66 @@ process racefile {
 // STEP C8: plot PCA  ----------------------------------------------------------
 
 process plot_pca {
-  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
+    publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
-  input:
-  file pca_eigenvec
-  file racefile_concat
+    input:
+    file pca_eigenvec
+    file racefile_concat
 
-  output:
-  file "PCA.png"
+    output:
+    file "PCA.png"
 
-  """
-  pop_strat.R $pca_eigenvec $racefile_concat
-  """
+    """
+    pop_strat.R $pca_eigenvec $racefile_concat
+    """
 }
 
 // STEP C9: extract homogenous ethnic group  -----------------------------------
 // TODO: automatic extraction?
 
 process extract_homogenous_ethnic {
-  input:
-  file pca_eigenvec_extract
-  file inbed_extract
-  file inbim_extract
-  file infam_extract
+    input:
+    file pca_eigenvec_extract
+    file inbed_extract
+    file inbim_extract
+    file infam_extract
 
-  output:
-  file "plink_13.*" into homogenous
+    output:
+    file "plink_13.*" into homogenous
 
-  shell:
-  '''
-  awk '{ if ($4 <0.02 && $5 >-0.025) print $1,$2 }' \
-    !{pca_eigenvec_extract} > EUR_PCA_merge
-  plink --bfile sample_variant_qc --keep EUR_PCA_merge \
-    --make-bed --out plink_13
-  '''
+    shell:
+    '''
+    awk '{ if ($4 <0.02 && $5 >-0.025) print $1,$2 }' \
+      !{pca_eigenvec_extract} > EUR_PCA_merge
+    plink --bfile sample_variant_qc --keep EUR_PCA_merge \
+      --make-bed --out plink_13
+    '''
 }
 
 // STEP C10: Logistic regression  ----------------------------------------------
 
 process logistic_regression {
-  publishDir outdir, mode: 'copy', overwrite: true
-   
-  input:
-  file homogenous
-  file indep_snps
+    publishDir outdir, mode: 'copy', overwrite: true
 
-  output:
-  file "logistic_results*"
+    input:
+    file homogenous
+    file indep_snps
 
-  shell:
-  '''
-  # Create covariates based on PCA
-  # Perform a PCA ONLY on data without ethnic outliers. 
-  plink --bfile plink_13 --extract !{indep_snps} \
-    --make-bed --out plink_13_indep
-  plink --bfile plink_13_indep --pca header --out plink_13_pca
+    output:
+    file "logistic_results*"
+    
+    shell:
+    '''
+    # Create covariates based on PCA
+    # Perform a PCA ONLY on data without ethnic outliers. 
+    plink --bfile plink_13 --extract !{indep_snps} \
+      --make-bed --out plink_13_indep
+    plink --bfile plink_13_indep --pca header --out plink_13_pca
 
-  # Create covariate file including the first 3 PCs
-  awk '{print $1, $2, $3, $4, $5}' plink_13_pca.eigenvec > covar_pca.txt
+    # Create covariate file including the first 3 PCs
+    awk '{print $1, $2, $3, $4, $5}' plink_13_pca.eigenvec > covar_pca.txt
 
-  plink --bfile plink_13 --covar covar_pca.txt --logistic \
-    --out logistic_results
-  '''
+    plink --bfile plink_13 --covar covar_pca.txt --logistic \
+      --out logistic_results
+    '''
 }
