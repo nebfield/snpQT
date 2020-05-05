@@ -20,3 +20,5 @@ nextflow run $PIPELINE_PATH \
   -c $SNPQT_CONFIG \
   --indir $SNPQT_DB_DIR \
   -resume 
+
+cp $(realpath "../../data/PCA.exclude.regions.b37.txt") $SNPQT_DB_DIR/

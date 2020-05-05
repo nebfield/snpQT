@@ -28,10 +28,7 @@ Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bim").set { refbim }
 Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { reffam }
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
 Channel.fromPath("$SNPQT_DB_DIR/1kG_race.txt").set{ racefile }
-Channel
-    .fromPath("$baseDir/../../data/PCA.exclude.regions.b37.txt")
-    .set { exclude_regions } 
-
+Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set{exclude_regions} 
 
 // STEP C3: filter minor allele frequency from user's dataset ------------------
 
