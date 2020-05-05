@@ -2,53 +2,43 @@
 // TODO: default sensible parameters? maybe a test data directory?
 // TODO: single log file
 
-params.infile = "../data/als_sub.vcf.gz"
+params.inbed = "../data/als_sub.vcf.gz"
+params.inbim = "../data/als_sub.vcf.gz"
+params.infam = "../data/subset.fam"
 params.outdir = "$baseDir/../../results"
-params.famfile = "../data/subset.fam"
-params.exclude_regions = "$baseDir/../../data/PCA.exclude.regions.b37.txt"
 outdir = params.outdir + '/sample_qc/'
 
 log.info """\
          snpQT step01: sample variant quality control
-         input file: ${params.infile}
+         input file: ${params.inbed}
          outdir: ${params.outdir}
-         fam file: ${params.famfile}
+         fam file: ${params.infam}
          """
          .stripIndent()
 
-Channel
-    .fromPath( params.infile )
-    .ifEmpty { error "Cannot find: ${params.infile}" }
-    .set { in_file } 
+Channel.fromPath( params.inbed ).set { in_bed }
+Channel.fromPath( params.inbim ).set { in_bim } 
+Channel.fromPath( params.infam ).set { in_fam } 
 
-Channel
-    .fromPath( params.famfile )
-    .ifEmpty { error "Cannot find: ${params.famfile}" }
-    .set { fam_file } 
-
-Channel
-    .fromPath( params.exclude_regions )
-    .ifEmpty { error "Cannot find: ${params.exclude_regions}" }
-    .set { exclude_regions } 
+Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set { exclude_regions } 
 
 
 // STEP B1: Remove SNPs < 90% missingness --------------------------------------
 process missingness {
-  echo true
-
   input:
-  file in_file
-  file fam_file
+  file in_bed
+  file in_bim
+  file in_fam
 
   output:
   file "missingness.log" into missingness_logs
   file "plink_1*" into missingness_bfiles
 
   """
-  plink --make-bed --vcf $in_file --out data &>/dev/null
-  # the input stage will change as the pipeline is developed 
-  echo 'Pipeline input: ' && grep 'pass' data.log
-  cp $fam_file data.fam
+  cp $in_fam dataset_4.fam # rename fam file to match input bim / bed
+  plink --make-bed --bfile dataset_4 --out data # rename bfiles to data
+  echo 'Pipeline input: ' && grep 'pass' data.log > log.txt
+  cp $in_fam data.fam
   echo 'Step B1: missingness' >> log.txt
   plink --bfile data --geno 0.1 --make-bed  --out plink_1 &>/dev/null
   echo 'Missingness output: ' && grep 'pass' plink_1.log
@@ -81,8 +71,6 @@ process plot_missingness {
 
 // STEP B3: Remove samples with sex mismatch -----------------------------------
 process check_sex {
-    echo true
-
     input:
     file missingness_bfiles_pruned
 
@@ -94,14 +82,13 @@ process check_sex {
 
     // vcf to bed + fam https://www.biostars.org/p/313943/
     """
-    plink --bfile plink_3 --check-sex &>/dev/null
-
+    plink --bfile plink_3 --check-sex 
     # Identify the samples with sex discrepancy 
     grep "PROBLEM" plink.sexcheck | awk '{print \$1,\$2}'> \
       problematic_samples.txt
     # Delete all problematic samples
     plink --bfile plink_3 --remove problematic_samples.txt --make-bed \
-      --out data_clean &>/dev/null
+      --out data_clean 
     echo 'Check sex output: ' && grep 'pass' data_clean.log
     """
 }
