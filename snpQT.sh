@@ -30,12 +30,12 @@ SNPQT_CONFIG=$(realpath scripts/nextflow.config)
 
 # Step 1 ----------------------------------------------------------------------
 # Sample-variant QC 
-# nextflow run scripts/01_samplevariant/01.sample_variant.nf \
-#   -c $SNPQT_CONFIG \
-#   --infile $(realpath '../data/als_sub.vcf.gz') \
-#   --famfile $(realpath '../data/subset.fam') \
-#   --outdir $(realpath 'results/') \
-#   -resume 
+nextflow run scripts/01_samplevariant/01.sample_variant.nf \
+   -c $SNPQT_CONFIG \
+   --infile $(realpath '../data/als_sub.vcf.gz') \
+   --famfile $(realpath '../data/subset.fam') \
+   --outdir $(realpath 'results/') \
+   -resume 
 
 # Step 2 ----------------------------------------------------------------------
 # Population stratification
