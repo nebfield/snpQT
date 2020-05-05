@@ -197,6 +197,7 @@ process pca {
     output:
     file "PCA_merged.eigenvec" into pca_eigenvec, pca_eigenvec_extract
     file "PCA_merged*" into pca_merged
+    file "independent_SNPs.prune.in" into indep_snps
 
     """
     # recalculate independent snps
@@ -275,3 +276,29 @@ process extract_homogenous_ethnic {
 }
 
 // STEP C10: Logistic regression  ----------------------------------------------
+
+process logistic_regression {
+  publishDir outdir, mode: 'copy', overwrite: true
+   
+  input:
+  file homogenous
+  file indep_snps
+
+  output:
+  file "logistic_results*"
+
+  shell:
+  '''
+  # Create covariates based on PCA
+  # Perform a PCA ONLY on data without ethnic outliers. 
+  plink --bfile plink_13 --extract !{indep_snps} \
+    --make-bed --out plink_13_indep
+  plink --bfile plink_13_indep --pca header --out plink_13_pca
+
+  # Create covariate file including the first 3 PCs
+  awk '{print $1, $2, $3, $4, $5}' plink_13_pca.eigenvec > covar_pca.txt
+
+  plink --bfile plink_13 --covar covar_pca.txt --logistic \
+    --out logistic_results
+  '''
+}
