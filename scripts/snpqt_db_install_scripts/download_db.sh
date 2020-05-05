@@ -47,10 +47,19 @@ if [ ! -e "big.download.complete" ]
     touch "big.download.complete"
 fi
 
-# process downloaded files
-gunzip hg19.fa.gz
+# decompress downloaded files
+bgzip -d human_g1k_v37.fasta.gz
+bgzip -d hg19.fa.gz
+bgzip -d hg38ToHg19.over.chain.gz
+
+# index 
 samtools faidx hg19.fa
-gunzip hg38ToHg19.over.chain.gz
+
+# run picard 
+java -Dpicard.useLegacyParser=false -jar picard.jar \
+      CreateSequenceDictionary \
+      -R hg19.fa \
+      -O hg19.fa.dict
 
 # Convert population codes into superpopulation codes (i.e., AFR,AMR,ASN,
 # and EUR).
@@ -68,5 +77,3 @@ sed -i 's/GBR/EUR/g' 1kG_race.txt
 sed -i 's/FIN/EUR/g' 1kG_race.txt
 sed -i 's/CHS/ASN/g' 1kG_race.txt
 sed -i 's/PUR/AMR/g' 1kG_race.txt
-
-bgzip -d human_g1k_v37.fasta.gz
