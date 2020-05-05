@@ -22,3 +22,4 @@ nextflow run $PIPELINE_PATH \
   -resume 
 
 cp $(realpath "../../data/PCA.exclude.regions.b37.txt") $SNPQT_DB_DIR/
+cp $(realpath "../../data/1toChr1.txt") $SNPQT_DB_DIR/
