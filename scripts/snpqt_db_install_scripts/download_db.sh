@@ -5,11 +5,6 @@
 set -u  
 set -e  
 
-LIBRARY_DIR="$SNPQT_DB_DIR"
-gt_url="ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/release/20100804/ALL.2of4intersection.20100804.genotypes.vcf.gz"
-panel_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20100804/20100804.ALL.panel"
-human_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz"
-
 # URL list ---------------------------------------------------------------------
 # vcf sanity checking
 
@@ -17,6 +12,12 @@ picard_url="https://github.com/broadinstitute/picard/releases/download/2.22.4/pi
 chain_url="https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz"
 hg19_url="https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz"
 
+# pop strat 
+gt_url="ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/release/20100804/ALL.2of4intersection.20100804.genotypes.vcf.gz"
+panel_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20100804/20100804.ALL.panel"
+human_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz"
+
+LIBRARY_DIR="$SNPQT_DB_DIR"
 mkdir -p $LIBRARY_DIR
 cd $LIBRARY_DIR
 
