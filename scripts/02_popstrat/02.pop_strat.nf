@@ -14,12 +14,12 @@ log.info """\
 Channel.fromPath( params.inbed ).set { inbed } 
 Channel.fromPath( params.inbim ).set { inbim } 
 Channel.fromPath( params.infam ).set { infam } 
+infam.into { reffam_maf ; racefam }  
 Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bed").set { refbed } 
 Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bim").set { refbim } 
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { reffam }  
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { reffam }
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
 Channel.fromPath("$SNPQT_DB_DIR/1kG_race.txt").set{ racefile }
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { racefam }
 Channel
     .fromPath("$baseDir/../../data/PCA.exclude.regions.b37.txt")
     .set { exclude_regions } 
@@ -31,7 +31,7 @@ process filter_maf {
     input:
     file inbed 
     file inbim
-    file infam
+    file reffam_maf
 
     output:
     file "maf_filtered*" into maf_filtered
@@ -187,7 +187,7 @@ process pca {
     file exclude_regions
 
     output:
-    file "PCA_merged.eigenvec" into pca_eigenvec
+    file "PCA_merged.eigenvec" into pca_eigenvec, pca_eigenvec_extract
     file "PCA_merged*" into pca_merged
 
     """
@@ -245,7 +245,15 @@ process plot_pca {
 }
 
 // STEP C9: extract homogenous ethnic group  -----------------------------------
-// TODO
+// TODO: automatic extraction?
+
+process extract_homogenous_ethnic {
+  input:
+  file pca_eigenvec_extract
+
+  """
+  """
+}
 
 // STEP C10: Logistic regression  ----------------------------------------------
 // TODO
