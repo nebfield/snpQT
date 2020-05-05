@@ -1,3 +1,8 @@
+// TODO: project name parameter
+// TODO: hardcoded input files are called sample_variant_qc.*
+// collect() and get baseName?
+// TODO: big log file
+
 params.inbed = "../../results/sample_qc/sample_variant_qc.*"
 params.inbim = "../../results/sample_qc/sample_variant_qc.bim"
 params.infam = "../../results/sample_qc/sample_variant_qc.fam"
@@ -14,7 +19,10 @@ log.info """\
 Channel.fromPath( params.inbed ).set { inbed } 
 Channel.fromPath( params.inbim ).set { inbim } 
 Channel.fromPath( params.infam ).set { infam } 
-infam.into { reffam_maf ; racefam }  
+inbed.into {inbed_maf ; inbed_extract }
+inbim.into { inbim_maf ; inbim_extract }
+infam.into { infam_maf ; racefam ; infam_extract }
+
 Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bed").set { refbed } 
 Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bim").set { refbim } 
 Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { reffam }
@@ -29,9 +37,9 @@ Channel
 
 process filter_maf {
     input:
-    file inbed 
-    file inbim
-    file reffam_maf
+    file inbed_maf 
+    file inbim_maf
+    file infam_maf
 
     output:
     file "maf_filtered*" into maf_filtered
@@ -221,7 +229,7 @@ process racefile {
 
     shell:
     '''
-    awk '{print$1,$2,"OWN"}' $(racefam) > racefile_own.txt
+    awk '{print$1,$2,"OWN"}' !{racefam} > racefile_own.txt
     cat 1kG_race.txt racefile_own.txt | \
       sed -e '1i\\FID IID race' > racefile.txt
     '''
@@ -250,10 +258,20 @@ process plot_pca {
 process extract_homogenous_ethnic {
   input:
   file pca_eigenvec_extract
+  file inbed_extract
+  file inbim_extract
+  file infam_extract
 
-  """
-  """
+  output:
+  file "plink_13.*" into homogenous
+
+  shell:
+  '''
+  awk '{ if ($4 <0.02 && $5 >-0.025) print $1,$2 }' \
+    !{pca_eigenvec_extract} > EUR_PCA_merge
+  plink --bfile sample_variant_qc --keep EUR_PCA_merge \
+    --make-bed --out plink_13
+  '''
 }
 
 // STEP C10: Logistic regression  ----------------------------------------------
-// TODO
