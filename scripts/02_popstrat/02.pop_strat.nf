@@ -283,6 +283,7 @@ process logistic_regression {
 
     output:
     file "logistic_results*"
+    file "qqplot.png"
     
     shell:
     '''
@@ -295,7 +296,13 @@ process logistic_regression {
     # Create covariate file including the first 3 PCs
     awk '{print $1, $2, $3, $4, $5}' plink_13_pca.eigenvec > covar_pca.txt
 
-    plink --bfile plink_13 --covar covar_pca.txt --logistic \
+    plink --bfile plink_13 --covar covar_pca.txt --ci 0.95 --logistic \
       --out logistic_results
+    
+    # Remove NA values, those might give problems generating plots in later steps.
+    awk '!/'NA'/' logistic_results.assoc.logistic \
+      > logistic_results.assoc_3.logistic
+
+    qqplot.R logistic_results.assoc_3.logistic
     '''
 }
