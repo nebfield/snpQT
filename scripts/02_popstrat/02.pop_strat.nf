@@ -265,7 +265,7 @@ process extract_homogenous_ethnic {
 
     shell:
     '''
-    awk '{ if ($4 <0.02 && $5 >-0.025) print $1,$2 }' \
+    awk '{ if ($3 <0.02 && $4 >-0.025) print $1,$2 }' \
       !{pca_eigenvec_extract} > EUR_PCA_merge
     plink --bfile sample_variant_qc --keep EUR_PCA_merge \
       --make-bed --out plink_13
