@@ -258,17 +258,25 @@ process missingness_per_variant {
 // STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
 // shell for awk ($ confuses nextflow)
 process hardy {
+  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
+
   input:
   file mpv
 
   output:
   file "hwe.*" into hwe
+  file "*.png"
 
   shell: 
   '''
   plink --bfile mpv --hardy &>/dev/null
-  awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.0000001) print $0 }' \
+  # sample 1% of SNPs
+  head -n1 plink.hwe > plink_sub.hwe
+  perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink.hwe) >> plink_sub.hwe
+  awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
 	  plink.hwe > plinkzoomhwe.hwe
+  hwe.R plink_sub.hwe ""
+  hwe.R plinkzoomhwe.hwe "strongly deviating SNPs only"
   plink --bfile mpv --hwe 1e-7 --make-bed --out hwe &>/dev/null
   '''
 }
