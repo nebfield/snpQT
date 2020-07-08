@@ -35,8 +35,8 @@ process missingness {
   file "plink_1*" into missingness_bfiles
 
   """  
-  cp $in_fam sampleqc_input.fam # rename fam file to match input bim / bed
-  plink --make-bed --bfile sampleqc_input --out data &>/dev/null 
+  cp $in_fam dataset_4.fam # rename fam file to match input bim / bed
+  plink --make-bed --bfile dataset_4 --out data &>/dev/null 
   
   echo 'Pipeline input: ' && grep 'pass' data.log > log.txt
   cp $in_fam data.fam
