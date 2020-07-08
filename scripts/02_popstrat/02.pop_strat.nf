@@ -101,6 +101,8 @@ process harmonise_build {
 }
 
 process flip_snps {
+    container 'nebfield/snpflip:latest'
+
     input:
     file user_harmonised
     file ref_harmonised
