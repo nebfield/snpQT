@@ -19,7 +19,6 @@ log.info """\
 Channel.fromPath( params.inbed ).set { in_bed }
 Channel.fromPath( params.inbim ).set { in_bim } 
 Channel.fromPath( params.infam ).set { in_fam } 
-Channel.fromPath( params.infile ).set { in_file } // TODO: REMOVE
 
 Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set { exclude_regions } 
 
@@ -30,18 +29,14 @@ process missingness {
   file in_bed
   file in_bim
   file in_fam
-  file in_file 
 
   output:
   file "missingness.log" into missingness_logs
   file "plink_1*" into missingness_bfiles
 
-  """
-  # TODO: fix vcf sanity checking ----------------------------------------------
-  # cp $in_fam dataset_4.fam # rename fam file to match input bim / bed
-  # plink --make-bed --bfile dataset_4 --out data # rename bfiles to data
-  plink --make-bed --vcf $in_file --out data &>/dev/null
-  # ----------------------------------------------------------------------------
+  """  
+  cp $in_fam sampleqc_input.fam # rename fam file to match input bim / bed
+  plink --make-bed --bfile sampleqc_input --out data &>/dev/null 
   
   echo 'Pipeline input: ' && grep 'pass' data.log > log.txt
   cp $in_fam data.fam

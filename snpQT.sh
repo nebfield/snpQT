@@ -22,11 +22,11 @@ export NXF_WORK=$(realpath work) # keep work directories at top level
 SNPQT_CONFIG=$(realpath scripts/nextflow.config)
 
 # Step 0: ignore this for now -------------------------------------------------
-# nextflow run scripts/00_vcf/00.vcf.nf \
-#     -c $SNPQT_CONFIG \
-#     --infile '../data/als_sub.vcf.gz' \
-#     --outdir "$PWD/results" \
-#     -resume
+nextflow run scripts/00_vcf/00.vcf.nf \
+    -c $SNPQT_CONFIG \
+    --infile '../data/als_sub.vcf.gz' \
+    --outdir "$PWD/results" \
+    -resume
  
 # Step 1 ----------------------------------------------------------------------
 # Sample-variant QC 

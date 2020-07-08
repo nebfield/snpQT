@@ -82,7 +82,7 @@ process vcf_to_plink {
   plink --vcf dataset_3.vcf.gz \
     --keep-allele-order \
     --allow-extra-chr \
-    --chr 1-22 xy mt \
+    --chr 1-22 X Y XY MT \
     --make-bed --out dataset_4 
   """
 }
