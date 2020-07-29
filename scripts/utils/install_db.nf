@@ -41,8 +41,8 @@ process make_plink {
   file chr from cleaned_chrom
 
   output:
-  file "*.bed" into beds.collect()
-  file "*.bed" into bims.collect() 
+  file "*.bed" into beds
+  file "*.bed" into bims
 
   shell:
   '''
@@ -57,15 +57,15 @@ process make_plink {
 
 process merge_plink {
   input:
-  file beds
-  file bims
+  file bed from beds.collect()
+  file bim from bims.collect()
 
   output:
-  file '1kG_PCA1*' into 1kG_PCA1
+  file '1kG_PCA1*' into kG_PCA1
 
   shell:
   '''
-  find . -name "*.bim" -exec basename {} .bim \; > mergeList.txt
+  find . -name "*.bim" -exec basename {} .bim \\; > mergeList.txt
   plink --merge-list mergeList.txt \
     --keep-allele-order \
     --make-bed \
@@ -85,7 +85,7 @@ process qc_thousand_genomes {
       pattern: "1kG_PCA5.fam"
       
     input:
-    file 1kG_PCA1
+    file kG_PCA1
     file exclude
 
     output:
@@ -122,7 +122,7 @@ process qc_thousand_genomes {
       --out 1kG_PCA5
 
     # Prune variants
-	  # Check which r2 threshold is best (Ask Andrew)
+    # Check which r2 threshold is best (Ask Andrew)
     plink --bfile 1kG_PCA5 \
       --exclude !{exclude} \
       --indep-pairwise 50 5 0.2 \

@@ -2,8 +2,8 @@
 
 # QC downloaded 1000 genomes data for use with snpQT population stratification
 
-set -e
-set -u 
+# set -e
+# set -u 
 
 export NXF_WORK=$(realpath "../../work") # keep work directories at top level 
 SNPQT_CONFIG=$(realpath "../nextflow.config")
