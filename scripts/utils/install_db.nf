@@ -41,8 +41,9 @@ process make_plink {
   file chr from cleaned_chrom
 
   output:
-  file "${chr_name}.bed" into beds
-  file "${chr_name}.bed" into bims
+  file "*.bed" into beds
+  file "*.bim" into bims
+  file "*.fam" into fams
 
   shell:
   '''
@@ -59,6 +60,7 @@ process merge_plink {
   input:
   file bed from beds.collect()
   file bim from bims.collect()
+  file fam from fams.collect()
 
   output:
   file '1kG_PCA1*' into kG_PCA1
