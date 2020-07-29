@@ -34,17 +34,18 @@ process missingness {
   file "missingness.log" into missingness_logs
   file "plink_1*" into missingness_bfiles
 
-  """  
-  cp $in_fam dataset_4.fam # rename fam file to match input bim / bed
+  shell:
+  '''  
+  cp !{in_fam} dataset_4.fam # rename fam file to match input bim / bed
   plink --make-bed --bfile dataset_4 --out data &>/dev/null 
   
   echo 'Pipeline input: ' && grep 'pass' data.log > log.txt
-  cp $in_fam data.fam
+  cp !{in_fam} data.fam
   echo 'Step B1: missingness' >> log.txt
   plink --bfile data --geno 0.1 --make-bed  --out plink_1 &>/dev/null
   echo 'Missingness output: ' && grep 'pass' plink_1.log
   cat *.log > missingness.log
-  """
+  '''
 }
 
 // STEP B2: Check missingness rate ---------------------------------------------
@@ -61,13 +62,19 @@ process plot_missingness {
   file "plink.imiss" into imiss_relatedness
   file "plink_3*" into missingness_bfiles_pruned
 
-  """
-  plink --bfile plink_1 --missing --out plink_2 &>/dev/null
+  shell:
+  '''
+  plink --bfile plink_1 \
+    --missing \
+    --out plink_2 &>/dev/null
   plot_sample_missingness.R plink_2.imiss
   # TODO user set mind threshold 
-  plink --bfile plink_1  --make-bed --mind 0.02 --out plink_3 &>/dev/null
+  plink --bfile plink_1  \
+    --make-bed \
+    --mind 0.02 \
+    --out plink_3 &>/dev/null
   mv plink_2.imiss plink.imiss # run_IBD_QC.pl
-  """
+  '''
 }
 
 // STEP B3: Remove samples with sex mismatch -----------------------------------
@@ -82,16 +89,20 @@ process check_sex {
     file "data_clean.fam" into sex_checked_fam
 
     // vcf to bed + fam https://www.biostars.org/p/313943/
-    """
-    plink --bfile plink_3 --check-sex 
+    shell:
+    '''
+    plink --bfile plink_3 \
+      --check-sex 
     # Identify the samples with sex discrepancy 
-    grep "PROBLEM" plink.sexcheck | awk '{print \$1,\$2}'> \
+    grep "PROBLEM" plink.sexcheck | awk '{print $1,$2}'> \
       problematic_samples.txt
     # Delete all problematic samples
-    plink --bfile plink_3 --remove problematic_samples.txt --make-bed \
+    plink --bfile plink_3 \
+      --remove problematic_samples.txt \
+      --make-bed \
       --out data_clean 
     echo 'Check sex output: ' && grep 'pass' data_clean.log
-    """
+    '''
 }
 
 process plot_sex {
@@ -103,9 +114,10 @@ process plot_sex {
     output:
     file "sexcheck.png"
 
-    """
-    plot_sex.R $sexcheck
-    """
+    shell:
+    '''
+    plot_sex.R !{sexcheck}
+    '''
 }
 
 // STEP B4: Remove sex chromosomes ---------------------------------------------
@@ -127,7 +139,9 @@ process extract_autosomal {
     # include sex chromosomes)
     awk '{ if ($1 >= 1 && $1 <= 22) print $2 }' !{sex_checked_bim} > \
       autosomal_SNPs.txt 
-    plink --bfile data_clean --extract autosomal_SNPs.txt --make-bed \
+    plink --bfile data_clean \
+      --extract autosomal_SNPs.txt \
+      --make-bed \
       --out autosomal &>/dev/null
     echo 'Extract autosomal output:' && grep 'pass' autosomal.log
     ''' 
@@ -145,12 +159,18 @@ process heterozygosity_rate {
     file "only_indep_snps*" into plot_het
     file "independent_SNPs.prune.in" into ind_SNPs, ind_SNPs_popstrat
 
-    """
-    plink --bfile autosomal --exclude $exclude_regions \
-      --indep-pairwise 50 5 0.2 --out independent_SNPs --range
-    plink --bfile autosomal --extract independent_SNPs.prune.in --het \
+    shell:
+    '''
+    plink --bfile autosomal \
+      --exclude 1{exclude_regions} \
+      --indep-pairwise 50 5 0.2 \
+      --out independent_SNPs \
+      --range
+    plink --bfile autosomal \
+      --extract independent_SNPs.prune.in \
+      --het \
       --out only_indep_snps 
-    """
+    '''
 }
 
 process plot_heterozygosity { 
@@ -163,10 +183,11 @@ process plot_heterozygosity {
     file "het_failed_samples.txt" into het_failed
     file "heterozygosity_rate.png"
 
-    """
+    shell:
+    '''
     # plot and get outliers list 
     plot_heterozygosity.R
-    """
+    '''
 }
 
 process heterozygosity_prune {
@@ -179,12 +200,16 @@ process heterozygosity_prune {
     output:
     file "het_pruned.*" into het_pruned
 
-    """
-    cut -f 1,2 $het_failed > het_failed_plink.txt
-    plink --bfile autosomal --make-bed --out het_pruned --remove \
+    shell:
+    '''
+    cut -f 1,2 !{het_failed} > het_failed_plink.txt
+    plink --bfile autosomal \
+      --make-bed \
+      --out het_pruned \
+      --remove \
       het_failed_plink.txt &>/dev/null
     echo 'Check heterozygosity rate:' && grep 'pass' het_pruned.log
-    """
+    '''
 }
 
 // STEP B6: Remove relatives ---------------------------------------------------
@@ -200,17 +225,22 @@ process relatedness {
     output:
     file "pihat_pruned*" into relatedness
 
-    """
-    plink --bfile het_pruned --extract $ind_SNPs --genome --min 0.125 \
+    shell:
+    '''
+    plink --bfile het_pruned \
+      --extract $ind_SNPs \
+      --genome --min 0.125 \
       --out pihat_0.125 &>/dev/null
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
     # relatives of each pair, having the most missingness. Output those failing
     # samples to pihat_failed_samples.txt
     run_IBD_QC.pl &>/dev/null
-    plink --bfile het_pruned --remove pihat_failed_samples.txt \
-      --make-bed --out pihat_pruned &>/dev/null
+    plink --bfile het_pruned \
+      --remove pihat_failed_samples.txt \
+      --make-bed \
+      --out pihat_pruned &>/dev/null
     echo 'Check relatedness:' && grep 'pass' pihat_pruned.log
-    """
+    '''
 }
 
 // STEP B7: Remove samples with missing phenotypes -----------------------------
@@ -224,10 +254,14 @@ process missing_phenotype {
     output:
     file "missing*" into missing_pheno
 
-    """
-    plink --bfile pihat_pruned --prune --make-bed --out missing &>/dev/null
+    shell:
+    '''
+    plink --bfile pihat_pruned \
+      --prune \
+      --make-bed \
+      --out missing &>/dev/null
     echo 'Remove missing phenotypes:' && grep 'pass' missing.log 
-    """
+    '''
 }
 
 // STEP B8: Missingness per variant --------------------------------------------
@@ -243,11 +277,12 @@ process missingness_per_variant {
     file "*.png"
     file "mpv.*" into mpv
 
-    """
+    shell:
+    '''
     plink --bfile missing --missing 
     plot_variant_missingness.R plink.lmiss
     plink --bfile missing --geno 0.05 --make-bed --out mpv 
-    """
+    '''
 }
 
 // STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
@@ -287,11 +322,17 @@ process maf {
   file "MAF_check.*" into maf_check
   file "maf.png"
 
-  """
-  plink --bfile hwe --freq --out MAF_check
+  shell:
+  '''
+  plink --bfile hwe \
+    --freq \
+    --out MAF_check
   plot_maf.R MAF_check.frq
-  plink --bfile hwe --maf 0.05 --make-bed --out MAF_check
-  """
+  plink --bfile hwe \
+    --maf 0.05 \
+    --make-bed \
+    --out MAF_check
+  '''
 }
 
 // STEP B11: Test missingness in case / control status -------------------------
@@ -309,10 +350,13 @@ process test_missing {
 
   shell:
   '''
-  plink --bfile MAF_check --test-missing
+  plink --bfile MAF_check \
+    --test-missing
   awk '{ if ($5 < 10e-7) print $2 }' plink.missing > fail_missingness.txt
-  plink --bfile MAF_check --exclude fail_missingness.txt \
-    --make-bed --out sample_variant_qc
+  plink --bfile MAF_check \
+    --exclude fail_missingness.txt \
+    --make-bed \
+    --out sample_variant_qc
   '''
 }
 

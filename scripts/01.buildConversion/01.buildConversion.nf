@@ -21,15 +21,16 @@ process picard {
   output:
   file "hg19.fa.dict"
 
-  """
+  shell:
+  '''
   # make it so!
   java -Dpicard.useLegacyParser=false \
     -Xmx8g \
-    -jar $picard_jar \
+    -jar !{picard_jar} \
     CreateSequenceDictionary \
-    -R $hg19_picard \
+    -R !{hg19_picard} \
     -O hg19.fa.dict
-  """
+  '''
 }
 
 // Note: Step A5 is taken care of by install_db.sh
@@ -42,11 +43,12 @@ process num_to_chr {
   file "dataset_1.vcf.gz" into dataset_1
   file "1toChr1.txt" into chr_map
 
-  """
+  shell:
+  '''
   cp $SNPQT_DB_DIR/1toChr1.txt . 
   bcftools annotate --rename-chr 1toChr1.txt $in_vcf \
     -Oz -o dataset_1.vcf.gz
-  """
+  '''
 }
 
 // STEP A7: Run liftOver to map genome build -----------------------------------
@@ -60,7 +62,8 @@ process liftover {
   output:
   file "dataset_2.vcf" into dataset_2
 
-  """
+  shell:
+  '''
   java -Dpicard.useLegacyParser=false \
     -jar picard.jar LiftoverVcf \
     -I dataset_1.vcf.gz \
@@ -68,7 +71,7 @@ process liftover {
     -CHAIN $SNPQT_DB_DIR/hg38ToHg19.over.chain \
     -REJECT rejected_variants.vcf \
     -R $SNPQT_DB_DIR/hg19.fa
-  """
+  '''
 }
 
 // STEP A8: Reverse Chr1To1 ---------------------------------------------------
@@ -103,12 +106,14 @@ process vcf_to_plink {
 
   output:
   file "dataset_4.*"
-  """
+
+  shell:
+  '''
   # Convert VCF to PLINK format
   plink --vcf dataset_3.vcf.gz \
     --keep-allele-order \
     --allow-extra-chr \
     --chr 1-22 X Y XY MT \
     --make-bed --out dataset_4 
-  """
+  '''
 }
