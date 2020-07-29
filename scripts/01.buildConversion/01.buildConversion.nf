@@ -1,15 +1,39 @@
 log.info """\
-         snpQT: VCF sanity checking 
+         snpQT: human genome build conversion  
          """
          .stripIndent()
 
 params.outdir = "$baseDir/../../results"
-outdir = params.outdir + '/vcf_sanity/'
+outdir = params.outdir + '/buildConversion/'
 
 Channel.fromPath(params.infile).set{in_vcf}
 Channel.fromPath("$SNPQT_DB_DIR/picard.jar").set{picard}
 
-// STEP A1: Change the chr ids (TODO) ------------------------------------------
+// Note: Steps A1 - A3 taken care of by download_db.sh 
+// Step A4: Create a dictionary file ------------------------------------------
+process picard {
+  publishDir params.indir, mode: 'copy', overwrite: true 
+
+  input:
+  file hg19_picard
+  file picard_jar
+
+  output:
+  file "hg19.fa.dict"
+
+  """
+  # make it so!
+  java -Dpicard.useLegacyParser=false \
+    -Xmx8g \
+    -jar $picard_jar \
+    CreateSequenceDictionary \
+    -R $hg19_picard \
+    -O hg19.fa.dict
+  """
+}
+
+// Note: Step A5 is taken care of by install_db.sh
+// STEP A6: Change the chr ids ------------------------------------------------
 process num_to_chr {
   input:
   file in_vcf
@@ -25,7 +49,7 @@ process num_to_chr {
   """
 }
 
-// STEP A2: Run liftOver to map genome build -----------------------------------
+// STEP A7: Run liftOver to map genome build -----------------------------------
 process liftover {
   container 'openjdk:8'
 
@@ -47,7 +71,7 @@ process liftover {
   """
 }
 
-// STEP A3: Change chr ids (TODO) ----------------------------------------------
+// STEP A8: Reverse Chr1To1 ---------------------------------------------------
 process chr_to_num {
   input:
   file dataset_2
@@ -65,8 +89,10 @@ process chr_to_num {
   '''
 }
 
-// STEP A4: Convert VCF to PLINK format ----------------------------------------
+// STEP A0: Change the chromosome ids again ------------------------------------
 
+
+// STEP A10: Convert VCF to PLINK format ---------------------------------------
 process vcf_to_plink {
   publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bed"
   publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bim"
