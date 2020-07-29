@@ -44,14 +44,15 @@ process make_plink {
   file "*.bed" into beds.collect()
   file "*.bed" into bims.collect() 
 
-  """
+  shell:
+  '''
   chr_name=$(basename !{chr} .bcf) # get basename of a chromosome 
 
-  plink --bcf $chr \
+  plink --bcf !{chr} \
     --allow-extra-chr 0 \
     --double-id --make-bed \
     --out $chr_name
-  """
+  '''
 }
 
 process merge_plink {
@@ -65,7 +66,10 @@ process merge_plink {
   shell:
   '''
   find . -name "*.bim" -exec basename {} .bim \; > mergeList.txt
-  plink --merge-list mergeList.txt --keep-allele-order --make-bed --out 1kG_PCA1
+  plink --merge-list mergeList.txt \
+    --keep-allele-order \
+    --make-bed \
+    --out 1kG_PCA1
   '''
 }
 
@@ -87,7 +91,8 @@ process qc_thousand_genomes {
     output:
     file "1kG_PCA6*" into thousand_genomes_qc
 
-    """
+    shell:
+    '''
     # Remove variants based on missing genotype data.
     plink --bfile 1kG_PCA1 \
       --geno 0.1 \
@@ -126,7 +131,7 @@ process qc_thousand_genomes {
       --extract indepSNPs_1k.prune.in \
       --make-bed \
       --out 1kG_PCA6
-    """
+    '''
 } 
 
 // Step F6: Make a racefile ---------------------------------------------------
