@@ -41,8 +41,8 @@ process make_plink {
   file chr from cleaned_chrom
 
   output:
-  file "*.bed" into beds
-  file "*.bed" into bims
+  file "${chr_name}.bed" into beds
+  file "${chr_name}.bed" into bims
 
   shell:
   '''
