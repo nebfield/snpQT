@@ -19,5 +19,3 @@ RUN cd /opt/bcftools-1.10.2/ && ./configure && make && make install
 ENV BCFTOOLS_PLUGINS=/opt/bcftools-1.10.2/plugins
 
 RUN R -e 'install.packages(c("tidyverse", "gridExtra"))'
- 
-RUN apt-get -y install default-jre 
