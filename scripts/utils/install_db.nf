@@ -80,11 +80,11 @@ process merge_plink {
 
 process qc_thousand_genomes {
     publishDir params.indir, mode: 'copy', overwrite: true, \
-      pattern: "1kG_PCA5.bed"
+      pattern: "1kG_PCA6.bed"
     publishDir params.indir, mode: 'copy', overwrite: true, \
-      pattern: "1kG_PCA5.bim"
+      pattern: "1kG_PCA6.bim"
     publishDir params.indir, mode: 'copy', overwrite: true, \
-      pattern: "1kG_PCA5.fam"
+      pattern: "1kG_PCA6.fam"
       
     input:
     file kG_PCA1
