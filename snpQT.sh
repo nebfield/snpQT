@@ -21,9 +21,9 @@ dir=$(
 export NXF_WORK=$(realpath work) # keep work directories at top level 
 SNPQT_CONFIG=$(realpath scripts/nextflow.config)
 
-# Step 0 ----------------------------------------------------------------------
+# Step 1 ----------------------------------------------------------------------
 # VCF sanity checking
-nextflow run scripts/00_vcf/00.vcf.nf \
+nextflow run scripts/01.buildConversion/01.buildConversion.nf \
     -c $SNPQT_CONFIG \
     --infile '../data/als_sub.vcf.gz' \
     --outdir "$PWD/results" \
