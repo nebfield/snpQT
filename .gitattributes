@@ -1,3 +1,0 @@
-db/1kG_PCA6.bed filter=lfs diff=lfs merge=lfs -text
-db/1kG_PCA6.bim filter=lfs diff=lfs merge=lfs -text
-db/hg19.fa.gz filter=lfs diff=lfs merge=lfs -text
