@@ -123,7 +123,7 @@ process plot_sex {
 }
 
 // STEP B4: Remove sex chromosomes ---------------------------------------------
-// shell for awk ($ confuses nextflow)
+
 process extract_autosomal {
     input:
     file sex_checked_bed   
@@ -162,7 +162,7 @@ process heterozygosity_rate {
     shell:
     '''
     plink --bfile autosomal \
-      --exclude 1{exclude_regions} \
+      --exclude !{exclude_regions} \
       --indep-pairwise 50 5 0.2 \
       --out independent_SNPs \
       --range
@@ -223,7 +223,7 @@ process relatedness {
     shell:
     '''
     plink --bfile het_pruned \
-      --extract $ind_SNPs \
+      --extract !{ind_SNPs} \
       --genome --min 0.125 \
       --out pihat_0.125 
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
@@ -278,7 +278,7 @@ process missingness_per_variant {
 }
 
 // STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
-// shell for awk ($ confuses nextflow)
+
 process hardy {
   publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
@@ -304,6 +304,7 @@ process hardy {
 }
 
 // STEP B10: Remove low minor allele frequency (MAF) ---------------------------
+
 process maf {
   publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
@@ -328,7 +329,7 @@ process maf {
 }
 
 // STEP B11: Test missingness in case / control status -------------------------
-// shell for awk ($ confuses nextflow)
+
 process test_missing {
   publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bed"
   publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bim"
@@ -338,7 +339,7 @@ process test_missing {
   file maf_check
 
   output:
-  file "sample_variant_qc*"
+  file "sample_variant_qc*" into B11
 
   shell:
   '''
