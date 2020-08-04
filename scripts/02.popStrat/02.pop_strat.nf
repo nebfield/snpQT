@@ -31,7 +31,7 @@ reffam.into { reffam_align ; reffam_intersect }
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
 Channel.fromPath("$SNPQT_DB_DIR/1kG_race.txt").set{ racefile }
 Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set{exclude} 
-exclude.into { C3_exclude_regions ; C7_exclude_regions}
+exclude.into { C3_exclude_regions ; C7_exclude_regions; C10_excluded_regions}
 
 // STEP C3: filter minor allele frequency from user's dataset ------------------
 
@@ -208,7 +208,6 @@ process pca {
     output:
     file "C7.eigenvec" into C7_eigenvec
     file "C7*" into C7 
-    file "independent_SNPs.prune.in" into indep_snps
 
     shell:
     '''
@@ -302,13 +301,10 @@ process extract_homogenous {
 
   shell:
   '''
-  # Label the user's dataset in a chr:pos:ref:alt manner 
-  plink2 --bfile sample_variant_qc \
-    --set-all-var-ids @:#:\\$r:\\$a \
-    --new-id-max-allele-len 1000 \
-    --keep !{ethnic_cluster} \
-    --make-bed \
-    --out C9
+  plink --bfile sample_variant_qc \
+      --keep !{ethnic_cluster} \
+      --make-bed \
+      --out C9
   '''
 }
 
@@ -317,20 +313,25 @@ process extract_homogenous {
 process homogenous_pca {
   input:
   file C9 
-  file indep_snps
+  file C10_excluded_regions
 
   output:
   file "covar_pca.txt" into covar_homogenous_pca
 
   shell:
   '''
-  # Perform a PCA on user's data without ethnic outliers
+  # Pruning in user's dataset
 	plink --bfile C9 \
-    --extract !{indep_snps} \
+    --exclude !{C10_excluded_regions} \
+    --indep-pairwise 50 5 0.2 \
+    --out indepSNPs_1k_1
+	plink --bfile C9 \
+    --extract indepSNPs_1k_1.prune.in \
     --make-bed \
-    --out C10_indep
+    --out C10_indep 
 
- 	plink --bfile C10_indep \
+  # Perform a PCA on user's data without ethnic outliers. 
+	plink --bfile C10_indep \
     --pca header \
     --out C10
 
@@ -338,3 +339,5 @@ process homogenous_pca {
 	awk '{print $1, $2, $3, $4, $5}' C10.eigenvec > covar_pca.txt
   '''
 }
+
+// Finished!
