@@ -291,8 +291,6 @@ process plot_pca {
 // STEP C9: Extract the homogenous ethnic group of samples from user's data ----
 
 process extract_homogenous {
-  echo true
-
   input:
   file ethnic_cluster
   file inbed_extract
@@ -304,10 +302,13 @@ process extract_homogenous {
 
   shell:
   '''
-  plink --bfile sample_variant_qc \
-      --keep !{ethnic_cluster} \
-      --make-bed \
-      --out C9
+  # Label the user's dataset in a chr:pos:ref:alt manner 
+  plink2 --bfile sample_variant_qc \
+    --set-all-var-ids @:#:\\$r:\\$a \
+    --new-id-max-allele-len 1000 \
+    --keep !{ethnic_cluster} \
+    --make-bed \
+    --out C9
   '''
 }
 
