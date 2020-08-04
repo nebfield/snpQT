@@ -7,7 +7,7 @@ params.inbed = "../../results/sample_qc/sample_variant_qc.*"
 params.inbim = "../../results/sample_qc/sample_variant_qc.bim"
 params.infam = "../../results/sample_qc/sample_variant_qc.fam"
 params.outdir = "$baseDir/../../results"
-outdir = params.outdir + '/pop_strat/'
+outdir = params.outdir + '/popStrat/'
 
 log.info """\
          snpQT step02: population stratification 
@@ -21,14 +21,17 @@ Channel.fromPath( params.inbim ).set { inbim }
 Channel.fromPath( params.infam ).set { infam } 
 inbed.into {inbed_maf ; inbed_extract }
 inbim.into { inbim_maf ; inbim_extract }
-infam.into { infam_maf ; racefam ; infam_extract }
-
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bed").set { refbed } 
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.bim").set { refbim } 
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA5.fam").set { reffam }
+infam.into { infam_maf ; infam_extract }
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.bed").set { refbed }
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.bim").set { refbim } 
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.fam").set { reffam }
+refbed.into { refbed_align ; refbed_intersect }
+refbim.into { refbim_align ; refbim_intersect }
+reffam.into { reffam_align ; reffam_intersect }
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
 Channel.fromPath("$SNPQT_DB_DIR/1kG_race.txt").set{ racefile }
-Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set{exclude_regions} 
+Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set{exclude} 
+exclude.into { C3_exclude_regions ; C7_exclude_regions}
 
 // STEP C3: filter minor allele frequency from user's dataset ------------------
 
@@ -37,221 +40,223 @@ process filter_maf {
     file inbed_maf 
     file inbim_maf
     file infam_maf
+    file C3_exclude_regions
 
     output:
-    file "maf_filtered*" into maf_filtered
+    file "C3*" into C3, C3_snpflip 
 
     shell:
     '''
+   	# MAF filtering < 5%
     plink --bfile sample_variant_qc \
       --maf 0.05 \
       --make-bed \
       --out maf_filtered
-    '''
+    
+    # Pruning in user's dataset
+    plink --bfile maf_filtered \
+      --exclude !{C3_exclude_regions} \
+      --indep-pairwise 50 5 0.2 \
+      --out indepSNPs_1k
+   	plink --bfile maf_filtered \
+      --extract indepSNPs_1k.prune.in \
+      --make-bed \
+      --out maf_filtered_extracted
+    
+   	 # Label the user's dataset in a chr:pos:ref:alt manner
+     plink2 --bfile maf_filtered_extracted \
+       --set-all-var-ids @:#:\\$r:\\$a \
+       --new-id-max-allele-len 1000 \
+       --make-bed \
+       --out C3
+   '''
 }
 
-// STEP C4: harmonise 1000 genomes data  ---------------------------------------
+// STEP C4: Fix strand errors and remove ambiguous SNPs ------------------------
+
+process run_snpflip {
+  container 'snpflip'
+
+  input: 
+  file C3
+  file g37
+
+  output:
+  file "plink_PCA-adj_snpflip*" into snpflip_output
+
+  shell:
+  '''
+ 	# Run snpflip to identify ambiguous SNPs and SNPs that are located on the 
+  # reverse strand first on user's dataset
+  snpflip -b C3.bim \
+    -f !{g37} \
+    -o plink_PCA-adj_snpflip
+  '''
+}
+
+process flip_snps {  
+  input:
+  file snpflip_output
+  file C3_snpflip 
+
+  output:
+  file "C4*" into C4
+
+  shell:
+  '''
+  # Flip all reversed SNPs
+	plink --bfile C3 \
+    --flip plink_PCA-adj_snpflip.reverse \
+    --make-bed \
+    --out flipped
+
+ 	# Remove ambiguous SNPs
+	plink --bfile flipped \
+    --exclude plink_PCA-adj_snpflip.ambiguous \
+    --make-bed \
+    --out C4
+  '''
+}
+
+// STEP C5: Align the reference allele according to 1k reference genome --------
+
+process align {
+  input:
+  file C4 
+  file refbed_align
+  file refbim_align
+  file reffam_align
+
+  output:
+  file "C5*" into C5
+
+  shell:
+  '''
+  # set 1k genome as reference to user's data 
+	awk '{print$2,$5}' 1kG_PCA6.bim > 1kg_ref-list.txt
+	plink --bfile C4 \
+    --reference-allele 1kg_ref-list.txt \
+    --make-bed \
+    --out C5
+  '''
+}
+
+// STEP C6: Merge user's dataset with 1k reference genome ----------------------
 
 process intersect_variants {
     input:
-    file maf_filtered
-    file refbed
-    file refbim
-    file reffam
+    file C5    
+    file refbed_intersect
+    file refbim_intersect
+    file reffam_intersect 
 
     output:
-    file "user_intersected*" into user_intersected
-    file "1kG_PCA5_intersected*" into ref_intersected
+    file "C6*" into C6_pca, C6_racefile
 
     shell:
     '''
-    awk '{print $2}' maf_filtered.bim > user_snps.txt
-    plink --bfile 1kG_PCA5 \
+    # Extract the variants present in dataset from the 1000 genomes dataset
+	  awk '{print $2}' C5.bim > user_snps.txt
+	  plink --bfile 1kG_PCA6 \
       --extract user_snps.txt \
       --make-bed \
-      --out 1kG_PCA5_intersected
-    # Extract the variants present in 1000 Genomes dataset from the  dataset.
-    awk '{print $2}' 1kG_PCA5_intersected.bim > 1kG_PCA5_SNPs.txt
-    plink --bfile maf_filtered \
-      --extract 1kG_PCA5_SNPs.txt \
-      --recode \
-      --make-bed0 \
-      --out user_intersected
-    # The datasets now contain the exact same variants.
-    '''
-}
-
-process harmonise_build {
-    input:
-    file user_intersected
-    file ref_intersected 
-    
-    output:
-    file "user_intersected-adj*" into user_harmonised
-    file "1kG_PCA5_intersected_mapped*" into ref_harmonised
-    file "1kg_ref-list.txt" into ref_list
-
-    shell:
-    '''
-    ## The datasets must have the same build. Change the build 1000 Genomes data build.
-    awk '{print$2,$4}' user_intersected.map > build_map.txt
-    # build_map.txt contains one SNP-id and physical position per line.
-    plink --bfile 1kG_PCA5_intersected --update-map build_map.txt \
-      --make-bed --out 1kG_PCA5_intersected_mapped
-
-    # set 1k genome as reference to user's data 
-    awk '{print$2,$5}' 1kG_PCA5_intersected_mapped.bim > 1kg_ref-list.txt
-    plink --bfile user_intersected --reference-allele 1kg_ref-list.txt \
-      --make-bed --out user_intersected-adj
-    # The 1kG_PCA5_intersected and the user_intersected-adj have the same 
-    # reference genome for all SNPs
-    # This command will generate some warnings for impossible A1 allele assignment.
-    '''
-}
-
-process flip_snps {
-    container 'nebfield/snpflip:latest'
-
-    input:
-    file user_harmonised
-    file ref_harmonised
-    file ref_list
-    file g37
-
-    output:
-    file "plink_PCA_Corr_2*" into user_flipped
-    file "1kG_PCA5_Corr_2*" into ref_flipped
-
-    shell:
-    '''
-    # Run snpflip to identify ambiguous SNPs and SNPs that are located on 
-    # the reverse strand first on user's dataset
-    snpflip -b user_intersected-adj.bim \
-      -f !{g37} \
-      -o user_intersected-adj_snpflip
-    # outputs two files, one user_intersected-adj_snpflip.ambiguous 
-    # user_intersected-adj_snpflip.reverse
-
-    # Flip all reversed SNPs
-    plink --bfile user_intersected-adj \
-      --flip user_intersected-adj_snpflip.reverse \
-      --reference-allele 1kg_ref-list.txt \
+      --out 1kG_subset
+  
+	  # Extract the variants present in 1000 Genomes dataset from the dataset
+	  awk '{print $2}' 1kG_subset.bim > 1kG_PCA6_SNPs.txt
+	  plink --bfile C5 \
+      --extract 1kG_PCA6_SNPs.txt \
       --make-bed \
-      --out plink_PCA-adj_flipped
+      --out C5_subset
+	  # The datasets now contain the exact same variants.
 
-    #Remove ambiguous SNPs
-    plink --bfile plink_PCA-adj_flipped \
-      --exclude user_intersected-adj_snpflip.ambiguous \
-      --make-bed \
-      --out plink_PCA_Corr
-
-    # Run snpflip on 1k dataset
-    snpflip -b 1kG_PCA5_intersected_mapped.bim \
-      -f !{g37} \
-      -o 1kG_PCA5_intersected_snpflip
-
-    # Flip all reversed SNPs
-    plink --bfile 1kG_PCA5_intersected_mapped \
-      --flip 1kG_PCA5_intersected_snpflip.reverse \
-      --reference-allele 1kg_ref-list.txt \
-      --make-bed \
-      --out 1kG_PCA5_intersected_flipped
-
-    # Remove ambiguous SNPs
-    plink --bfile 1kG_PCA5_intersected_flipped \
-      --exclude 1kG_PCA5_intersected_snpflip.ambiguous \
-      --make-bed \
-      --out 1kG_PCA5_Corr
-
-    # Find differences between the two files that still appeat after flipping an removing ambiguous SNPs
-    awk '{print$2,$5,$6}' plink_PCA_Corr.bim > user_data_corrected_tmp
-    awk '{print$2,$5,$6}' 1kG_PCA5_Corr.bim > 1k_corrected_tmp
-    sort user_data_corrected_tmp 1k_corrected_tmp | uniq \
-      -u  > uncorresponding_SNPs.txt
+    # Find differences between the two files that still appeat after flipping 
+    # an removing ambiguous SNPs
+	  awk '{print $2,$5,$6}' C5_subset.bim > user_data_corrected_tmp
+	  awk '{print $2,$5,$6}' 1kG_subset.bim > 1k_corrected_tmp
+    sort user_data_corrected_tmp 1k_corrected_tmp | uniq -u > uncorresponding_SNPs.txt
 
     # Keep only the unique SNP ids 
-    awk '{print$1}' uncorresponding_SNPs.txt | sort -u > SNPs_for_exclusion.txt
+	  awk '{print $1}' uncorresponding_SNPs.txt | sort -u > SNPs_for_exclusion.txt
 
     # Remove the problematic SNPs from both datasets.
-    plink --bfile plink_PCA_Corr \
+	  plink --bfile C5_subset \
       --exclude SNPs_for_exclusion.txt \
       --make-bed \
-      --out plink_PCA_Corr_2
-    plink --bfile 1kG_PCA5_Corr \
+      --out C5_subset_exclude
+	  plink --bfile 1kG_subset \
       --exclude SNPs_for_exclusion.txt \
       --make-bed \
-      --out 1kG_PCA5_Corr_2
-    '''
-}
- 
-// STEP C5: merge 1000 genomes data  -------------------------------------------
+      --out 1kG_subset_exclude
 
-process merge {
-    input:
-    file user_flipped
-    file ref_flipped
-
-    output:
-    file "PCA_merge*" into merged
-
-    shell:
-    '''
-    plink --bfile plink_PCA_Corr_2 \
-      --bmerge 1kG_PCA5_Corr_2.bed 1kG_PCA5_Corr_2.bim 1kG_PCA5_Corr_2.fam \
+    # Merge user's dataset with 1000 Genomes Data
+	  plink --bfile C5_subset_exclude \
+      --bmerge 1kG_subset_exclude.bed 1kG_subset_exclude.bim 1kG_subset_exclude.fam \
       --allow-no-sex \
       --make-bed \
-      --out PCA_merge
+      --out C6 
     '''
 }
 
-// STEP C6: PCA anchored on 1000 genomes  --------------------------------------
+// STEP C7: PCA ----------------------------------------------------------------
 
 process pca {
     input:
-    file merged
-    file exclude_regions
-
+    file C6_pca
+    file C7_exclude_regions 
+    
     output:
-    file "PCA_merged.eigenvec" into pca_eigenvec, pca_eigenvec_extract
-    file "PCA_merged*" into pca_merged
+    file "C7.eigenvec" into C7_eigenvec
+    file "C7*" into C7 
     file "independent_SNPs.prune.in" into indep_snps
 
     shell:
     '''
     # recalculate independent snps
-    plink --bfile PCA_merge \
-      --exclude $exclude_regions \
+    plink --bfile C6 \
+      --exclude !{C7_exclude_regions} \
       --indep-pairwise 50 5 0.2 \
-      --out independent_SNPs \
-      --range
+      --out independent_SNPs 
 
-    # Perform PCA on plink data anchored by 1000 Genomes data
-    # Using a set of pruned SNPs
-    plink --bfile PCA_merge \
+	  # Pruning on merged dataset
+	  plink --bfile C6 \
       --extract independent_SNPs.prune.in \
       --make-bed \
-      --out PCA_merge_indep
-    plink --bfile PCA_merge_indep \
+      --out C6_indep 
+	
+	  # Perform PCA
+	  plink --bfile C6_indep \
       --pca header \
-      --out PCA_merged
+      --out C7
     '''
 }
 
-// STEP C7: make racefile  -----------------------------------------------------
-
 process racefile {
     input:
-    file racefile
-    file racefam
+    file C6_racefile
 
     output:
-    file "racefile.txt" into racefile_concat
+    file "merged_super_racefile.txt" into super_racefile
+    file "merged_sub_racefile.txt" into sub_racefile
 
     shell:
     '''
-    awk '{print$1,$2,"OWN"}' !{racefam} > racefile_own.txt
-    cat 1kG_race.txt racefile_own.txt | \
-      sed -e '1i\\FID IID race' > racefile.txt
+    curl -O ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel
+    # Make 1st racefile, using the 20130502 panel using superpopulation codes
+    # (i.e., AFR,AMR,EASN,SAS and EUR).
+    awk '{print $1,$1,$3}' integrated_call_samples_v3.20130502.ALL.panel > super_racefile_1k.txt
+
+    # Make 2nd racefile, using the 20130502 panel using subpopulation codes 
+	  awk '{print $1,$1,$2}' integrated_call_samples_v3.20130502.ALL.panel > sub_racefile_1k.txt
+
+    # Create a racefile with user's data.
+	  awk '{print$1,$2,"OWN"}' C6.fam > racefile_own.txt
+
+	  # Concatenate racefiles: User's + super_racefile.
+	  cat super_racefile_1k.txt racefile_own.txt | sed -e '1iFID IID race' > merged_super_racefile.txt
+
+	  # Concatenate racefiles: User's + sub_racefile.
+	  cat sub_racefile_1k.txt racefile_own.txt | sed -e '1iFID IID race' > merged_sub_racefile.txt    
     '''
 }
 
@@ -261,81 +266,74 @@ process plot_pca {
     publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
     input:
-    file pca_eigenvec
-    file racefile_concat
+    file C7_eigenvec
+    file super_racefile
 
     output:
     file "PCA.png"
+    file "EUR_PCA_merge" into ethnic_cluster
 
     shell:
     '''
-    pop_strat.R !{pca_eigenvec} !{racefile_conca}
+    pop_strat.R !{C7_eigenvec} !{super_racefile}
+
+    # Exclude ethnic outliers
+    # -----------------------
+	  # Select individuals in plink data below cut-off thresholds. The cut-off 
+    # levels are not fixed thresholds but have to be determined based on the 
+    # visualization of the first two or three dimensions. To exclude ethnic 
+    # outliers, the thresholds need to be set around the cluster of population 
+    # of interest.
+	  awk '{ if ($4 <0.02 && $5 >-0.025) print $1,$2 }' !{C7_eigenvec} > EUR_PCA_merge
     '''
 }
 
-// STEP C9: extract homogenous ethnic group  -----------------------------------
-// TODO: automatic extraction?
+// STEP C9: Extract the homogenous ethnic group of samples from user's data ----
 
-process extract_homogenous_ethnic {
-    input:
-    file pca_eigenvec_extract
-    file inbed_extract
-    file inbim_extract
-    file infam_extract
+process extract_homogenous {
+  echo true
 
-    output:
-    file "plink_13.*" into homogenous
+  input:
+  file ethnic_cluster
+  file inbed_extract
+  file inbim_extract
+  file infam_extract
 
-    shell:
-    '''
-    awk '{ if ($3 <0.02 && $4 >-0.025) print $1,$2 }' \
-      !{pca_eigenvec_extract} > EUR_PCA_merge
-    plink --bfile sample_variant_qc \
-      --keep EUR_PCA_merge \
+  output:
+  file "C9*" into C9
+
+  shell:
+  '''
+  plink --bfile sample_variant_qc \
+      --keep !{ethnic_cluster} \
       --make-bed \
-      --out plink_13
-    '''
+      --out C9
+  '''
 }
 
-// STEP C10: Logistic regression  ----------------------------------------------
+// STEP C10: Create covariates based on PCA ------------------------------------
 
-process logistic_regression {
-    publishDir outdir, mode: 'copy', overwrite: true
+process homogenous_pca {
+  input:
+  file C9 
+  file indep_snps
 
-    input:
-    file homogenous
-    file indep_snps
+  output:
+  file "covar_pca.txt" into covar_homogenous_pca
 
-    output:
-    file "logistic_results*"
-    file "qqplot.png"
-    
-    shell:
-    '''
-    # Create covariates based on PCA
-    # Perform a PCA ONLY on data without ethnic outliers. 
-    plink --bfile plink_13 -\
-      -extract !{indep_snps} \
-      --make-bed \
-      --out plink_13_indep
-    plink --bfile plink_13_indep \
-      --pca header \
-      --out plink_13_pca
+  shell:
+  '''
+  # Perform a PCA on user's data without ethnic outliers
+	plink --bfile C9 \
+    --extract !{indep_snps} \
+    --make-bed \
+    --out C10_indep
 
-    # Create covariate file including the first 3 PCs
-    awk '{print $1, $2, $3, $4, $5}' plink_13_pca.eigenvec > covar_pca.txt
+ 	plink --bfile C10_indep \
+    --pca header \
+    --out C10
 
-    plink --bfile plink_13 \
-      --covar covar_pca.txt \
-      --ci 0.95 --logistic \
-      --out logistic_results
-    
-    # Remove NA values, those might give problems generating plots in later steps.
-    awk '!/'NA'/' logistic_results.assoc.logistic \
-      > logistic_results.assoc_3.logistic
-
-    qqplot.R logistic_results.assoc_3.logistic
-    '''
+	# Create covariate file including the first 3 PCs
+	awk '{print $1, $2, $3, $4, $5}' C10.eigenvec > covar_pca.txt
+  '''
 }
-
-// Finished!
