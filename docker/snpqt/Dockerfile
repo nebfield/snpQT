@@ -19,3 +19,8 @@ RUN cd /opt/bcftools-1.10.2/ && ./configure && make && make install
 ENV BCFTOOLS_PLUGINS=/opt/bcftools-1.10.2/plugins
 
 RUN R -e 'install.packages(c("tidyverse", "gridExtra"))'
+
+RUN curl http://s3.amazonaws.com/plink2-assets/plink2_linux_avx2_20200727.zip \
+  --output /opt/plink2.zip
+RUN unzip /opt/plink2.zip -d /opt/plink2/
+ENV PATH="/opt/plink2:${PATH}"
