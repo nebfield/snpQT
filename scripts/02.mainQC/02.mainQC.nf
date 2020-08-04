@@ -37,12 +37,12 @@ process missingness {
   shell:
   '''  
   cp !{in_fam} dataset_4.fam # rename fam file to match input bim / bed
-  plink --make-bed --bfile dataset_4 --out data &>/dev/null 
+  plink --make-bed --bfile dataset_4 --out data 
   
   echo 'Pipeline input: ' && grep 'pass' data.log > log.txt
   cp !{in_fam} data.fam
   echo 'Step B1: missingness' >> log.txt
-  plink --bfile data --geno 0.1 --make-bed  --out plink_1 &>/dev/null
+  plink --bfile data --geno 0.1 --make-bed  --out plink_1 
   echo 'Missingness output: ' && grep 'pass' plink_1.log
   cat *.log > missingness.log
   '''
@@ -51,7 +51,6 @@ process missingness {
 // STEP B2: Check missingness rate ---------------------------------------------
 // TODO: user set threshold
 process plot_missingness {
-  echo true
   publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
   input:
@@ -66,18 +65,21 @@ process plot_missingness {
   '''
   plink --bfile plink_1 \
     --missing \
-    --out plink_2 &>/dev/null
+    --out plink_2 
   plot_sample_missingness.R plink_2.imiss
   # TODO user set mind threshold 
   plink --bfile plink_1  \
     --make-bed \
     --mind 0.02 \
-    --out plink_3 &>/dev/null
+    --out plink_3 
   mv plink_2.imiss plink.imiss # run_IBD_QC.pl
   '''
 }
 
 // STEP B3: Remove samples with sex mismatch -----------------------------------
+// --check-sex requires at least one X chromosome so it has to be completed 
+// before excluding non-automosomal SNPs 
+
 process check_sex {
     input:
     file missingness_bfiles_pruned
@@ -123,8 +125,6 @@ process plot_sex {
 // STEP B4: Remove sex chromosomes ---------------------------------------------
 // shell for awk ($ confuses nextflow)
 process extract_autosomal {
-    echo true
-
     input:
     file sex_checked_bed   
     file sex_checked_bim
@@ -142,7 +142,7 @@ process extract_autosomal {
     plink --bfile data_clean \
       --extract autosomal_SNPs.txt \
       --make-bed \
-      --out autosomal &>/dev/null
+      --out autosomal 
     echo 'Extract autosomal output:' && grep 'pass' autosomal.log
     ''' 
 }
@@ -191,8 +191,6 @@ process plot_heterozygosity {
 }
 
 process heterozygosity_prune {
-    echo true
-
     input:
     file autosomal_het
     file het_failed
@@ -207,16 +205,13 @@ process heterozygosity_prune {
       --make-bed \
       --out het_pruned \
       --remove \
-      het_failed_plink.txt &>/dev/null
+      het_failed_plink.txt 
     echo 'Check heterozygosity rate:' && grep 'pass' het_pruned.log
     '''
 }
 
 // STEP B6: Remove relatives ---------------------------------------------------
 process relatedness {
-    echo true
-    container 'snpqt'
-  
     input:
     file het_pruned
     file ind_SNPs
@@ -230,24 +225,21 @@ process relatedness {
     plink --bfile het_pruned \
       --extract $ind_SNPs \
       --genome --min 0.125 \
-      --out pihat_0.125 &>/dev/null
+      --out pihat_0.125 
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
     # relatives of each pair, having the most missingness. Output those failing
     # samples to pihat_failed_samples.txt
-    run_IBD_QC.pl &>/dev/null
+    run_IBD_QC.pl 
     plink --bfile het_pruned \
       --remove pihat_failed_samples.txt \
       --make-bed \
-      --out pihat_pruned &>/dev/null
+      --out pihat_pruned 
     echo 'Check relatedness:' && grep 'pass' pihat_pruned.log
     '''
 }
 
 // STEP B7: Remove samples with missing phenotypes -----------------------------
 process missing_phenotype {
-    echo true
-    container 'snpqt'
-
     input:
     file relatedness
 
@@ -259,7 +251,7 @@ process missing_phenotype {
     plink --bfile pihat_pruned \
       --prune \
       --make-bed \
-      --out missing &>/dev/null
+      --out missing 
     echo 'Remove missing phenotypes:' && grep 'pass' missing.log 
     '''
 }
@@ -299,7 +291,7 @@ process hardy {
 
   shell: 
   '''
-  plink --bfile mpv --hardy &>/dev/null
+  plink --bfile mpv --hardy 
   # sample 1% of SNPs
   head -n1 plink.hwe > plink_sub.hwe
   perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink.hwe) >> plink_sub.hwe
@@ -307,7 +299,7 @@ process hardy {
 	  plink.hwe > plinkzoomhwe.hwe
   hwe.R plink_sub.hwe ""
   hwe.R plinkzoomhwe.hwe "strongly deviating SNPs only"
-  plink --bfile mpv --hwe 1e-7 --make-bed --out hwe &>/dev/null
+  plink --bfile mpv --hwe 1e-7 --make-bed --out hwe 
   '''
 }
 
