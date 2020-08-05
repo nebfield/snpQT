@@ -15,7 +15,9 @@ Channel.fromPath( params.inbed ).into { inbed; inbed_snpflip }
 Channel.fromPath( params.inbim ).into { inbim; inbim_snpflip } 
 Channel.fromPath( params.infam ).into { infam; infam_snpflip } 
 
-Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
+Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").into{ g37_D1 ; g37_D8 }
+Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz").set{ dbSNP }
+Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz.tbi").set{ dbSNP_index }
 
 // Pre-imputation 
 // =============================================================================
@@ -25,7 +27,7 @@ process run_snpflip {
     container 'snpflip'
 
     input:
-    file g37
+    file g37_D1
     file inbed_snpflip
     file inbim_snpflip
     file infam_snpflip
@@ -36,7 +38,7 @@ process run_snpflip {
     shell:
     '''
     snpflip -b sample_variant_qc.bim \
-        -f !{g37} \
+        -f !{g37_D1} \
         -o D1
     '''
 
@@ -90,21 +92,38 @@ process to_bcf {
     file D4 
 
     output:
-    file 'D5.vcf.gz' into D5
-    file 'D5.vcf.gz.csi' into D5_index
+    file 'D7.bcf' into D7
 
     shell:
     '''
     plink --bfile D4 \
         --recode vcf bgz \
         --keep-allele-order \
-        --out D5 
-    bcftools index D5.vcf.gz
-    bcftools convert -Ou D5.vcf.gz > D5.bcf
+        --out D6
+    bcftools convert -Ou D6.vcf.gz > D7.bcf
     '''
 }
 
 // STEP D8: Check and fix the REF allele --------------------------------------
+
+process check_ref_allele {
+    input:
+    file D7 
+    file dbSNP
+    file dbSNP_index
+    file g37_D8
+
+    output:
+    file 'D8.bcf' into D8
+
+    shell:
+    '''
+    bcftools +fixref !{D7} \
+        -Ob -o D8.bcf -- \
+        -d -f !{g37_D8} \
+        -i !{dbSNP}
+    '''
+}
 
 // STEP D9: Sort the BCF ------------------------------------------------------
 
