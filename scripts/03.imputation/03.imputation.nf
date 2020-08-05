@@ -126,10 +126,23 @@ process check_ref_allele {
 }
 
 // STEP D9: Sort the BCF ------------------------------------------------------
-
 // STEP D10: Convert .bcf file to .vcf.gz file --------------------------------
-
 // STEP D11: Index the vcf.gz -------------------------------------------------
+
+process sort_to_vcf {
+    input:
+    file D8
+
+    output:
+    file 'D11.vcf.gz' into D11
+    file 'D11.vcf.gz.csi' into D11_index
+    
+    shell:
+    '''
+    bcftools sort !{D8} | bcftools convert -Oz > D11.vcf.gz
+    bcftools index D11.vcf.gz 
+    '''
+}
 
 // STEP D12: Split vcf.gz file in chromosomes ---------------------------------
 
