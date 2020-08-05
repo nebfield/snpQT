@@ -135,20 +135,38 @@ process sort_to_vcf {
 
     output:
     file 'D11.vcf.gz' into D11
-    file 'D11.vcf.gz.csi' into D11_index
-    
+    file 'D11.vcf.gz.csi' into D11_index 
+
     shell:
     '''
     bcftools sort !{D8} | bcftools convert -Oz > D11.vcf.gz
-    bcftools index D11.vcf.gz 
+    bcftools index D11.vcf.gz     
     '''
 }
 
 // STEP D12: Split vcf.gz file in chromosomes ---------------------------------
-
 // STEP D13: Index all chroms .vcf.gz -----------------------------------------
+chr_list = Channel.from(1..22) // groovy range 
+
+process split_chrom {
+    input:
+    file D11
+    file D11_index
+    each chr from chr_list 
+
+    output:
+    file 'D12*.vcf.gz' into D12 
+    file 'D12*.vcf.gz.csi' into D12_index
+
+    shell:
+    '''
+    bcftools view -r !{chr} !{D11} -Oz -o D12.!{chr}.vcf.gz
+    bcftools index D12.!{chr}.vcf.gz
+    '''
+}
 
 // STEP D14: Perform phasing using shapeit4 -----------------------------------
+
 
 // STEP D15: Index phased chromosomes -----------------------------------------
 
