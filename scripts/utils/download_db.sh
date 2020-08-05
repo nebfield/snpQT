@@ -21,6 +21,10 @@ panel_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_
 thousand_vcf_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{.}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
 thousand_tabix_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{.}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz.tbi"
 
+# dbSNP (step D8)
+dbsnp_url="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz"
+dbsnp_index_url="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz.tbi"
+
 LIBRARY_DIR="$SNPQT_DB_DIR"
 mkdir -p $LIBRARY_DIR
 
@@ -56,7 +60,11 @@ if [ ! -e "big.download.complete" ]
     parallel -a ../chrom_list.txt --progress --resume-failed --joblog tabix_log \
       curl -s -O $thousand_tabix_url 
     rm vcf_log tabix_log
-    echo " finished."
+    echo " finished."    
     cd .. 
+    echo -n "Downloading dbSNP (~15GB)..."
+    curl -s -O $dbsnp_url
+    curl -s -O $dbsnp_index_url
+    echo " finished."
     touch "big.download.complete" 
 fi
