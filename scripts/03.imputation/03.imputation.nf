@@ -146,27 +146,44 @@ process sort_to_vcf {
 
 // STEP D12: Split vcf.gz file in chromosomes ---------------------------------
 // STEP D13: Index all chroms .vcf.gz -----------------------------------------
-chr_list = Channel.from(1..22) // groovy range 
+Channel.from(1..22).into{ split_list; shapeit4_list } // groovy range 
 
 process split_chrom {
     input:
     file D11
     file D11_index
-    each chr from chr_list 
+    each chr from split_list 
 
     output:
-    file 'D12*.vcf.gz' into D12 
-    file 'D12*.vcf.gz.csi' into D12_index
-
+    tuple val(chr), file('D12.vcf.gz') into D12
+    
     shell:
     '''
-    bcftools view -r !{chr} !{D11} -Oz -o D12.!{chr}.vcf.gz
-    bcftools index D12.!{chr}.vcf.gz
+    bcftools view -r !{chr} !{D11} -Oz -o D12.vcf.gz
+    # bcftools index D12.!{chr}.vcf.gz
     '''
 }
 
 // STEP D14: Perform phasing using shapeit4 -----------------------------------
+process phasing {
+    container 'shapeit4' 
 
+    input:
+    tuple val(chrom), file('D12.vcf.gz') from D12
+
+    // output:
+    // tuple val(chr), file('phased_chr.vcf.gz') into D12
+
+    shell:
+    '''
+    # shapeit4 --input D12.vcf.gz \
+    #    --map /.../genetic_map_chr{.}_combined_b37.txt \
+    #    --region !{chrom} \
+    #    --thread 1 
+    #    --output phased_chr.vcf.gz \
+    #    --log log_chr.txt
+    '''
+}
 
 // STEP D15: Index phased chromosomes -----------------------------------------
 
