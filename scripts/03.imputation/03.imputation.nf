@@ -18,6 +18,7 @@ Channel.fromPath( params.infam ).into { infam; infam_snpflip }
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").into{ g37_D1 ; g37_D8 }
 Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz").set{ dbSNP }
 Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz.tbi").set{ dbSNP_index }
+Channel.fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz").set{ shapeit4_map }
 
 // Pre-imputation 
 // =============================================================================
@@ -146,7 +147,7 @@ process sort_to_vcf {
 
 // STEP D12: Split vcf.gz file in chromosomes ---------------------------------
 // STEP D13: Index all chroms .vcf.gz -----------------------------------------
-Channel.from(1..22).into{ split_list; shapeit4_list } // groovy range 
+Channel.from(1..22).set{ split_list } // groovy range 
 
 process split_chrom {
     input:
@@ -156,32 +157,41 @@ process split_chrom {
 
     output:
     tuple val(chr), file('D12.vcf.gz') into D12
-    
+    tuple val(chr), file('D12.vcf.gz.csi') into D12_index 
+
     shell:
     '''
     bcftools view -r !{chr} !{D11} -Oz -o D12.vcf.gz
-    # bcftools index D12.!{chr}.vcf.gz
+    bcftools index D12.vcf.gz
     '''
 }
 
 // STEP D14: Perform phasing using shapeit4 -----------------------------------
+// join vcf file channel with index file channel based on chrom value 
+// then combine so each tuple element has a shapeit4 map file 
+// kind of like 'each', but for tuples
+D12_combined = D12.join(D12_index).combine(shapeit4_map)
+
 process phasing {
     container 'shapeit4' 
 
     input:
-    tuple val(chrom), file('D12.vcf.gz') from D12
+    tuple chr, 'D12.vcf.gz', 'D12.vcf.gz.csi', 'genetic_maps.b37.tar.gz' from D12_combined 
 
-    // output:
-    // tuple val(chr), file('phased_chr.vcf.gz') into D12
+    output:
+    tuple chr, 'D14.vcf.gz' into D14
 
     shell:
     '''
-    # shapeit4 --input D12.vcf.gz \
-    #    --map /.../genetic_map_chr{.}_combined_b37.txt \
-    #    --region !{chrom} \
-    #    --thread 1 
-    #    --output phased_chr.vcf.gz \
-    #    --log log_chr.txt
+    tar -xzf genetic_maps.b37.tar.gz
+    gunzip chr!{chr}.b37.gmap.gz # decompress the chromosome we need 
+    
+    shapeit4 --input D12.vcf.gz \
+        --map chr!{chr}.b37.gmap \
+        --region !{chr} \
+        --thread 1 \
+        --output D14.vcf.gz \
+        --log log_chr.txt 
     '''
 }
 
