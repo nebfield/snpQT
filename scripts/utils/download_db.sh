@@ -25,6 +25,9 @@ thousand_tabix_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/AL
 dbsnp_url="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz"
 dbsnp_index_url="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz.tbi"
 
+# shapeit4 
+shapeit4_maps_url="https://github.com/odelaneau/shapeit4/blob/master/maps/genetic_maps.b37.tar.gz?raw=true"
+
 LIBRARY_DIR="$SNPQT_DB_DIR"
 mkdir -p $LIBRARY_DIR
 
@@ -38,6 +41,7 @@ if [ ! -e "download.complete" ]
     curl -s -O $chain_url
     curl -s -O $human_fai_url 
     bgzip -d hg38ToHg19.over.chain.gz 
+    curl -sL $shapeit4_maps_url -o genetic_maps.b37.tar.gz
     # bigger files -------------------------------------------------------------
     echo -n "Downloading GRCh37 (~1GB)..."
     curl -s -O $human_url
