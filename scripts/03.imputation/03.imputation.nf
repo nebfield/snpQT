@@ -19,6 +19,9 @@ Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").into{ g37_D1 ; g37_D8 }
 Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz").set{ dbSNP }
 Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz.tbi").set{ dbSNP_index }
 Channel.fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz").set{ shapeit4_map }
+Channel
+    .fromFilePairs( ["$SNPQT_DB_DIR/thousand_genomes/*.vcf.gz", "$SNPQT_DB_DIR/thousand_genomes/*.vcf.gz.tbi"] )
+    .set{ thousand_genomes } 
 
 // Pre-imputation 
 // =============================================================================
@@ -215,6 +218,28 @@ process index {
 
 // Note: STEP D16 is taken care of by Dockerfile 
 // STEP D17: Convert vcf reference genome into a .imp5 format for each chromosome
+
+process imp5convert {
+    container 'impute5'
+
+    input:
+    tuple val(x), path(chrom) from thousand_genomes
+
+    output:
+    tuple val(CHR), '1k_b37_reference_chr.imp5' into D17  
+
+    shell:
+    '''
+    # CHR is chromosome integer, x is filename prefix from file pair 
+    CHR=`echo !{x} | cut -d '.' -f 2 | tr -dc '0-9'`
+    # chrom is a file pair of vcf and idx, idx not useful after imp5
+    CHROM=`echo !{chrom} | cut -d ' ' -f 1` # there must be a nicer way >:(     
+
+    imp5Converter --h $CHROM \
+        --r $CHR \
+        --o 1k_b37_reference_chr.imp5
+    '''
+}
 
 // STEP D18: Perform imputation using impute5 ---------------------------------
 
