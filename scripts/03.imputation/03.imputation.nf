@@ -2,7 +2,7 @@ params.inbed = "../../results/sample_qc/sample_variant_qc.*"
 params.inbim = "../../results/sample_qc/sample_variant_qc.bim"
 params.infam = "../../results/sample_qc/sample_variant_qc.fam"
 params.outdir = "$baseDir/../../results"
-outdir = params.outdir + '/popStrat/'
+outdir = params.outdir + '/imputation/'
 
 log.info """\
          snpQT step03: Imputation
@@ -179,7 +179,7 @@ process phasing {
     tuple chr, 'D12.vcf.gz', 'D12.vcf.gz.csi', 'genetic_maps.b37.tar.gz' from D12_combined 
 
     output:
-    tuple chr, 'D14.vcf.gz' into D14
+    tuple chr, 'D14.vcf.gz' into D14, D14_idx
 
     shell:
     '''
@@ -191,11 +191,24 @@ process phasing {
         --region !{chr} \
         --thread 1 \
         --output D14.vcf.gz \
-        --log log_chr.txt 
+        --log log_chr.txt     
     '''
 }
 
 // STEP D15: Index phased chromosomes -----------------------------------------
+
+process index {
+    input:
+    tuple chr, 'D14.vcf.gz' from D14_idx
+
+    output:
+    tuple chr, 'D14.vcf.gz.csi' into D14_csi
+    
+    shell:
+    '''
+    bcftools index D14.vcf.gz
+    '''
+}
 
 // Imputation 
 // =============================================================================
