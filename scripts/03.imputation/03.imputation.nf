@@ -18,10 +18,9 @@ Channel.fromPath( params.infam ).into { infam; infam_snpflip }
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").into{ g37_D1 ; g37_D8 }
 Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz").set{ dbSNP }
 Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz.tbi").set{ dbSNP_index }
-Channel.fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz").set{ shapeit4_map }
-Channel
-    .fromFilePairs( ["$SNPQT_DB_DIR/thousand_genomes/*.vcf.gz", "$SNPQT_DB_DIR/thousand_genomes/*.vcf.gz.tbi"] )
-    .set{ thousand_genomes } 
+Channel.fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz").into{ shapeit4_map_user; shapeit4_map_ref }
+
+Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.vcf.gz").into{ thousand_genomes_idx; thousand_genomes }
 
 // Pre-imputation 
 // =============================================================================
@@ -150,17 +149,16 @@ process sort_to_vcf {
 
 // STEP D12: Split vcf.gz file in chromosomes ---------------------------------
 // STEP D13: Index all chroms .vcf.gz -----------------------------------------
-Channel.from(1..22).set{ split_list } // groovy range 
+Channel.from(1..22).into{ split_user; split_ref } // groovy range 
 
-process split_chrom {
+process split_user_chrom {
     input:
     file D11
     file D11_index
-    each chr from split_list 
+    each chr from split_user 
 
     output:
-    tuple val(chr), file('D12.vcf.gz') into D12
-    tuple val(chr), file('D12.vcf.gz.csi') into D12_index 
+    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi')  into D12
 
     shell:
     '''
@@ -170,10 +168,11 @@ process split_chrom {
 }
 
 // STEP D14: Perform phasing using shapeit4 -----------------------------------
+// STEP D15: Index phased chromosomes -----------------------------------------
 // join vcf file channel with index file channel based on chrom value 
 // then combine so each tuple element has a shapeit4 map file 
 // kind of like 'each', but for tuples
-D12_combined = D12.join(D12_index).combine(shapeit4_map)
+D12_combined = D12.combine(shapeit4_map_user)
 
 process phasing {
     container 'shapeit4' 
@@ -182,7 +181,7 @@ process phasing {
     tuple chr, 'D12.vcf.gz', 'D12.vcf.gz.csi', 'genetic_maps.b37.tar.gz' from D12_combined 
 
     output:
-    tuple chr, 'D14.vcf.gz' into D14, D14_idx
+    tuple chr, 'D14.vcf.gz', 'D14.vcf.gz.csi' into D14
 
     shell:
     '''
@@ -195,20 +194,7 @@ process phasing {
         --thread 1 \
         --output D14.vcf.gz \
         --log log_chr.txt     
-    '''
-}
 
-// STEP D15: Index phased chromosomes -----------------------------------------
-
-process index {
-    input:
-    tuple chr, 'D14.vcf.gz' from D14_idx
-
-    output:
-    tuple chr, 'D14.vcf.gz.csi' into D14_csi
-    
-    shell:
-    '''
     bcftools index D14.vcf.gz
     '''
 }
@@ -219,28 +205,70 @@ process index {
 // Note: STEP D16 is taken care of by Dockerfile 
 // STEP D17: Convert vcf reference genome into a .imp5 format for each chromosome
 
+process index_ref {
+    input:
+    file thousand_genomes_idx
+
+    output:
+    file '1kG_PCA6.vcf.gz.csi' into ref_idx
+
+    shell:
+    '''
+    bcftools index !{thousand_genomes_idx}
+    '''
+}
+
+process split_ref_chrom {
+    input:
+    file thousand_genomes
+    file ref_idx
+    each chr from split_ref 
+
+    output:
+    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') into ref_chr
+
+    shell:
+    '''
+    bcftools view -r !{chr} !{thousand_genomes} -Oz -o ref_chr.vcf.gz
+    bcftools index ref_chr.vcf.gz
+    '''
+}
+
 process imp5convert {
     container 'impute5'
 
     input:
-    tuple val(x), path(chrom) from thousand_genomes
+    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') from ref_chr
 
     output:
-    tuple val(CHR), '1k_b37_reference_chr.imp5' into D17  
+    tuple val(chr), '1k_b37_reference_chr.imp5' into D17  
 
     shell:
-    '''
-    # CHR is chromosome integer, x is filename prefix from file pair 
-    CHR=`echo !{x} | cut -d '.' -f 2 | tr -dc '0-9'`
-    # chrom is a file pair of vcf and idx, idx not useful after imp5
-    CHROM=`echo !{chrom} | cut -d ' ' -f 1` # there must be a nicer way >:(     
-
-    imp5Converter --h $CHROM \
-        --r $CHR \
+    '''  
+    imp5Converter --h ref_chr.vcf.gz \
+        --r !{chr} \
         --o 1k_b37_reference_chr.imp5
     '''
 }
 
 // STEP D18: Perform imputation using impute5 ---------------------------------
+// join phased vcfs with imp5 based on chrom value 
+// then combine so each tuple element has a shapeit4 map file 
+D17.join(D14).combine(shapeit4_map_ref).subscribe{ println "$it" }
 
+// process impute {
+//     input:
+//     tuple chr, '1k_b37_reference_chr.imp5', 'D14.vcf.gz', 'genetic_maps.b37.tar.gz' from D17_combined
+    
+//     shell:
+//     '''
+//     impute5 --h /.../1k_b37_reference_chr{.}.imp5 \
+//         --m /.../Genetic_maps_1000GP_Phase3/genetic_map_chr{.}_combined_b37.txt \
+//         --g /..../phased_chr{.}.vcf.gz \
+//         --r {.} \
+//         --out-gp-field \
+//         --o imputed_chr{.}.vcf.gz'
+
+//     '''
+// }
 // Finished!
