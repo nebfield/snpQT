@@ -241,7 +241,7 @@ process imp5convert {
     tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') from ref_chr
 
     output:
-    tuple val(chr), '1k_b37_reference_chr.imp5' into D17  
+    tuple val(chr), '1k_b37_reference_chr.imp5', '1k_b37_reference_chr.imp5.idx' into D17  
 
     shell:
     '''  
@@ -254,21 +254,33 @@ process imp5convert {
 // STEP D18: Perform imputation using impute5 ---------------------------------
 // join phased vcfs with imp5 based on chrom value 
 // then combine so each tuple element has a shapeit4 map file 
-D17.join(D14).combine(shapeit4_map_ref).subscribe{ println "$it" }
+D17_combined = D17.join(D14).combine(shapeit4_map_ref)
 
-// process impute {
-//     input:
-//     tuple chr, '1k_b37_reference_chr.imp5', 'D14.vcf.gz', 'genetic_maps.b37.tar.gz' from D17_combined
+process impute5 {
+    container 'impute5'
+
+    publishDir outdir, mode: 'copy', overwrite: true
+
+
+    input:
+    tuple chr, '1k_b37_reference_chr.imp5', '1k_b37_reference_chr.imp5.idx', \
+         'D14.vcf.gz', 'D14.vcf.gz.csi', \
+         'genetic_maps.b37.tar.gz' from D17_combined
     
-//     shell:
-//     '''
-//     impute5 --h /.../1k_b37_reference_chr{.}.imp5 \
-//         --m /.../Genetic_maps_1000GP_Phase3/genetic_map_chr{.}_combined_b37.txt \
-//         --g /..../phased_chr{.}.vcf.gz \
-//         --r {.} \
-//         --out-gp-field \
-//         --o imputed_chr{.}.vcf.gz'
+    output:
+    file 'imputed_chr*.vcf.gz'
 
-//     '''
-// }
+    shell:
+    '''
+    tar -xzf genetic_maps.b37.tar.gz
+    gunzip chr!{chr}.b37.gmap.gz # decompress the chromosome we need 
+    impute5 --h 1k_b37_reference_chr.imp5 \
+        --m chr!{chr}.b37.gmap \
+        --g D14.vcf.gz \
+        --r !{chr} \
+        --out-gp-field \
+        --o imputed_chr!{chr}.vcf.gz
+    '''
+}
+
 // Finished!
