@@ -11,16 +11,27 @@ log.info """\
          """
          .stripIndent()
 
+// User's plink files ---------------------------------------------------------
 Channel.fromPath( params.inbed ).into { inbed; inbed_snpflip } 
 Channel.fromPath( params.inbim ).into { inbim; inbim_snpflip } 
 Channel.fromPath( params.infam ).into { infam; infam_snpflip } 
 
-Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").into{ g37_D1 ; g37_D8 }
-Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz").set{ dbSNP }
-Channel.fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz.tbi").set{ dbSNP_index }
-Channel.fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz").into{ shapeit4_map_user; shapeit4_map_ref }
-
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.vcf.gz").into{ thousand_genomes_idx; thousand_genomes }
+// Database files -------------------------------------------------------------
+Channel
+    .fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta")
+    .into{ g37_D1 ; g37_D8 }
+Channel
+    .fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz")
+    .set{ dbSNP }
+Channel
+    .fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz.tbi")
+    .set{ dbSNP_index }
+Channel
+    .fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz")
+    .into{ shapeit4_map_user; shapeit4_map_ref }
+Channel
+    .fromPath("$SNPQT_DB_DIR/1kG_PCA6.vcf.gz")
+    .into{ thousand_genomes_idx; thousand_genomes }
 
 // Pre-imputation 
 // =============================================================================
@@ -149,7 +160,7 @@ process sort_to_vcf {
 
 // STEP D12: Split vcf.gz file in chromosomes ---------------------------------
 // STEP D13: Index all chroms .vcf.gz -----------------------------------------
-Channel.from(1..22).into{ split_user; split_ref } // groovy range 
+Channel.from(1..22).into{ split_user; split_ref } // groovy range for chroms
 
 process split_user_chrom {
     input:
@@ -158,7 +169,7 @@ process split_user_chrom {
     each chr from split_user 
 
     output:
-    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi')  into D12
+    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi') into D12
 
     shell:
     '''
@@ -169,19 +180,18 @@ process split_user_chrom {
 
 // STEP D14: Perform phasing using shapeit4 -----------------------------------
 // STEP D15: Index phased chromosomes -----------------------------------------
-// join vcf file channel with index file channel based on chrom value 
-// then combine so each tuple element has a shapeit4 map file 
-// kind of like 'each', but for tuples
+// give each chrom & idx tuple a map file 
 D12_combined = D12.combine(shapeit4_map_user)
 
 process phasing {
     container 'shapeit4' 
 
     input:
-    tuple chr, 'D12.vcf.gz', 'D12.vcf.gz.csi', 'genetic_maps.b37.tar.gz' from D12_combined 
+    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi'), \
+        file('genetic_maps.b37.tar.gz') from D12_combined 
 
     output:
-    tuple chr, 'D14.vcf.gz', 'D14.vcf.gz.csi' into D14
+    tuple val(chr), file('D14.vcf.gz'), file('D14.vcf.gz.csi') into D14
 
     shell:
     '''
@@ -201,7 +211,6 @@ process phasing {
 
 // Imputation 
 // =============================================================================
-
 // Note: STEP D16 is taken care of by Dockerfile 
 // STEP D17: Convert vcf reference genome into a .imp5 format for each chromosome
 
@@ -225,7 +234,8 @@ process split_ref_chrom {
     each chr from split_ref 
 
     output:
-    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') into ref_chr
+    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') \
+        into ref_chr
 
     shell:
     '''
@@ -238,10 +248,12 @@ process imp5convert {
     container 'impute5'
 
     input:
-    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') from ref_chr
+    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') \
+        from ref_chr
 
     output:
-    tuple val(chr), '1k_b37_reference_chr.imp5', '1k_b37_reference_chr.imp5.idx' into D17  
+    tuple val(chr), file('1k_b37_reference_chr.imp5'), \
+        file('1k_b37_reference_chr.imp5.idx') into D17  
 
     shell:
     '''  
@@ -261,11 +273,11 @@ process impute5 {
 
     publishDir outdir, mode: 'copy', overwrite: true
 
-
     input:
-    tuple chr, '1k_b37_reference_chr.imp5', '1k_b37_reference_chr.imp5.idx', \
-         'D14.vcf.gz', 'D14.vcf.gz.csi', \
-         'genetic_maps.b37.tar.gz' from D17_combined
+    tuple chr, file('1k_b37_reference_chr.imp5'), \
+        file('1k_b37_reference_chr.imp5.idx'), file('D14.vcf.gz'), \
+        file('D14.vcf.gz.csi'), file('genetic_maps.b37.tar.gz') \
+        from D17_combined
     
     output:
     file 'imputed_chr*.vcf.gz'
