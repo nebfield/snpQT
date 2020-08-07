@@ -33,3 +33,5 @@ RUN apt-get -qqy update --fix-missing && \
     make
 
 ENV PATH="/shapeit4/bin/:${PATH}"
+
+RUN apt-get -y install bcftools
