@@ -157,3 +157,20 @@ process racefile {
   '''
 }
 
+// Step F7: 
+process to_vcf {
+    publishDir params.indir, mode: 'copy', overwrite: true
+
+    input:
+    file thousand_genomes_qc
+
+    output:
+    file "1kG_PCA6.vcf.gz"
+    
+    shell:
+    '''
+    plink --bfile 1kG_PCA6 \
+        --recode vcf bgz \
+        --out 1kG_PCA6
+    '''
+}
