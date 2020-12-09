@@ -27,25 +27,50 @@ nextflow run scripts/01.buildConversion/01.buildConversion.nf \
     -c $SNPQT_CONFIG \
     --infile '../data/als_sub.vcf.gz' \
     --outdir "$PWD/results" \
-    -resume
+    -resume \
+    -with-report reports/buildConversion.html
  
 # Step 1 ----------------------------------------------------------------------
 # Sample-variant QC 
-nextflow run scripts/01_samplevariant/01.sample_variant.nf \
+nextflow run scripts/02.mainQC/02.mainQC.nf \
    -c $SNPQT_CONFIG \
    --infile $(realpath '../data/als_sub.vcf.gz') \
-   --inbim $(realpath 'results/vcf_sanity/dataset_4.bim') \
-   --inbed $(realpath 'results/vcf_sanity/dataset_4.bed') \
+   --inbim $(realpath 'results/buildConversion/dataset_4.bim') \
+   --inbed $(realpath 'results/buildConversion/dataset_4.bed') \
    --infam $(realpath '../data/subset.fam') \
    --outdir $(realpath 'results/') \
-   -resume 
+   -resume \
+   -with-report reports/mainQC.html
 
 # Step 2 ----------------------------------------------------------------------
 # Population stratification
-nextflow run scripts/02_popstrat/02.pop_strat.nf \
+nextflow run scripts/02.popStrat/02.pop_strat.nf \
   -c $SNPQT_CONFIG \
   --inbed $(realpath "results/sample_qc/sample_variant_qc.bed") \
   --inbim $(realpath "results/sample_qc/sample_variant_qc.bim") \
   --infam $(realpath "results/sample_qc/sample_variant_qc.fam") \
   --outdir $(realpath 'results/') \
-  -resume 
+  -resume \
+  -with-report reports/popStrat.html
+
+# Step 3 ----------------------------------------------------------------------
+# Imputation
+
+nextflow run scripts/03.imputation/03.imputation.nf \
+  -c $SNPQT_CONFIG \
+  --inbed $(realpath "results/sample_qc/sample_variant_qc.bed") \
+  --inbim $(realpath "results/sample_qc/sample_variant_qc.bim") \
+  --infam $(realpath "results/sample_qc/sample_variant_qc.fam") \
+  --outdir $(realpath 'results/') \
+  -resume \
+  -with-report reports/imputation.html
+
+# Step 4 -----------------------------------------------------------------------
+# Post-imputation QC
+
+nextflow run scripts/04.postImputation/04.postImputation.nf \
+	 -c $SNPQT_CONFIG \
+	 --inimp $(realpath "results/imputation/imputed_chr*") \
+	 -resume \
+	 with-report reports/postimputation.html
+	 
