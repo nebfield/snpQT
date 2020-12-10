@@ -49,7 +49,6 @@ then
     echo -n "Downloading hg19 (~1GB)..."
     curl -s -O $hg19_url
     echo " finished."
-    bgzip -d hg19.fa.gz
     touch "download.complete"
 fi
 
