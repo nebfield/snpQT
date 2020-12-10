@@ -6,171 +6,83 @@ log.info """\
          .stripIndent()
 
 Channel.fromPath(params.indir + '/human_g1k_v37.fasta').set{ h37 }
-Channel.fromPath(params.indir + '/integrated_call_samples_v3.20130502.ALL.panel').set{ in_panel } 
-Channel.fromPath(params.indir + '/thousand_genomes/*.gz').set { thousand_genomes }
+Channel.fromPath(params.indir + '/all_phase3.pgen.zst').set { thousand_pgen }
+Channel.fromPath(params.indir + '/all_phase3.pvar.zst').set { thousand_pvar }
+Channel.fromPath(params.indir + '/phase3_corrected.psam').set { thousand_psam } 
 Channel.fromPath(params.indir + '/PCA.exclude.regions.b37.txt').set{ exclude } 
 
-// Note: Step F1 & F2 are taken care of by download_db.sh 
-// STEP F3 ---------------------------------------------------------------------
-// split multi-allelics, annotate variants with a unique identifier and remove 
-// duplicates
+// Note: step C2 from population stratification module
 
-process clean_chromosomes {
-  input:
-  each chr from thousand_genomes
-  file h37
-  // each is important to recycle h37 per chromosome  
+process qc {
+  publishDir params.indir, mode: 'copy', overwrite: true, \
+    pattern: "all_phase3_10.bed"
+  publishDir params.indir, mode: 'copy', overwrite: true, \
+    pattern: "all_phase3_10.fam"
+  publishDir params.indir, mode: 'copy', overwrite: true, \
+    pattern: "all_phase3_10.bim"
 
-  output:
-  file "*.bcf" into cleaned_chrom
-
-  shell:
-  '''
-  chr_name=$(basename !{chr} .vcf.gz) # get basename of a chromosome 
+  container 'snpqt'
   
-  bcftools norm -m-any --check-ref w -f !{h37} !{chr} | \
-		bcftools annotate -I '%CHROM:%POS:%REF:%ALT' | \
-		bcftools norm -Ob --rm-dup both -o $chr_name.bcf
-  '''
-}
-
-// Note: formerly C1 
-// STEP F4: Convert reference panel to binary plink format and merge chromosomes
-process make_plink {
   input:
-  file chr from cleaned_chrom
+  file thousand_pgen
+  file thousand_pvar
+  file thousand_psam
+  file h37
+  file exclude
 
   output:
-  file "*.bed" into beds
-  file "*.bim" into bims
-  file "*.fam" into fams
-
+  file "all_phase3_10*"
+  
   shell:
   '''
-  chr_name=$(basename !{chr} .bcf) # get basename of a chromosome 
-
-  plink --bcf !{chr} \
-    --allow-extra-chr 0 \
-    --double-id --make-bed \
-    --out $chr_name
-  '''
-}
-
-process merge_plink {
-  input:
-  file bed from beds.collect()
-  file bim from bims.collect()
-  file fam from fams.collect()
-
-  output:
-  file '1kG_PCA1*' into kG_PCA1
-
-  shell:
-  '''
-  find . -name "*.bim" -exec basename {} .bim \\; > mergeList.txt
-  plink --merge-list mergeList.txt \
-    --keep-allele-order \
+  mv !{thousand_psam} all_phase3.psam
+  plink2 --zst-decompress !{thousand_pgen} > all_phase3.pgen
+  plink2 --pfile 'vzs' all_phase3 --chr 1-22 --make-pfile --out all_phase3_1
+  tr -s ':' !{h37} > h37_squeezed.fasta
+  # fixes left-normalisation bug unexpected character
+  plink2 --pfile all_phase3_1 \
+    --normalize 'list' \
+    --fa h37_squeezed.fasta \
+    --make-pgen \
+    --out all_phase3_3
+  # Remove duplicates
+  plink2 --pfile all_phase3_3 \
+    --rm-dup force-first \
+    --make-pgen \
+    --out all_phase3_4
+  # Remove multi-allelic variants
+  plink2 --pfile all_phase3_4 \
+    --max-alleles 2 \
+    --make-pgen \
+    --out all_phase3_5
+  # Remove variants based on missing genotype data
+  plink2 --pfile all_phase3_5 \
+    --geno 0.1 \
+    --make-pgen \
+    --out all_phase3_6
+  # Remove individuals based on missing genotype data.
+  plink2 --pfile all_phase3_6 \
+    --mind 0.02 \
+    --make-pgen \
+    --out all_phase3_7
+  # Remove variants based on missing genotype data.
+  plink2 --pfile all_phase3_7 \
+    --geno 0.02 \
+    --make-pgen \
+    --out all_phase3_8
+  # Remove variants based on MAF and prune
+  plink2 --pfile all_phase3_8 \
+    --maf 0.05 \
     --make-bed \
-    --out 1kG_PCA1
+    --out all_phase3_9
+  # Prune variants
+  plink --bfile all_phase3_9 \
+    --exclude !{exclude} \
+    --indep-pairwise 50 5 0.2 \
+    --out indepSNPs_1k_allphase
+  plink --bfile all_phase3_9 \
+    --extract indepSNPs_1k_allphase.prune.in \
+    --make-bed \
+    --out all_phase3_10
   '''
-}
-
-// Note: formerly C2
-// STEP F5: STEP C2: QC on 1000 Genomes data -----------------------------------
-
-process qc_thousand_genomes {
-    publishDir params.indir, mode: 'copy', overwrite: true, \
-      pattern: "1kG_PCA6.bed"
-    publishDir params.indir, mode: 'copy', overwrite: true, \
-      pattern: "1kG_PCA6.bim"
-    publishDir params.indir, mode: 'copy', overwrite: true, \
-      pattern: "1kG_PCA6.fam"
-      
-    input:
-    file kG_PCA1
-    file exclude
-
-    output:
-    file "1kG_PCA6*" into thousand_genomes_qc
-
-    shell:
-    '''
-    # Remove variants based on missing genotype data.
-    plink --bfile 1kG_PCA1 \
-      --geno 0.1 \
-      --allow-no-sex \
-      --make-bed \
-      --out 1kG_PCA2
-
-    # Remove individuals based on missing genotype data.
-    plink --bfile 1kG_PCA2 \
-      --mind 0.02 \
-      --allow-no-sex \
-      --make-bed \
-      --out 1kG_PCA3
-
-    # Remove variants based on missing genotype data.
-    plink --bfile 1kG_PCA3 \
-      --geno 0.02 \
-      --allow-no-sex \
-      --make-bed \
-      --out 1kG_PCA4
-
-    # Remove variants based on MAF.
-    plink --bfile 1kG_PCA4 \
-      --maf 0.05 \
-      --allow-no-sex \
-      --make-bed \
-      --out 1kG_PCA5
-
-    # Prune variants
-    # Check which r2 threshold is best (Ask Andrew)
-    plink --bfile 1kG_PCA5 \
-      --exclude !{exclude} \
-      --indep-pairwise 50 5 0.2 \
-      --out indepSNPs_1k
-	  plink --bfile 1kG_PCA5 \
-      --extract indepSNPs_1k.prune.in \
-      --make-bed \
-      --out 1kG_PCA6
-    '''
-} 
-
-// Step F6: Make a racefile ---------------------------------------------------
-process racefile {
-  publishDir params.indir, mode: 'copy', overwrite: true 
-
-  input:
-  file in_panel
-
-  output:
-  file "*.txt" into racefiles 
-
-  shell:
-  '''
-  # Make 1st racefile, using the 20130502 panel using superpopulation codes 
-  # (i.e., AFR,AMR,EASN,SAS and EUR)
-  awk '{print$1,$1,$3}' !{in_panel}  > super_racefile_1k.txt
-
-  # Make 2nd racefile, using the 20130502 panel using subpopulation codes 
-  awk '{print$1,$1,$2}' !{in_panel} > sub_racefile_1k.txt
-  '''
-}
-
-// Step F7: 
-process to_vcf {
-    publishDir params.indir, mode: 'copy', overwrite: true
-
-    input:
-    file thousand_genomes_qc
-
-    output:
-    file "1kG_PCA6.vcf.gz"
-    
-    shell:
-    '''
-    plink --bfile 1kG_PCA6 \
-        --recode vcf bgz \
-        --out 1kG_PCA6
-    '''
 }

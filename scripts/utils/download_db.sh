@@ -16,10 +16,10 @@ hg19_url="https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz"
 human_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz"
 human_fai_url="http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai"
 
-# thousand genome
-panel_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel"
-thousand_vcf_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{.}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
-thousand_tabix_url="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{.}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz.tbi"
+# 1K genome data from plink (pop strat)
+psam_url="https://www.dropbox.com/s/yozrzsdrwqej63q/phase3_corrected.psam?dl=1"
+pgen_url="https://www.dropbox.com/s/afvvf1e15gqzsqo/all_phase3.pgen.zst?dl=1"
+pvar_url="https://www.dropbox.com/s/op9osq6luy3pjg8/all_phase3.pvar.zst?dl=1"
 
 # dbSNP (step D8)
 dbsnp_url="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz"
@@ -34,9 +34,8 @@ mkdir -p $LIBRARY_DIR
 cd $LIBRARY_DIR
 
 if [ ! -e "download.complete" ]
-    then
+then
     # small files --------------------------------------------------------------
-    curl -s -O $panel_url
     curl -s -O -L $picard_url
     curl -s -O $chain_url
     curl -s -O $human_fai_url 
@@ -55,17 +54,12 @@ if [ ! -e "download.complete" ]
 fi
 
 if [ ! -e "big.download.complete" ]
-    then
+then
     echo -n "Downloading thousand genomes genotypes..."
-    seq 1 22 > chrom_list.txt
-    mkdir -p thousand_genomes/ && cd thousand_genomes 
-    parallel -a ../chrom_list.txt --progress --resume-failed --joblog vcf_log \
-      curl -s -O $thousand_vcf_url
-    parallel -a ../chrom_list.txt --progress --resume-failed --joblog tabix_log \
-      curl -s -O $thousand_tabix_url 
-    rm vcf_log tabix_log
-    echo " finished."    
-    cd .. 
+    curl -Lso phase3_corrected.psam $psam_url
+    curl -Lso all_phase3.pgen.zst $pgen_url
+    curl -Lso all_phase3.pvar.zst $pvar_url
+    echo " finished."
     echo -n "Downloading dbSNP (~15GB)..."
     curl -s -O $dbsnp_url
     curl -s -O $dbsnp_index_url
