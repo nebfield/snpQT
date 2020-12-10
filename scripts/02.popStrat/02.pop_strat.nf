@@ -22,9 +22,9 @@ Channel.fromPath( params.infam ).set { infam }
 inbed.into {inbed_maf ; inbed_extract }
 inbim.into { inbim_maf ; inbim_extract }
 infam.into { infam_maf ; infam_extract }
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.bed").set { refbed }
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.bim").set { refbim } 
-Channel.fromPath("$SNPQT_DB_DIR/1kG_PCA6.fam").set { reffam }
+Channel.fromPath("$SNPQT_DB_DIR/all_phase3_10.bed").set { refbed }
+Channel.fromPath("$SNPQT_DB_DIR/all_phase3_10.bim").set { refbim } 
+Channel.fromPath("$SNPQT_DB_DIR/all_phase3_10.fam").set { reffam }
 refbed.into { refbed_align ; refbed_intersect }
 refbim.into { refbim_align ; refbim_intersect }
 reffam.into { reffam_align ; reffam_intersect }
@@ -47,7 +47,7 @@ process filter_maf {
 
     shell:
     '''
-   	# MAF filtering < 5%
+    # MAF filtering < 5%
     plink --bfile sample_variant_qc \
       --maf 0.05 \
       --make-bed \
@@ -86,7 +86,7 @@ process run_snpflip {
 
   shell:
   '''
- 	# Run snpflip to identify ambiguous SNPs and SNPs that are located on the 
+  # Run snpflip to identify ambiguous SNPs and SNPs that are located on the 
   # reverse strand first on user's dataset
   snpflip -b C3.bim \
     -f !{g37} \
@@ -110,8 +110,8 @@ process flip_snps {
     --make-bed \
     --out flipped
 
- 	# Remove ambiguous SNPs
-	plink --bfile flipped \
+  # Remove ambiguous SNPs
+  plink --bfile flipped \
     --exclude plink_PCA-adj_snpflip.ambiguous \
     --make-bed \
     --out C4
@@ -133,8 +133,9 @@ process align {
   shell:
   '''
   # set 1k genome as reference to user's data 
-	awk '{print$2,$5}' 1kG_PCA6.bim > 1kg_ref-list.txt
-	plink --bfile C4 \
+  awk '{print$2,$5}' !{refbim_align} > 1kg_ref-list.txt
+
+  plink --bfile C4 \
     --reference-allele 1kg_ref-list.txt \
     --make-bed \
     --out C5
@@ -156,41 +157,42 @@ process intersect_variants {
     shell:
     '''
     # Extract the variants present in dataset from the 1000 genomes dataset
-	  awk '{print $2}' C5.bim > user_snps.txt
-	  plink --bfile 1kG_PCA6 \
+    awk '{print $2}' C5.bim > user_snps.txt
+    plink --bfile !{refbed_intersect.baseName} \
       --extract user_snps.txt \
       --make-bed \
       --out 1kG_subset
-  
-	  # Extract the variants present in 1000 Genomes dataset from the dataset
-	  awk '{print $2}' 1kG_subset.bim > 1kG_PCA6_SNPs.txt
-	  plink --bfile C5 \
+
+    # Extract the variants present in 1000 Genomes dataset from the dataset
+    awk '{print $2}' 1kG_subset.bim > 1kG_PCA6_SNPs.txt
+    plink --bfile C5 \
       --extract 1kG_PCA6_SNPs.txt \
       --make-bed \
       --out C5_subset
-	  # The datasets now contain the exact same variants.
+
+    # The datasets now contain the exact same variants.
 
     # Find differences between the two files that still appeat after flipping 
     # an removing ambiguous SNPs
-	  awk '{print $2,$5,$6}' C5_subset.bim > user_data_corrected_tmp
-	  awk '{print $2,$5,$6}' 1kG_subset.bim > 1k_corrected_tmp
+    awk '{print $2,$5,$6}' C5_subset.bim > user_data_corrected_tmp
+    awk '{print $2,$5,$6}' 1kG_subset.bim > 1k_corrected_tmp
     sort user_data_corrected_tmp 1k_corrected_tmp | uniq -u > uncorresponding_SNPs.txt
 
     # Keep only the unique SNP ids 
-	  awk '{print $1}' uncorresponding_SNPs.txt | sort -u > SNPs_for_exclusion.txt
+    awk '{print $1}' uncorresponding_SNPs.txt | sort -u > SNPs_for_exclusion.txt
 
     # Remove the problematic SNPs from both datasets.
-	  plink --bfile C5_subset \
+    plink --bfile C5_subset \
       --exclude SNPs_for_exclusion.txt \
       --make-bed \
       --out C5_subset_exclude
-	  plink --bfile 1kG_subset \
+    plink --bfile 1kG_subset \
       --exclude SNPs_for_exclusion.txt \
       --make-bed \
       --out 1kG_subset_exclude
 
     # Merge user's dataset with 1000 Genomes Data
-	  plink --bfile C5_subset_exclude \
+    plink --bfile C5_subset_exclude \
       --bmerge 1kG_subset_exclude.bed 1kG_subset_exclude.bim 1kG_subset_exclude.fam \
       --allow-no-sex \
       --make-bed \
@@ -217,14 +219,14 @@ process pca {
       --indep-pairwise 50 5 0.2 \
       --out independent_SNPs 
 
-	  # Pruning on merged dataset
-	  plink --bfile C6 \
+    # Pruning on merged dataset
+    plink --bfile C6 \
       --extract independent_SNPs.prune.in \
       --make-bed \
       --out C6_indep 
 	
-	  # Perform PCA
-	  plink --bfile C6_indep \
+    # Perform PCA
+    plink --bfile C6_indep \
       --pca header \
       --out C7
     '''
