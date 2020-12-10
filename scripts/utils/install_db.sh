@@ -17,11 +17,10 @@ PIPELINE_PATH=$(realpath "install_db.nf")
 # fi
 
 cp $(realpath "../../data/PCA.exclude.regions.b37.txt") $SNPQT_DB_DIR/
+cp $(realpath "../../data/1toChr1.txt") $SNPQT_DB_DIR/
 
 nextflow run $PIPELINE_PATH \
   -c $SNPQT_CONFIG \
   --indir $SNPQT_DB_DIR \
   -resume
 
-
-# cp $(realpath "../../db/1toChr1.txt") $SNPQT_DB_DIR/
