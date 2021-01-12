@@ -256,7 +256,8 @@ process eigensoft {
     output:
     file "eigenvec" into C8_eigenvec
     file "merged_super_racefile.txt" into super_race_plot
-  
+    file "keep_sample_list.txt" into keep_sample_list
+    
     shell:
     '''
     # Concatenate racefiles: User's + super_racefile
@@ -267,7 +268,7 @@ process eigensoft {
     awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_super_racefile.txt !{C6_indep_fam} > C6_indep.pedind
 
     # make poplist.txt
-    echo "OWN" > poplist.txt
+    echo "OWN" > poplist.txt 
     cut -d ' ' -f 6  C6_indep.pedind | sort | uniq | grep -v 'OWN' >> poplist.txt
     
     echo "genotypename: !{C6_indep_bed}" > parfile
@@ -281,21 +282,58 @@ process eigensoft {
     echo "autoshrink: YES" >> parfile
 
     smartpca -p parfile > log.txt
+
+    awk -F " " '{print $1}' eigenvec | sed '1d' | awk -F ":" '{print $1,$2}' > keep_sample_list.txt
     '''
 }
 
 process plot_pca {
-    publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
-
+    publishDir outdir, mode: 'copy', overwrite: true
     input:
     file C8_eigenvec
     file super_race_plot
 
     output:
     file "*.png"
+    file "*.html"
+    file "popStrat_files"
 
     shell:
     '''
     pop_strat.R !{C8_eigenvec} !{super_race_plot}
     '''
-} 
+}
+
+// STEP C9: Extract homogenous ethnic group ------------------------------------------------------
+
+process extract_homogenous {
+    input:
+    file C3_pca
+    file keep_sample_list
+
+    output:
+    file "C9*" into C9
+    
+    shell:
+    '''
+    plink -bfile C3 --keep !{keep_sample_list} --make-bed --out C9
+    '''
+}
+
+// STEP C10: Covariates ---------------------------------------------------------------------------
+
+process pca_covariates {
+    input:
+    file C9
+    
+    shell:
+    '''
+    # TODO 
+    plink --bfile C9 --exclude PCA.exclude.regions.b37.txt --indep-pairwise 50 5 0.2 --out indepSNPs_1k_1
+    plink --bfile plink_13_1 --extract indepSNPs_1k_1.prune.in --make-bed --out plink_13_indep
+    # Perform a PCA on user's data without ethnic outliers. 
+    plink --bfile plink_13_indep --pca header --out plink_13_pca
+    # Create covariate file including the first 3 PCs
+    awk '{print $1, $2, $3, $4, $5}' plink_13_pca.eigenvec > covar_pca
+    '''
+}
