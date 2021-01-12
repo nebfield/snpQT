@@ -43,8 +43,9 @@ process filter_maf {
     file C3_exclude_regions
 
     output:
-    file "C3*" into C3, C3_snpflip 
-
+    file "C3*" into C3, C3_snpflip, C3_pca
+    file "C3.fam" into C3_pca_fam
+    
     shell:
     '''
     # MAF filtering < 5%
@@ -99,7 +100,7 @@ process flip_snps {
   shell:
   '''
   # Flip all reversed SNPs
-	plink --bfile C3 \
+  plink --bfile C3 \
     --flip plink_PCA-adj_snpflip.reverse \
     --make-bed \
     --out flipped
@@ -196,14 +197,17 @@ process intersect_variants {
 
 // STEP C7: PCA ----------------------------------------------------------------
 
-process pca {
+process pca_prep {
+    conda 'bioconda:eigensoft'
+    
     input:
     file C6_pca
     file C7_exclude_regions 
     
     output:
-    file "C7.eigenvec" into C7_eigenvec
-    file "C7*" into C7 
+    file "C6_indep.bim" into C6_indep_bim
+    file "C6_indep.bed" into C6_indep_bed
+    file "C6_indep.fam" into C6_indep_fam
 
     shell:
     '''
@@ -218,122 +222,80 @@ process pca {
       --extract independent_SNPs.prune.in \
       --make-bed \
       --out C6_indep 
-	
-    # Perform PCA
-    plink --bfile C6_indep \
-      --pca header \
-      --out C7
     '''
 }
 
-process racefile {
-    input:
-    file C6_racefile
-
+process get_racefile {
     output:
-    file "merged_super_racefile.txt" into super_racefile
-    file "merged_sub_racefile.txt" into sub_racefile
+    file "super_racefile.txt" into super_racefile
+    file "sub_racefile.txt" into sub_racefile
 
     shell:
     '''
     curl -O ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel
     # Make 1st racefile, using the 20130502 panel using superpopulation codes
     # (i.e., AFR,AMR,EASN,SAS and EUR).
-    awk '{print $1,$1,$3}' integrated_call_samples_v3.20130502.ALL.panel > super_racefile_1k.txt
+    awk '{print $1,$1,$3}' integrated_call_samples_v3.20130502.ALL.panel > super_racefile.txt
 
     # Make 2nd racefile, using the 20130502 panel using subpopulation codes 
-	  awk '{print $1,$1,$2}' integrated_call_samples_v3.20130502.ALL.panel > sub_racefile_1k.txt
-
-    # Create a racefile with user's data.
-	  awk '{print$1,$2,"OWN"}' C6.fam > racefile_own.txt
-
-	  # Concatenate racefiles: User's + super_racefile.
-	  cat super_racefile_1k.txt racefile_own.txt | sed -e '1iFID IID race' > merged_super_racefile.txt
-
-	  # Concatenate racefiles: User's + sub_racefile.
-	  cat sub_racefile_1k.txt racefile_own.txt | sed -e '1iFID IID race' > merged_sub_racefile.txt    
+    awk '{print $1,$1,$2}' integrated_call_samples_v3.20130502.ALL.panel > sub_racefile.txt  
     '''
 }
 
-// STEP C8: plot PCA  ----------------------------------------------------------
+// STEP C8: Eigensoft ----------------------------------------------------------------
+process eigensoft {
+    container 'quay.io/biocontainers/eigensoft:7.2.1--h1d3628b_2'
+ 
+    input:
+    file C3_pca_fam
+    file C6_indep_bed
+    file C6_indep_bim
+    file C6_indep_fam
+    file super_racefile
+
+    output:
+    file "eigenvec" into C8_eigenvec
+    file "merged_super_racefile.txt" into super_race_plot
+  
+    shell:
+    '''
+    # Concatenate racefiles: User's + super_racefile
+    awk '{print $1,$2,"OWN"}' !{C3_pca_fam} > racefile_toy_own.txt
+    cat !{super_racefile} racefile_toy_own.txt | sed -e '1i\\FID IID race' >  merged_super_racefile.txt
+
+    # Assign populations to FID and IIDs, make .pedind
+    awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_super_racefile.txt !{C6_indep_fam} > C6_indep.pedind
+
+    # make poplist.txt
+    echo "OWN" > poplist.txt
+    cut -d ' ' -f 6  C6_indep.pedind | sort | uniq | grep -v 'OWN' >> poplist.txt
+    
+    echo "genotypename: !{C6_indep_bed}" > parfile
+    echo "snpname:      !{C6_indep_bim}" >> parfile
+    echo "indivname:    C6_indep.pedind" >> parfile
+    echo "evecoutname:  eigenvec" >> parfile
+    echo "evaloutname:  eigenval" >> parfile
+    echo "numthreads:   10" >> parfile
+    echo "poplistname: poplist.txt" >> parfile
+    echo "numoutlierevec: 5" >> parfile
+    echo "autoshrink: YES" >> parfile
+
+    smartpca -p parfile > log.txt
+    '''
+}
 
 process plot_pca {
     publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
 
     input:
-    file C7_eigenvec
-    file super_racefile
+    file C8_eigenvec
+    file super_race_plot
 
     output:
-    file "PCA.png"
-    file "EUR_PCA_merge" into ethnic_cluster
+    file "*.png"
 
     shell:
     '''
-    pop_strat.R !{C7_eigenvec} !{super_racefile}
-
-    # Exclude ethnic outliers
-    # -----------------------
-	  # Select individuals in plink data below cut-off thresholds. The cut-off 
-    # levels are not fixed thresholds but have to be determined based on the 
-    # visualization of the first two or three dimensions. To exclude ethnic 
-    # outliers, the thresholds need to be set around the cluster of population 
-    # of interest.
-	  awk '{ if ($4 <0.02 && $5 >-0.025) print $1,$2 }' !{C7_eigenvec} > EUR_PCA_merge
+    pop_strat.R !{C8_eigenvec} !{super_race_plot}
     '''
-}
-
-// STEP C9: Extract the homogenous ethnic group of samples from user's data ----
-
-process extract_homogenous {
-  input:
-  file ethnic_cluster
-  file inbed_extract
-  file inbim_extract
-  file infam_extract
-
-  output:
-  file "C9*" into C9
-
-  shell:
-  '''
-  plink --bfile sample_variant_qc \
-      --keep !{ethnic_cluster} \
-      --make-bed \
-      --out C9
-  '''
-}
-
-// STEP C10: Create covariates based on PCA ------------------------------------
-
-process homogenous_pca {
-  input:
-  file C9 
-  file C10_excluded_regions
-
-  output:
-  file "covar_pca.txt" into covar_homogenous_pca
-
-  shell:
-  '''
-  # Pruning in user's dataset
-	plink --bfile C9 \
-    --exclude !{C10_excluded_regions} \
-    --indep-pairwise 50 5 0.2 \
-    --out indepSNPs_1k_1
-	plink --bfile C9 \
-    --extract indepSNPs_1k_1.prune.in \
-    --make-bed \
-    --out C10_indep 
-
-  # Perform a PCA on user's data without ethnic outliers. 
-	plink --bfile C10_indep \
-    --pca header \
-    --out C10
-
-	# Create covariate file including the first 3 PCs
-	awk '{print $1, $2, $3, $4, $5}' C10.eigenvec > covar_pca.txt
-  '''
-}
-
-// Finished!
+} 
