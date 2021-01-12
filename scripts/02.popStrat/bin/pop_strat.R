@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 
 library("tidyverse")
+library("plotly")
+library("htmlwidgets")
 
 # Args
 # 1: eigenvec
@@ -47,3 +49,16 @@ plot_pca(df, PCA1, PCA3)
 ggsave("pca1vspca3.png")
 plot_pca(df, PCA2, PCA3)
 ggsave("pca2vspca3.png")
+
+fancy_plot <- plot_ly(
+  df,
+  x =  ~ PCA1,
+  y =  ~ PCA2,
+  z =  ~ PCA3,
+  size = 3,
+  type = "scatter3d",
+  mode = "markers",
+  color =  ~ race
+)
+
+saveWidget(fancy_plot, "popStrat.html", selfcontained = F)
