@@ -58,17 +58,11 @@ process filter_maf {
       --exclude !{C3_exclude_regions} \
       --indep-pairwise 50 5 0.2 \
       --out indepSNPs_1k
-   	plink --bfile maf_filtered \
+      
+    plink --bfile maf_filtered \
       --extract indepSNPs_1k.prune.in \
       --make-bed \
-      --out maf_filtered_extracted
-    
-   	 # Label the user's dataset in a chr:pos:ref:alt manner
-     plink2 --bfile maf_filtered_extracted \
-       --set-all-var-ids @:#:\\$r:\\$a \
-       --new-id-max-allele-len 1000 \
-       --make-bed \
-       --out C3
+      --out C3
    '''
 }
 
