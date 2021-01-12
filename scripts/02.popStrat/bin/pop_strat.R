@@ -8,16 +8,42 @@ library("tidyverse")
 
 args <- commandArgs(trailingOnly = TRUE)
 
-read.table(args[[1]], header=TRUE) %>%
-  as_tibble(.) -> eigenvec
+eigenvals <- readr::read_table(args[[1]], skip = 1, col_names = FALSE) %>%
+  mutate(id = gsub(".*:","",X1)) # colons mess up matching
 
-read.table(args[[2]], header=TRUE) %>%
-  as_tibble(.) %>%
-  left_join(eigenvec) -> dat
+df <- readr::read_delim(args[[2]], delim = " ") %>%
+  left_join(eigenvals, by = c("IID" = "id")) %>%
+  drop_na(X1) %>%
+  select(-race)
 
-dat %>%
-  select(IID, race, PC1, PC2) %>%
-  ggplot(., aes(x = PC1, y = PC2, colour = race)) + 
-  geom_point() + 
-  theme_classic()
-ggsave("PCA.png", dpi = 300)
+colnames(df) <-
+  c(
+    "FID",
+    "IID",
+    "id",
+    "PCA1",
+    "PCA2",
+    "PCA3",
+    "PCA4",
+    "PCA5",
+    "PCA6",
+    "PCA7",
+    "PCA8",
+    "PCA9",
+    "PCA10",
+    "race" 
+  )
+
+plot_pca <- function(df, ax1, ax2) {
+  # {{ }} tidy evaluation for column names
+  ggplot(df, aes(x = {{ ax1 }} , y = {{ ax2 }}, colour = race)) +
+    geom_point() +
+    theme_classic()
+}
+
+plot_pca(df, PCA1, PCA2)
+ggsave("pca1vspca2.png")
+plot_pca(df, PCA1, PCA3)
+ggsave("pca1vspca3.png")
+plot_pca(df, PCA2, PCA3)
+ggsave("pca2vspca3.png")
