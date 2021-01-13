@@ -31,7 +31,7 @@ reffam.into { reffam_align ; reffam_intersect }
 Channel.fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta").set{ g37 }
 Channel.fromPath("$SNPQT_DB_DIR/1kG_race.txt").set{ racefile }
 Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set{exclude} 
-exclude.into { C3_exclude_regions ; C7_exclude_regions; C10_excluded_regions}
+exclude.into { C3_exclude_regions ; C7_exclude_regions ; C10_exclude_regions }
 
 // STEP C3: filter minor allele frequency from user's dataset ------------------
 
@@ -45,6 +45,7 @@ process filter_maf {
     output:
     file "C3*" into C3, C3_snpflip, C3_pca
     file "C3.fam" into C3_pca_fam
+    file "C3.log" into C3_log
     
     shell:
     '''
@@ -96,7 +97,8 @@ process flip_snps {
 
   output:
   file "C4*" into C4
-
+  file "C4.log" into C4_log
+  
   shell:
   '''
   # Flip all reversed SNPs
@@ -124,7 +126,8 @@ process align {
 
   output:
   file "C5*" into C5
-
+  file "C5.log" into C5_log
+  
   shell:
   '''
   # set 1k genome as reference to user's data 
@@ -148,7 +151,8 @@ process intersect_variants {
 
     output:
     file "C6*" into C6_pca, C6_racefile
-
+    file "C6.log" into C6_log
+    
     shell:
     '''
     # Extract the variants present in dataset from the 1000 genomes dataset
@@ -313,6 +317,7 @@ process extract_homogenous {
 
     output:
     file "C9*" into C9
+    file "C9.log" into C9_log
     
     shell:
     '''
@@ -325,15 +330,36 @@ process extract_homogenous {
 process pca_covariates {
     input:
     file C9
+    file C10_exclude_regions
+
+    output:
+    file "C10_pca.log" into C10_log
     
     shell:
     '''
-    # TODO 
-    plink --bfile C9 --exclude PCA.exclude.regions.b37.txt --indep-pairwise 50 5 0.2 --out indepSNPs_1k_1
-    plink --bfile plink_13_1 --extract indepSNPs_1k_1.prune.in --make-bed --out plink_13_indep
-    # Perform a PCA on user's data without ethnic outliers. 
-    plink --bfile plink_13_indep --pca header --out plink_13_pca
+    plink --bfile C9 --exclude !{C10_exclude_regions} --indep-pairwise 50 5 0.2 --out indepSNPs_1k_1
+    plink --bfile C9 --extract indepSNPs_1k_1.prune.in --make-bed --out C10_indep
+    # Perform a PCA on user's data without ethnic outliers.
+    
+    plink --bfile C10_indep --pca header --out C10_pca
     # Create covariate file including the first 3 PCs
-    awk '{print $1, $2, $3, $4, $5}' plink_13_pca.eigenvec > covar_pca
+    awk '{print $1, $2, $3, $4, $5}' C10_pca.eigenvec > covar_pca
+    '''
+}
+
+process logs {
+    echo true
+    
+    input:
+    file C3_log
+    file C4_log
+    file C5_log
+    file C6_log
+    file C9_log
+    file C10_log
+
+    shell:
+    '''
+    ls *.log | sort -V | xargs -d '\n' grep loaded
     '''
 }
