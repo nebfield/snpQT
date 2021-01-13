@@ -348,8 +348,6 @@ process pca_covariates {
 }
 
 process logs {
-    echo true
-    
     input:
     file C3_log
     file C4_log
@@ -358,8 +356,11 @@ process logs {
     file C9_log
     file C10_log
 
+    output:
+    file "popstrat.log"
+    
     shell:
     '''
-    ls *.log | sort -V | xargs -d '\n' grep loaded
+    ls *.log | sort -V | xargs -d '\n' grep loaded > popstrat.log
     '''
 }
