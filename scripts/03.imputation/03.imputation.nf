@@ -30,8 +30,11 @@ Channel
     .fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz")
     .into{ shapeit4_map_user; shapeit4_map_ref }
 Channel
-    .fromPath("$SNPQT_DB_DIR/1kG_PCA6.vcf.gz")
-    .into{ thousand_genomes_idx; thousand_genomes }
+    .fromPath("$SNPQT_DB_DIR/*genotypes.vcf_updated.vcf.gz")
+    .set{ thousand_genomes }
+Channel
+    .fromPath("$SNPQT_DB_DIR/*updated.vcf.gz.csi")
+    .set{ thousand_genomes_idx }
 
 // Pre-imputation 
 // =============================================================================
@@ -214,49 +217,29 @@ process phasing {
 // Note: STEP D16 is taken care of by Dockerfile 
 // STEP D17: Convert vcf reference genome into a .imp5 format for each chromosome
 
-process index_ref {
-    input:
-    file thousand_genomes_idx
+// extract chromosome digit from file name
+// toInteger important for join()
+thousand_genomes
+    .map{ f -> [f.baseName.find(/\d+/).toInteger(), f] }
+    .set{ thousand_genomes_tuple }
+thousand_genomes_idx
+    .map{ f -> [f.baseName.find(/\d+/).toInteger(), f] }
+    .join(thousand_genomes_tuple)
+    .set { D16 }
 
-    output:
-    file '1kG_PCA6.vcf.gz.csi' into ref_idx
-
-    shell:
-    '''
-    bcftools index !{thousand_genomes_idx}
-    '''
-}
-
-process split_ref_chrom {
-    input:
-    file thousand_genomes
-    file ref_idx
-    each chr from split_ref 
-
-    output:
-    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') \
-        into ref_chr
-
-    shell:
-    '''
-    bcftools view -r !{chr} !{thousand_genomes} -Oz -o ref_chr.vcf.gz
-    bcftools index ref_chr.vcf.gz
-    '''
-}
-
-process imp5convert {
+process convert_imp5 { 
     container 'impute5'
-
+    
     input:
-    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.csi') \
-        from ref_chr
+    tuple val(chr), file('ref_chr.vcf.gz.csi'), file('ref_chr.vcf.gz') \
+        from D16
 
     output:
     tuple val(chr), file('1k_b37_reference_chr.imp5'), \
         file('1k_b37_reference_chr.imp5.idx') into D17  
 
     shell:
-    '''  
+    '''
     imp5Converter --h ref_chr.vcf.gz \
         --r !{chr} \
         --o 1k_b37_reference_chr.imp5
@@ -296,3 +279,4 @@ process impute5 {
 }
 
 // Finished!
+
