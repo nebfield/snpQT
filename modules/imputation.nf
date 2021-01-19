@@ -1,102 +1,32 @@
-params.inbed = "../../results/sample_qc/sample_variant_qc.*"
-params.inbim = "../../results/sample_qc/sample_variant_qc.bim"
-params.infam = "../../results/sample_qc/sample_variant_qc.fam"
-params.outdir = "$baseDir/../../results"
-outdir = params.outdir + '/imputation/'
-
-log.info """\
-         snpQT step03: Imputation
-         input file: ${params.inbim}
-         outdir: ${params.outdir}
-         """
-         .stripIndent()
-
-// User's plink files ---------------------------------------------------------
-Channel.fromPath( params.inbed ).into { inbed; inbed_snpflip } 
-Channel.fromPath( params.inbim ).into { inbim; inbim_snpflip } 
-Channel.fromPath( params.infam ).into { infam; infam_snpflip } 
-
-// Database files -------------------------------------------------------------
-Channel
-    .fromPath("$SNPQT_DB_DIR/human_g1k_v37.fasta")
-    .into{ g37_D1 ; g37_D8 }
-Channel
-    .fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz")
-    .set{ dbSNP }
-Channel
-    .fromPath("$SNPQT_DB_DIR/All_20180423.vcf.gz.tbi")
-    .set{ dbSNP_index }
-Channel
-    .fromPath("$SNPQT_DB_DIR/genetic_maps.b37.tar.gz")
-    .into{ shapeit4_map_user; shapeit4_map_ref }
-Channel
-    .fromPath("$SNPQT_DB_DIR/*genotypes.vcf_updated.vcf.gz")
-    .set{ thousand_genomes }
-Channel
-    .fromPath("$SNPQT_DB_DIR/*updated.vcf.gz.csi")
-    .set{ thousand_genomes_idx }
-
 // Pre-imputation 
 // =============================================================================
 
-// STEP D1: Check for strand issues, ambiguous and duplicated SNPs using snpflip
-process run_snpflip {
-    container 'snpflip'
-
-    input:
-    file g37_D1
-    file inbed_snpflip
-    file inbim_snpflip
-    file infam_snpflip
-
-    output:
-    file "D1*" into D1
-
-    shell:
-    '''
-    snpflip -b sample_variant_qc.bim \
-        -f !{g37_D1} \
-        -o D1
-    '''
-
-}
-
 // STEP D2: Remove ambiguous SNPs ---------------------------------------------
-// STEP D3: Remove one of each pair of duplicated SNPs 
-// STEP D4: Flip all SNPs that are on the reverse strand 
+// STEP D4: Flip reverse SNPs
+// note: taken care of by popstrat modules now
 
-process flip_snps {
+// STEP D3: Remove one of each pair of duplicated SNPs 
+process fix_duplicates {
     input:
-    file inbed
-    file inbim
-    file infam 
-    file D1
+    path(bed)
+    path(bim)
+    path(fam)
 
     output:
-    file 'D4*' into D4
-
+    path "D3.bed", emit: bed
+    path "D3.bim", emit: bim
+    path "D3.fam", emit: fam
+    
     shell:
     '''
-    # D2: ambiguous 
-    plink -bfile sample_variant_qc \
-        --exclude D1.ambiguous \
-        --make-bed \
-        --out D2 
-
     # D3: duplicates
-    plink --bfile D2 \
-        --list-duplicate-vars ids-only suppress-first
+    plink --bfile !{bed.baseName} \
+      --list-duplicate-vars ids-only suppress-first
     
-    plink --bfile D2 \
-        --exclude plink.dupvar \
-        --make-bed \
-        --out D3
-
-    # D4: reverse 
-    plink --bfile D3 \
-        --flip D1.reverse \
-        --make-bed \
-        --out D4  
+    plink --bfile !{bed.baseName} \
+      --exclude plink.dupvar \
+      --make-bed \
+      --out D3
     '''
 }
 
@@ -106,14 +36,16 @@ process flip_snps {
 
 process to_bcf {
     input:
-    file D4 
+    path(bed)
+    path(bim)
+    path(fam)
 
     output:
-    file 'D7.bcf' into D7
+    path "D7.bcf", emit: bcf
 
     shell:
     '''
-    plink --bfile D4 \
+    plink --bfile !{bed.baseName} \
         --recode vcf bgz \
         --keep-allele-order \
         --out D6
@@ -125,20 +57,22 @@ process to_bcf {
 
 process check_ref_allele {
     input:
-    file D7 
-    file dbSNP
-    file dbSNP_index
-    file g37_D8
+    path(bcf)
+    path(db)
 
     output:
-    file 'D8.bcf' into D8
+    path "D8.bcf", emit: bcf
 
     shell:
     '''
-    bcftools +fixref !{D7} \
+    # extract specific file from db
+    dbSNP=!{db}"/All_20180423.vcf.gz"
+    g37=!{db}"/human_g1k_v37.fasta"
+   
+    bcftools +fixref !{bcf} \
         -Ob -o D8.bcf -- \
-        -d -f !{g37_D8} \
-        -i !{dbSNP}
+        -d -f $g37 \
+        -i $dbSNP
     '''
 }
 
@@ -146,55 +80,51 @@ process check_ref_allele {
 // STEP D10: Convert .bcf file to .vcf.gz file --------------------------------
 // STEP D11: Index the vcf.gz -------------------------------------------------
 
-process sort_to_vcf {
+process bcf_to_vcf {
     input:
-    file D8
-
+    path(bcf)
+    
     output:
-    file 'D11.vcf.gz' into D11
-    file 'D11.vcf.gz.csi' into D11_index 
-
+    path "D11.vcf.gz", emit: vcf
+    path "D11.vcf.gz.csi", emit: idx
+    
     shell:
     '''
-    bcftools sort !{D8} | bcftools convert -Oz > D11.vcf.gz
+    bcftools sort !{bcf} | bcftools convert -Oz > D11.vcf.gz
     bcftools index D11.vcf.gz     
     '''
 }
 
 // STEP D12: Split vcf.gz file in chromosomes ---------------------------------
 // STEP D13: Index all chroms .vcf.gz -----------------------------------------
-Channel.from(1..22).into{ split_user; split_ref } // groovy range for chroms
-
 process split_user_chrom {
     input:
-    file D11
-    file D11_index
-    each chr from split_user 
-
+    path(vcf)
+    path(idx)
+    each chr
+    
     output:
-    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi') into D12
+    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi'), emit: chrom 
 
     shell:
     '''
-    bcftools view -r !{chr} !{D11} -Oz -o D12.vcf.gz
+    bcftools view -r !{chr} !{vcf} -Oz -o D12.vcf.gz
     bcftools index D12.vcf.gz
     '''
 }
 
 // STEP D14: Perform phasing using shapeit4 -----------------------------------
 // STEP D15: Index phased chromosomes -----------------------------------------
-// give each chrom & idx tuple a map file 
-D12_combined = D12.combine(shapeit4_map_user)
 
 process phasing {
     container 'shapeit4' 
 
     input:
     tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi'), \
-        file('genetic_maps.b37.tar.gz') from D12_combined 
+        file('genetic_maps.b37.tar.gz')  
 
     output:
-    tuple val(chr), file('D14.vcf.gz'), file('D14.vcf.gz.csi') into D14
+    tuple val(chr), file('D14.vcf.gz'), file('D14.vcf.gz.csi'), emit: chrom
 
     shell:
     '''
@@ -219,24 +149,16 @@ process phasing {
 
 // extract chromosome digit from file name
 // toInteger important for join()
-thousand_genomes
-    .map{ f -> [f.baseName.find(/\d+/).toInteger(), f] }
-    .set{ thousand_genomes_tuple }
-thousand_genomes_idx
-    .map{ f -> [f.baseName.find(/\d+/).toInteger(), f] }
-    .join(thousand_genomes_tuple)
-    .set { D16 }
 
 process convert_imp5 { 
     container 'impute5'
     
     input:
-    tuple val(chr), file('ref_chr.vcf.gz.csi'), file('ref_chr.vcf.gz') \
-        from D16
+    tuple val(chr), file('ref_chr.vcf.gz.csi'), file('ref_chr.vcf.gz') 
 
     output:
     tuple val(chr), file('1k_b37_reference_chr.imp5'), \
-        file('1k_b37_reference_chr.imp5.idx') into D17  
+        file('1k_b37_reference_chr.imp5.idx'), emit: chrom
 
     shell:
     '''
@@ -249,21 +171,17 @@ process convert_imp5 {
 // STEP D18: Perform imputation using impute5 ---------------------------------
 // join phased vcfs with imp5 based on chrom value 
 // then combine so each tuple element has a shapeit4 map file 
-D17_combined = D17.join(D14).combine(shapeit4_map_ref)
 
 process impute5 {
     container 'impute5'
 
-    publishDir outdir, mode: 'copy', overwrite: true
-
     input:
     tuple chr, file('1k_b37_reference_chr.imp5'), \
         file('1k_b37_reference_chr.imp5.idx'), file('D14.vcf.gz'), \
-        file('D14.vcf.gz.csi'), file('genetic_maps.b37.tar.gz') \
-        from D17_combined
-    
+        file('D14.vcf.gz.csi'), file('genetic_maps.b37.tar.gz') 
+       
     output:
-    file 'imputed_chr*.vcf.gz'
+    path "imputed_chr${chr}.vcf.gz", emit: imputed
 
     shell:
     '''
