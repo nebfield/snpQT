@@ -1,79 +1,67 @@
-// TODO: make sure parameters exist
-// TODO: default sensible parameters? maybe a test data directory?
-// TODO: single log file
-
-// params.inbed = "../data/als_sub.vcf.gz"
-// params.inbim = "../data/als_sub.vcf.gz"
-// params.infam = "../data/subset.fam"
-params.outdir = "$baseDir/../../results"
-outdir = params.outdir + '/sample_qc/'
-
-log.info """\
-         snpQT step01: sample variant quality control
-         input file: ${params.inbed}
-         outdir: ${params.outdir}
-         fam file: ${params.infam}
-         """
-         .stripIndent()
-
-Channel.fromPath( params.inbed ).set { in_bed }
-Channel.fromPath( params.inbim ).set { in_bim } 
-Channel.fromPath( params.infam ).set { in_fam } 
-
-Channel.fromPath("$SNPQT_DB_DIR/PCA.exclude.regions.b37.txt").set { exclude_regions } 
-
+// qc processes
 
 // STEP B1: Remove SNPs < 90% missingness --------------------------------------
-process missingness {
+process variant_missingness {
   input:
-  file in_bed
-  file in_bim
-  file in_fam
+  path(in_bed)
+  path(in_bim)
+  path(in_fam)
 
   output:
-  file "missingness.log" into missingness_logs
-  file "plink_1*" into missingness_bfiles
+  path "B1.bed", emit: bed
+  path "B1.bim", emit: bim
+  path "B1.fam", emit: fam
 
   shell:
   '''  
-  cp !{in_fam} dataset_4.fam # rename fam file to match input bim / bed
-  plink --make-bed --bfile dataset_4 --out data 
-  
-  echo 'Pipeline input: ' && grep 'pass' data.log > log.txt
-  cp !{in_fam} data.fam
-  echo 'Step B1: missingness' >> log.txt
-  plink --bfile data --geno 0.1 --make-bed  --out plink_1 
-  echo 'Missingness output: ' && grep 'pass' plink_1.log
-  cat *.log > missingness.log
+  cp !{in_fam} !{in_bed.baseName}.fam # rename fam file to match input bim / bed
+  plink --bfile !{in_bed.baseName} \
+      --make-bed \
+      --out data 
+  plink --bfile data \
+      --geno 0.1 \
+      --make-bed  \
+      --out B1 
   '''
 }
 
 // STEP B2: Check missingness rate ---------------------------------------------
-// TODO: user set threshold
-process plot_missingness {
-  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
-
+process individual_missingness {
   input:
-  file missingness_bfiles
+  path(B1_bed)
+  path(B1_bim)
+  path(B1_fam)
 
   output:
-  file "sample_missingness.png"
-  file "plink.imiss" into imiss_relatedness
-  file "plink_3*" into missingness_bfiles_pruned
-
+  path "B2.bed", emit: bed
+  path "B2.bim", emit: bim
+  path "B2.fam", emit: fam
+  path "missing.imiss", emit: imiss
+  
   shell:
   '''
-  plink --bfile plink_1 \
+  plink --bfile !{B1_bed.baseName} \
     --missing \
-    --out plink_2 
-  plot_sample_missingness.R plink_2.imiss
-  # TODO user set mind threshold 
-  plink --bfile plink_1  \
+    --out missing 
+  
+  plink --bfile !{B1_bed.baseName} \
     --make-bed \
     --mind 0.02 \
-    --out plink_3 
-  mv plink_2.imiss plink.imiss # run_IBD_QC.pl
+    --out B2 
   '''
+}
+
+process plot_missingness {
+    input:
+    path(missing_imiss)
+
+    output:
+    path "sample_missingness.png", emit: figure
+
+    shell:
+    '''
+    plot_sample_missingness.R !{missing_imiss}
+    '''
 }
 
 // STEP B3: Remove samples with sex mismatch -----------------------------------
@@ -82,39 +70,38 @@ process plot_missingness {
 
 process check_sex {
     input:
-    file missingness_bfiles_pruned
-
+    path(B2_bed)
+    path(B2_bim)
+    path(B2_fam)
+    
     output:
-    file "plink.sexcheck" into sexcheck 
-    file "data_clean.bed" into sex_checked_bed
-    file "data_clean.bim" into sex_checked_bim
-    file "data_clean.fam" into sex_checked_fam
-
+    path "B3.bed", emit: bed 
+    path "B3.bim", emit: bim
+    path "B3.fam", emit: fam
+    path "plink.sexcheck", emit: sexcheck
+    
     // vcf to bed + fam https://www.biostars.org/p/313943/
     shell:
     '''
-    plink --bfile plink_3 \
+    plink --bfile !{B2_bed.baseName} \
       --check-sex 
     # Identify the samples with sex discrepancy 
     grep "PROBLEM" plink.sexcheck | awk '{print $1,$2}'> \
       problematic_samples.txt
     # Delete all problematic samples
-    plink --bfile plink_3 \
+    plink --bfile !{B2_bed.baseName} \
       --remove problematic_samples.txt \
       --make-bed \
-      --out data_clean 
-    echo 'Check sex output: ' && grep 'pass' data_clean.log
+      --out B3
     '''
 }
 
 process plot_sex {
-    publishDir outdir, mode: 'copy', overwrite: true
-
     input:
-    file sexcheck 
+    path(sexcheck) 
 
     output:
-    file "sexcheck.png"
+    path "sexcheck.png", emit: figure
 
     shell:
     '''
@@ -126,24 +113,25 @@ process plot_sex {
 
 process extract_autosomal {
     input:
-    file sex_checked_bed   
-    file sex_checked_bim
-    file sex_checked_fam
-
+    path(B3_bed)   
+    path(B3_bim)
+    path(B3_fam)
+    
     output:
-    file "autosomal.*" into autosomal, autosomal_het
-
+    path "B4.bed", emit: bed
+    path "B4.bim", emit: bim 
+    path "B4.fam", emit: fam
+    
     shell:
     '''
     # Extract only autosomal chromosomes (for studies that don't want to 
     # include sex chromosomes)
-    awk '{ if ($1 >= 1 && $1 <= 22) print $2 }' !{sex_checked_bim} > \
+    awk '{ if ($1 >= 1 && $1 <= 22) print $2 }' !{B3_bim} > \
       autosomal_SNPs.txt 
-    plink --bfile data_clean \
+    plink --bfile !{B3_bed.baseName} \
       --extract autosomal_SNPs.txt \
       --make-bed \
-      --out autosomal 
-    echo 'Extract autosomal output:' && grep 'pass' autosomal.log
+      --out B4    
     ''' 
 }
 
@@ -152,21 +140,26 @@ process extract_autosomal {
 
 process heterozygosity_rate {
     input:
-    file exclude_regions 
-    file autosomal
-
+    path(B4_bed)
+    path(B4_bim)
+    path(B4_fam) 
+    path(db)
+    
     output:
-    file "only_indep_snps*" into plot_het
-    file "independent_SNPs.prune.in" into ind_SNPs, ind_SNPs_popstrat
+    path "only_indep_snps.het", emit: het
+    path "independent_SNPs.prune.in", emit: ind_snps // into ind_SNPs, ind_SNPs_popstrat
 
     shell:
     '''
-    plink --bfile autosomal \
-      --exclude !{exclude_regions} \
+    # extract specific file from DB
+    exclude_regions=!{db}"/PCA.exclude.regions.b37.txt"
+    
+    plink --bfile !{B4_bed.baseName} \
+      --exclude $exclude_regions \
       --indep-pairwise 50 5 0.2 \
       --out independent_SNPs \
       --range
-    plink --bfile autosomal \
+    plink --bfile !{B4_bed.baseName} \
       --extract independent_SNPs.prune.in \
       --het \
       --out only_indep_snps 
@@ -174,183 +167,238 @@ process heterozygosity_rate {
 }
 
 process plot_heterozygosity { 
-    publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
-
     input: 
-    file plot_het
+    path het
 
     output:
-    file "het_failed_samples.txt" into het_failed
-    file "heterozygosity_rate.png"
+    path "het_failed_samples.txt", emit: failed
+    path "heterozygosity_rate.png", emit: figure
 
     shell:
     '''
-    # plot and get outliers list 
-    plot_heterozygosity.R
+    plot_heterozygosity.R !{het} # get outliers too
     '''
 }
 
 process heterozygosity_prune {
     input:
-    file autosomal_het
-    file het_failed
+    path(B4_bed)
+    path(B4_bim)
+    path(B4_fam)
+    path(het_failed)
 
     output:
-    file "het_pruned.*" into het_pruned
+    path "B5.bed", emit: bed
+    path "B5.bim", emit: bim
+    path "B5.fam", emit: fam
 
     shell:
     '''
     cut -f 1,2 !{het_failed} > het_failed_plink.txt
-    plink --bfile autosomal \
+    plink --bfile !{B4_bim.baseName} \
       --make-bed \
-      --out het_pruned \
-      --remove \
-      het_failed_plink.txt 
-    echo 'Check heterozygosity rate:' && grep 'pass' het_pruned.log
+      --remove het_failed_plink.txt \
+      --out B5
     '''
 }
 
 // STEP B6: Remove relatives ---------------------------------------------------
 process relatedness {
     input:
-    file het_pruned
-    file ind_SNPs
-    file imiss_relatedness
+    path(B5_bed)
+    path(B5_bim)
+    path(B5_fam)
+    path(ind_SNPs)
+    path(imiss)
 
     output:
-    file "pihat_pruned*" into relatedness
-
+    path "B6.bed", emit: bed
+    path "B6.bim", emit: bim
+    path "B6.fam", emit: fam
+    
     shell:
     '''
-    plink --bfile het_pruned \
+    plink --bfile !{B5_bed.baseName} \
       --extract !{ind_SNPs} \
-      --genome --min 0.125 \
-      --out pihat_0.125 
+      --genome \
+      --min 0.125 \
+      --out pihat_0.125
+      
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
     # relatives of each pair, having the most missingness. Output those failing
     # samples to pihat_failed_samples.txt
-    run_IBD_QC.pl 
-    plink --bfile het_pruned \
+    run_IBD_QC.pl !{imiss} pihat_0.125.genome
+
+    plink --bfile !{B5_bed.baseName} \
       --remove pihat_failed_samples.txt \
       --make-bed \
-      --out pihat_pruned 
-    echo 'Check relatedness:' && grep 'pass' pihat_pruned.log
+      --out B6
     '''
 }
 
 // STEP B7: Remove samples with missing phenotypes -----------------------------
 process missing_phenotype {
     input:
-    file relatedness
+    path(B6_bed)
+    path(B6_bim)
+    path(B6_fam)
 
     output:
-    file "missing*" into missing_pheno
+    path "B7.bed", emit: bed
+    path "B7.bim", emit: bim
+    path "B7.fam", emit: fam
 
     shell:
     '''
-    plink --bfile pihat_pruned \
+    plink --bfile !{B6_bed.baseName} \
       --prune \
       --make-bed \
-      --out missing 
-    echo 'Remove missing phenotypes:' && grep 'pass' missing.log 
+      --out B7
     '''
 }
 
 // STEP B8: Missingness per variant --------------------------------------------
-// TODO: user defined?
 
-process missingness_per_variant {
-    publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
-
+process mpv {
     input:
-    file missing_pheno
+    path(B7_bed)
+    path(B7_bim)
+    path(B7_fam)
 
     output:
-    file "*.png"
-    file "mpv.*" into mpv
+    path "B8.bed", emit: bed
+    path "B8.bim", emit: bim
+    path "B8.fam", emit: fam
+    path "plink.lmiss", emit: lmiss
 
     shell:
     '''
-    plink --bfile missing --missing 
-    plot_variant_missingness.R plink.lmiss
-    plink --bfile missing --geno 0.05 --make-bed --out mpv 
+    plink --bfile !{B7_bed.baseName} --missing 
+    plink --bfile !{B7_bed.baseName} \
+      --geno 0.05 \
+      --make-bed \
+      --out B8 
+    '''
+}
+
+process plot_mpv {
+    input:
+    path lmiss
+
+    output:
+    path "variant_missingness.png", emit: figure
+    
+    shell:
+    '''
+    plot_variant_missingness.R !{lmiss}
     '''
 }
 
 // STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
 
 process hardy {
-  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
-
   input:
-  file mpv
-
+  path(B8_bed)
+  path(B8_bim)
+  path(B8_fam)
+  
   output:
-  file "hwe.*" into hwe
-  file "*.png"
-
+  path "B9.bed", emit: bed
+  path "B9.bim", emit: bim
+  path "B9.fam", emit: fam
+  path "plink_sub.hwe", emit: sub
+  path "plinkzoomhwe.hwe", emit: zoom
+  
   shell: 
   '''
-  plink --bfile mpv --hardy 
+  plink --bfile !{B8_bed.baseName} --hardy 
   # sample 1% of SNPs
   head -n1 plink.hwe > plink_sub.hwe
   perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink.hwe) >> plink_sub.hwe
   awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
 	  plink.hwe > plinkzoomhwe.hwe
-  hwe.R plink_sub.hwe ""
-  hwe.R plinkzoomhwe.hwe "strongly deviating SNPs only"
-  plink --bfile mpv --hwe 1e-7 --make-bed --out hwe 
+  plink --bfile !{B8_bed.baseName} \
+    --hwe 1e-7 \
+    --make-bed \
+    --out B9 
+  '''
+}
+
+process plot_hardy {
+  input:
+  path sub
+  path zoom
+
+  output:
+  path "*.png", emit: figure
+  
+  shell:
+  '''
+  hwe.R !{sub} ""
+  hwe.R !{zoom} "strongly deviating SNPs only"
   '''
 }
 
 // STEP B10: Remove low minor allele frequency (MAF) ---------------------------
 
-process maf {
-  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.png"
-
+process maf {  
   input:
-  file hwe
+  path(B9_bed)
+  path(B9_bim)
+  path(B9_fam)
 
   output:
-  file "MAF_check.*" into maf_check
-  file "maf.png"
-
+  path "B10.bed", emit: bed
+  path "B10.bim", emit: bim
+  path "B10.fam", emit: fam
+  path "MAF_check.frq", emit: frq
+  
   shell:
   '''
-  plink --bfile hwe \
+  plink --bfile !{B9_bed.baseName} \
     --freq \
     --out MAF_check
-  plot_maf.R MAF_check.frq
-  plink --bfile hwe \
+  plink --bfile !{B9_bed.baseName} \
     --maf 0.05 \
     --make-bed \
-    --out MAF_check
+    --out B10
+  '''
+}
+
+process plot_maf {
+  input:
+  path maf_frq
+
+  output:
+  path "maf.png", emit: figure
+  
+  shell:
+  '''
+  plot_maf.R !{maf_frq}
   '''
 }
 
 // STEP B11: Test missingness in case / control status -------------------------
 
 process test_missing {
-  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bed"
-  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.bim"
-  publishDir outdir, mode: 'copy', overwrite: true, pattern: "*.fam"
-
   input:
-  file maf_check
-
+  path(B10_bed)
+  path(B10_bim)
+  path(B10_fam)
+  
   output:
-  file "sample_variant_qc*" into B11
-
+  path "B11.bed", emit: bed
+  path "B11.bim", emit: bim
+  path "B11.fam", emit: fam
+  
   shell:
   '''
-  plink --bfile MAF_check \
+  plink --bfile !{B10_bed.baseName} \
     --test-missing
   awk '{ if ($5 < 10e-7) print $2 }' plink.missing > fail_missingness.txt
-  plink --bfile MAF_check \
+  plink --bfile !{B10_bed.baseName} \
     --exclude fail_missingness.txt \
     --make-bed \
-    --out sample_variant_qc
+    --out B11
   '''
 }
-
-// Finished! ------------------------------------------------------------------
