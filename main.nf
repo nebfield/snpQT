@@ -8,6 +8,7 @@ include {buildConversion} from './workflows/buildConversion.nf'
 include {qc} from './workflows/qc.nf'
 include {popStrat} from './workflows/popStrat.nf'
 include {imputation} from './workflows/imputation.nf'
+include {postImputation} from './workflows/postImputation.nf'
 
 // initialise default parameters
 params.bed = false
@@ -18,6 +19,8 @@ params.vcf = false
 params.convertBuild = false
 params.qc = false
 params.popStrat = false
+params.impute = false
+params.postImpute = false
 params.help = true
 
 // todo: error checking input configuration
@@ -100,5 +103,9 @@ workflow {
 
     if (params.qc && params.impute) {
       imputation(qc.out.bed, qc.out.bim, qc.out.fam, ch_db)
+    }
+
+    if (params.impute && params.postImpute && params.qc) {
+      postImputation(imputation.out.imputed, qc.out.fam)
     }
 }

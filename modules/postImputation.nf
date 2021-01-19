@@ -1,36 +1,10 @@
-// Post-imputation (IN PROGRESS)
-// ============================================================================
-
-params.inplink = "$baseDir/../../results/sample_qc/sample_variant*"
-params.inimp = "$baseDir/../../results/imputation/*"
-params.outdir = "$baseDir/../../results"
-outdir = params.outdir + '/postImputation/'
-
-log.info """\
-         snpQT step04: Post-imputation QC 
-         """
-         .stripIndent()
-
-// User's imputed chromosomes --------------------------------------------------
-// extract chromosome number from file name to make a tuple of [chr, file path]
-
-Channel
-  .fromPath( params.inimp )
-  .collect()
-  .set { inimp }
-
-Channel
-  .fromPath( params.inplink )
-  .collect()
-  .set { inplink }
-
 // STEP E1: Merge all imputed chromosomes with bcftools, so that multi-allelics can be merged, -n is used since files are already sorted after imputation
-process merge_imputed_chrom {
+process merge_imp {
     input:
-    file '*' from inimp
-
+    path(imp)
+    
     output:
-    file 'merged_imputed.vcf.gz' into E1
+    path 'merged_imputed.vcf.gz', emit: vcf
     
     shell:
     '''
@@ -41,18 +15,18 @@ process merge_imputed_chrom {
 
 // STEP E2: Filter all poorly imputed variants based on info score (check impute5 output), filter based on MAF, annotate missing SNP ids, 
 
-process filter_imputed_chrom {
+process filter_imp {
     input:
-    file E1
+    path(imp)
 
     output:
-    file 'E2.bed' into E2_bed
-    file 'E2.bim' into E2_bim
-    file 'E2.fam' into E2_fam
+    path "E2.bed", emit: bed
+    path "E2.bim", emit: bim
+    path "E2.fam", emit: fam
     
     shell:
     '''
-    plink2 --vcf !{E1} \
+    plink2 --vcf !{imp} \
         --extract-if-info INFO '>'= 0.7 \
 	--id-delim _ \
 	--maf 0.01 \
@@ -67,19 +41,19 @@ process filter_imputed_chrom {
 
 process duplicates_cat1 {
     input:
-    file E2_bed
-    file E2_bim
-    file E2_fam
+    path(bed)
+    path(bim)
+    path(fam)
 
     output:
-    file 'E3_cat1.bed' into E3_cat1_bed
-    file 'E3_cat1.bim' into E3_cat1_bim
-    file 'E3_cat1.fam' into E3_cat1_fam
+    path "E3_cat1.bed", emit: bed
+    path "E3_cat1.bim", emit: bim
+    path "E3_cat1.fam", emit: fam
     
     shell:
     '''
     # Annotate all variants to this format chr:pos:ref:alt and remove exact duplicates
-    plink2 --bfile !{E2_bed.baseName} \
+    plink2 --bfile !{bed.baseName} \
         --set-all-var-ids @:#:\\$r:\\$a \
 	--new-id-max-allele-len 1000 \
 	--rm-dup force-first list \
@@ -87,7 +61,7 @@ process duplicates_cat1 {
 	--out E3
     # Recover the rs ids 
     plink2 --bfile E3 \
-        --recover-var-ids !{E2_bim} \
+        --recover-var-ids !{bim} \
 	--make-bed \
 	--out E3_cat1
     '''
@@ -95,20 +69,20 @@ process duplicates_cat1 {
 
 process duplicates_cat2 {
     input:
-    file E3_cat1_bed
-    file E3_cat1_bim
-    file E3_cat1_fam
-
+    path(bed)
+    path(bim)
+    path(fam)
+    
     output:
-    file 'E3_cat2.bed' into E3_cat2_bed
-    file 'E3_cat2.bim' into E3_cat2_bim
-    file 'E3_cat2.fam' into E3_cat2_fam
+    path "E3_cat2.bed", emit: bed
+    path "E3_cat2.bim", emit: bim 
+    path "E3_cat2.fam", emit: fam
 
     shell:
     '''
     # Identify the multi-allelics based on position and reference allele
-    cut -f 1,4,6 !{E3_cat1_bim} | sort | uniq -d | cut -f 2 | grep -w -F -f - !{E3_cat1_bim} | cut -f 2 > multi_allelics.txt
-    plink2 --bfile !{E3_cat1_bed.baseName} \
+    cut -f 1,4,6 !{bim} | sort | uniq -d | cut -f 2 | grep -w -F -f - !{bim} | cut -f 2 > multi_allelics.txt
+    plink2 --bfile !{bed.baseName} \
         --exclude multi_allelics.txt \
 	--make-bed \
 	--out E3_cat2
@@ -117,23 +91,23 @@ process duplicates_cat2 {
 
 process duplicates_cat3 {
     input:
-    file E3_cat2_bed
-    file E3_cat2_bim
-    file E3_cat2_fam
+    path(bed)
+    path(bim)
+    path(fam)
 
     output:
-    file 'E3_cat3.bed' into E3_cat3_bed
-    file 'E3_cat3.bim' into E3_cat3_bim
-    file 'E3_cat3.fam' into E3_cat3_fam
+    path "E3_cat3.bed", emit: bed
+    path "E3_cat3.bim", emit: bim 
+    path "E3_cat3.fam", emit: fam
     
     shell:
     '''
-    cut -f 2 !{E3_cat2_bim} | sort | uniq -d > merged_variants.txt
-    plink2 --bfile !{E3_cat2_bim.baseName} \
+    cut -f 2 !{bim} | sort | uniq -d > merged_variants.txt
+    plink2 --bfile !{bim.baseName} \
         -extract merged_variants.txt \
 	--make-bed \
 	--out merged_snps
-    plink2 --bfile !{E3_cat2_bim.baseName} \
+    plink2 --bfile !{bim.baseName} \
         --exclude merged_variants.txt \
 	--make-bed \
 	--out excluded_snps
@@ -151,22 +125,22 @@ process duplicates_cat3 {
 
 // STEP E4: update phenotype information
 
-process update_phenotype {
-    publishDir outdir, mode: 'copy', overwrite: true
-    
+process update_phenotype {   
     input:
-    file E3_cat3_bed
-    file E3_cat3_bim
-    file E3_cat3_fam
-    file inplink
+    path(bed)
+    path(bim)
+    path(fam)
+    path(user_fam)
 
     output:
-    file 'post_annotation*'
+    path "post_annotation.bed", emit: bed
+    path "post_annotation.bim", emit: bim
+    path "post_annotation.fam", emit: fam
     
     shell:
     '''
-    plink2 --bfile !{E3_cat3_bed.baseName} \
-        --fam !{inplink[0]} \
+    plink2 --bfile !{bed.baseName} \
+        --fam !{user_fam} \
 	--make-bed \
 	--out post_annotation
     '''
