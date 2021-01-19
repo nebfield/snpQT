@@ -3,6 +3,9 @@
 // enable dsl2
 nextflow.preview.dsl = 2
 
+// import modules
+include {printHelp} from './modules/help.nf'
+
 // import subworkflows
 include {buildConversion} from './workflows/buildConversion.nf'
 include {qc} from './workflows/qc.nf'
@@ -26,6 +29,11 @@ params.gwas = false
 params.help = false
 
 // todo: error checking input configuration
+if (params.help) {
+  printHelp()
+  System.exit(0)
+}
+
 if (params.convertBuild ) {
   if (!params.vcf) {
     println("Please supply a vcf.gz file for build conversion with --vcf")
@@ -44,6 +52,13 @@ if (params.convertBuild ) {
       System.exit(1)
     }
   }
+} else if (params.gwas) {
+    if(!params.qc || !params.popStrat) {
+      println("GWAS module requires qc and popStrat")
+      println("Please rerun with --qc and --popStrat")
+      println("Use --help to print help")
+      System.exit(1)
+    }
 }
 
 // main workflow
