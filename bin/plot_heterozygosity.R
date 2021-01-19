@@ -2,7 +2,12 @@
 
 library("tidyverse")
 
-read.table("only_indep_snps.het", header = TRUE) %>%
+# Args
+# 1: .het file path
+
+args <- commandArgs(trailingOnly = TRUE)
+
+read.table(args[[1]], header = TRUE) %>%
   mutate(HET_RATE = (N.NM. - O.HOM.) / N.NM.) -> het
   
 ggplot(het, aes(x = IID, y = HET_RATE)) + 
