@@ -52,8 +52,8 @@ workflow qc {
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
 
   emit:
-    qc_bed = test_missing.out.bed
-    qc_bim = test_missing.out.bim
-    qc_fam = test_missing.out.fam
+    bed = test_missing.out.bed
+    bim = test_missing.out.bim
+    fam = test_missing.out.fam
     reports = combine(plot_missingness.out.figure, plot_sex.out.figure, plot_heterozygosity.out.figure, plot_mpv.out.figure, plot_hardy.out.figure, plot_maf.out.figure)
 } 
