@@ -7,6 +7,7 @@ nextflow.preview.dsl = 2
 include {buildConversion} from './workflows/buildConversion.nf'
 include {qc} from './workflows/qc.nf'
 include {popStrat} from './workflows/popStrat.nf'
+include {imputation} from './workflows/imputation.nf'
 
 // initialise default parameters
 params.bed = false
@@ -55,29 +56,32 @@ workflow {
   if ( !params.convertBuild && params.qc ) {
     Channel
       .fromPath(params.bed, checkIfExists: true)
-      .set{ ch_inbed }
+      .set{ ch_bed }
     Channel
       .fromPath(params.bim, checkIfExists: true)
-      .set{ ch_inbim }
+      .set{ ch_bim }
     Channel
       .fromPath(params.fam, checkIfExists: true)
-      .set{ ch_infam }
+      .set{ ch_fam }
   } else if (params.convertBuild && params.qc) {
     Channel
       .fromPath(params.fam, checkIfExists: true)
-      .set{ ch_infam }
+      .set{ ch_fam }
   }
 
   if ( params.popStrat ) {
     Channel
       .fromPath(params.db + '/all_phase3_10.bed', checkIfExists: true )
-      .set{ ref_bed }
+      .set{ ch_ref_bed }
     Channel
       .fromPath(params.db + '/all_phase3_10.bim', checkIfExists: true )
-      .set{ ref_bim }
+      .set{ ch_ref_bim }
     Channel
       .fromPath(params.db + '/all_phase3_10.fam', checkIfExists: true)
-      .set{ ref_fam } 
+      .set{ ch_ref_fam } 
+  }
+
+  if ( params.impute ) {
   }
 
   main:
@@ -87,10 +91,14 @@ workflow {
     
     if ( params.convertBuild && params.qc ) {
       buildConversion(ch_vcf, ch_db)
-      qc(buildConversion.out.bed, buildConversion.out.bim, ch_infam, ch_db)
+      qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam, ch_db)
     }
 
     if (params.qc && params.popStrat) {
-      popStrat(qc.out.bed, qc.out.bim, qc.out.fam, ref_bed, ref_bim, ref_fam, ch_db)
+      popStrat(qc.out.bed, qc.out.bim, qc.out.fam, ch_ref_bed, ch_ref_bim, ch_ref_fam, ch_db)
+    }
+
+    if (params.qc && params.impute) {
+      imputation(qc.out.bed, qc.out.bim, qc.out.fam, ch_db)
     }
 }
