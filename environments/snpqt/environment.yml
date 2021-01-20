@@ -1,0 +1,12 @@
+name: snpqt
+channels:
+  - conda-forge
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - plink=1.90b6.18
+  - r-tidyverse=1.2.1
+  - r-gridextra=2.3
+  - bcftools=1.11
+  - r-plotly=4.9.3

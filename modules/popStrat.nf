@@ -181,9 +181,7 @@ process merge {
 
 // STEP C7: PCA ----------------------------------------------------------------
 
-process pca_prep {
-    conda 'bioconda:eigensoft'
-    
+process pca_prep {    
     input:
     path(bed)
     path(bim)

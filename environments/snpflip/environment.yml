@@ -1,0 +1,8 @@
+name: snpflip
+channels:
+  - defaults
+dependencies:
+  - pandas=0.21.0
+  - pip
+  - pip:
+    - snpflip==0.0.6
