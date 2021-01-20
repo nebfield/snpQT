@@ -89,3 +89,16 @@ process decompress {
   bgzip -d !{x}
   '''
 }
+
+process index {
+  input:
+  path(x)
+
+  output:
+  path("${x}.tbi"), emit: idx
+
+  shell:
+  '''
+  tabix -p vcf !{x}
+  '''
+}
