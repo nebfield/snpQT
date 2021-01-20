@@ -76,3 +76,16 @@ process qc_ref_data {
     --out all_phase3_10
   '''
 }
+
+process decompress {
+  input:
+  path(x)
+
+  output:
+  path("${x.baseName}"), emit: file
+
+  shell:
+  '''
+  bgzip -d !{x}
+  '''
+}

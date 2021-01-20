@@ -5,6 +5,7 @@ nextflow.preview.dsl = 2
 
 // import modules
 include {qc_ref_data} from '../modules/download_db.nf' 
+include {decompress} from '../modules/download_db.nf'
 
 // workflow component for snpqt pipeline
 workflow download_core {
@@ -41,6 +42,7 @@ workflow download_core {
     Channel
       .fromPath("https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz", checkIfExists: true)
       .set{chain}
+    decompress(chain)
     // population stratification
     Channel
       .fromPath("ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
@@ -48,6 +50,6 @@ workflow download_core {
       
     // publish to db directory
     qc_ref_data.out.bed
-      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, chr, chain, panel)
+      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, chr, decompress.out.file, panel)
       .collectFile(storeDir: "$baseDir/db/")
 }

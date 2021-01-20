@@ -36,7 +36,7 @@ workflow popStrat {
       .set{ exclude }
     filter_maf(ch_bed, ch_bim, ch_fam, exclude)
     Channel
-      .fromPath("$baseDir/db/human_g1k_v37.fasta", checkIfExists: true)
+      .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
       .set { g37 }
     run_snpflip(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, g37)
     flip_snps(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, run_snpflip.out.rev, run_snpflip.out.ambig)
