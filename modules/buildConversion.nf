@@ -2,7 +2,6 @@
 // Step A4: Create a dictionary file ------------------------------------------
 process dictionary {
   input:
-  path(picard)
   path(hg19)
 
   output:
@@ -11,9 +10,7 @@ process dictionary {
   shell:
   '''
   # make it so!
-  java -Dpicard.useLegacyParser=false \
-    -Xmx8g \
-    -jar !{picard} \
+  picard \
     CreateSequenceDictionary \
     -R !{hg19} \
     -O hg19.fa.gz.dict
@@ -41,7 +38,6 @@ process num_to_chr {
 process liftover {
   input:
   path(vcf)
-  path(picard)
   path(hg19)
   path(chain)
   path(dict)
@@ -52,9 +48,7 @@ process liftover {
   shell:
   '''
   # !{dict} unused but needed to stage in file
-  java -Dpicard.useLegacyParser=false \
-    -Xmx16g \
-    -jar !{picard} LiftoverVcf \
+  picard -Xmx16g LiftoverVcf \
     -I !{vcf} \
     -O out.vcf \
     -CHAIN !{chain} \

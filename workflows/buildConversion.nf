@@ -15,12 +15,9 @@ workflow buildConversion {
 
   main:
     Channel
-      .fromPath("$baseDir/db/picard.jar", checkIfExists: true)
-      .set{picard}
-    Channel
       .fromPath("$baseDir/db/hg19.fa.gz", checkIfExists: true)
       .set{hg19}
-    dictionary(picard, hg19)
+    dictionary(hg19)
     Channel
       .fromPath("$baseDir/db/1toChr1.txt", checkIfExists: true)
       .set{ chr_map }
@@ -28,7 +25,7 @@ workflow buildConversion {
     Channel
       .fromPath("$baseDir/db/hg38ToHg19.over.chain", checkIfExists: true)
       .set{chain}
-    liftover(num_to_chr.out.vcf, picard, hg19, chain, dictionary.out.dict)
+    liftover(num_to_chr.out.vcf, hg19, chain, dictionary.out.dict)
     chr_to_num(liftover.out.vcf, chr_map)
     vcf_to_plink(chr_to_num.out.vcf)
 
