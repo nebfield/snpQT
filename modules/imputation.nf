@@ -117,8 +117,6 @@ process split_user_chrom {
 // STEP D15: Index phased chromosomes -----------------------------------------
 
 process phasing {
-    container 'shapeit4' 
-
     input:
     tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi'), \
         file('genetic_maps.b37.tar.gz')  
@@ -128,7 +126,8 @@ process phasing {
 
     shell:
     '''
-    tar -xzf genetic_maps.b37.tar.gz
+    gunzip genetic_maps.b37.tar.gz
+    tar -xf genetic_maps.b37.tar
     gunzip chr!{chr}.b37.gmap.gz # decompress the chromosome we need 
     
     shapeit4 --input D12.vcf.gz \
@@ -150,9 +149,7 @@ process phasing {
 // extract chromosome digit from file name
 // toInteger important for join()
 
-process convert_imp5 { 
-    container 'impute5'
-    
+process convert_imp5 {   
     input:
     tuple val(chr), file('ref_chr.vcf.gz.csi'), file('ref_chr.vcf.gz') 
 
@@ -173,8 +170,6 @@ process convert_imp5 {
 // then combine so each tuple element has a shapeit4 map file 
 
 process impute5 {
-    container 'impute5'
-
     input:
     tuple chr, file('1k_b37_reference_chr.imp5'), \
         file('1k_b37_reference_chr.imp5.idx'), file('D14.vcf.gz'), \

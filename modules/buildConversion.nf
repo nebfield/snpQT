@@ -1,8 +1,6 @@
 // Note: Steps A1 - A3 taken care of by download_db.sh 
 // Step A4: Create a dictionary file ------------------------------------------
 process dictionary {
-  container 'openjdk:8'
-  
   input:
   path(ch_db)
 
@@ -49,8 +47,6 @@ process num_to_chr {
 
 // STEP A7: Run liftOver to map genome build -----------------------------------
 process liftover {
-  container 'openjdk:8'
-
   input:
   path(vcf)
   path(ch_db)
