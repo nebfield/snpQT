@@ -14,20 +14,6 @@ include {imputation} from './workflows/imputation.nf'
 include {postImputation} from './workflows/postImputation.nf'
 include {gwas} from './workflows/gwas.nf'
 
-// initialise default parameters
-params.bed = false
-params.bim = false
-params.fam = false
-params.vcf = false
-
-params.convertBuild = false
-params.qc = false
-params.popStrat = false
-params.impute = false
-params.postImpute = false
-params.gwas = false
-params.help = false
-
 // todo: error checking input configuration
 if (params.help) {
   printHelp()
