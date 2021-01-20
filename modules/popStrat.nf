@@ -38,8 +38,6 @@ process filter_maf {
 // STEP C4: Fix strand errors and remove ambiguous SNPs ------------------------
 
 process run_snpflip {
-  container 'snpflip'
-
   input: 
   path(bed)
   path(bim)
@@ -238,8 +236,6 @@ process racefile {
 
 // STEP C8: Eigensoft ----------------------------------------------------------------
 process eigensoft {
-    container 'quay.io/biocontainers/eigensoft:7.2.1--h1d3628b_2'
- 
     input:
     path bed
     path bim
