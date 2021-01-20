@@ -5,7 +5,7 @@ process filter_maf {
     path(bed)
     path(bim)
     path(fam)
-    path(db)
+    path(exclude_region)
     
     output:
     path "C3.bed", emit: bed
@@ -14,8 +14,6 @@ process filter_maf {
     
     shell:
     '''
-    # get specific files from db
-    exclude=!{db}"/PCA.exclude.regions.b37.txt"
     # MAF filtering < 5%
     plink --bfile !{bed.baseName} \
       --maf 0.05 \
@@ -24,7 +22,7 @@ process filter_maf {
     
     # Pruning in user's dataset
     plink --bfile maf_filtered \
-      --exclude $exclude \
+      --exclude !{exclude_region} \
       --indep-pairwise 50 5 0.2 \
       --out indepSNPs_1k
       
@@ -42,7 +40,7 @@ process run_snpflip {
   path(bed)
   path(bim)
   path(fam)
-  path(db)
+  path(g37)
   
   output:
   path "flipped_snps.reverse", emit: rev
@@ -50,12 +48,10 @@ process run_snpflip {
   
   shell:
   '''
-  # extract files from db
-  g37=!{db}"/human_g1k_v37.fasta"
   # Run snpflip to identify ambiguous SNPs and SNPs that are located on the 
   # reverse strand first on user's dataset
   snpflip -b !{bim} \
-    -f $g37 \
+    -f !{g37} \
     -o flipped_snps
   '''
 }
@@ -186,7 +182,7 @@ process pca_prep {
     path(bed)
     path(bim)
     path(fam)
-    path(db)
+    path(exclude_region)
     
     output:
     path("C6_indep.bed"), emit: bed 
@@ -195,12 +191,9 @@ process pca_prep {
 
     shell:
     '''
-    # extract specific file from db
-    exclude=!{db}"/PCA.exclude.regions.b37.txt"
-    
     # recalculate independent snps
     plink --bfile !{bed.baseName} \
-      --exclude $exclude \
+      --exclude !{exclude_region} \
       --indep-pairwise 50 5 0.2 \
       --out independent_SNPs 
 
@@ -214,7 +207,7 @@ process pca_prep {
 
 process racefile {
     input:
-    path(db)
+    path(panel)
     
     output:
     path "super_racefile.txt", emit: super
@@ -222,13 +215,12 @@ process racefile {
 
     shell:
     '''
-    panel=!{db}"/integrated_call_samples_v3.20130502.ALL.panel"
     # Make 1st racefile, using the 20130502 panel using superpopulation codes
     # (i.e., AFR,AMR,EASN,SAS and EUR).
-    awk '{print $1,$1,$3}' $panel > super_racefile.txt
+    awk '{print $1,$1,$3}' !{panel} > super_racefile.txt
 
     # Make 2nd racefile, using the 20130502 panel using subpopulation codes 
-    awk '{print $1,$1,$2}' $panel > sub_racefile.txt  
+    awk '{print $1,$1,$2}' !{panel} > sub_racefile.txt  
     '''
 }
 
@@ -318,18 +310,15 @@ process pca_covariates {
     path(bed)
     path(bim)
     path(fam)
-    path(db)
+    path(exclude_regions)
 
     output:
     path "covar_pca", emit: covar
     
     shell:
     '''
-    # get specific files from db
-    exclude=!{db}"/PCA.exclude.regions.b37.txt"
- 
     plink --bfile !{bed.baseName} \
-      --exclude $exclude \
+      --exclude !{exclude_regions} \
       --indep-pairwise 50 5 0.2 \
       --out indepSNPs_1k_1
     plink --bfile !{bed.baseName} \

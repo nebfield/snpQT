@@ -20,24 +20,41 @@ workflow popStrat {
     ch_bed
     ch_bim
     ch_fam
-    ref_bed
-    ref_bim
-    ref_fam
-    ch_db
 
   main:
-    filter_maf(ch_bed, ch_bim, ch_fam, ch_db)
-    run_snpflip(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, ch_db)
+    Channel
+      .fromPath("$baseDir/db/all_phase3_10.bed", checkIfExists: true)
+      .set{ ref_bed }
+    Channel
+      .fromPath("$baseDir/db/all_phase3_10.bim", checkIfExists: true)
+      .set{ ref_bim }
+    Channel
+      .fromPath("$baseDir/db/all_phase3_10.fam", checkIfExists: true)
+      .set{ ref_fam } 
+    Channel
+      .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
+      .set{ exclude }
+    filter_maf(ch_bed, ch_bim, ch_fam, exclude)
+    Channel
+      .fromPath("$baseDir/db/human_g1k_v37.fasta", checkIfExists: true)
+      .set { g37 }
+    run_snpflip(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, g37)
     flip_snps(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, run_snpflip.out.rev, run_snpflip.out.ambig)
     align(flip_snps.out.bed, flip_snps.out.bim, flip_snps.out.fam, ref_bed, ref_bim, ref_fam)
     merge(align.out.bed, align.out.bim, align.out.fam, ref_bed, ref_bim, ref_fam)
-    pca_prep(merge.out.bed, merge.out.bim, merge.out.fam, ch_db)
-    racefile(ch_db)
+    pca_prep(merge.out.bed, merge.out.bim, merge.out.fam, exclude)
+    Channel
+      .fromPath("$baseDir/db/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
+      .set{ panel }
+    racefile(panel)
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, racefile.out.super, filter_maf.out.fam)
     plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
     extract_homogenous(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, eigensoft.out.keep_samples)
-    pca_covariates(extract_homogenous.out.bed, extract_homogenous.out.bim, extract_homogenous.out.fam, ch_db)
+    pca_covariates(extract_homogenous.out.bed, extract_homogenous.out.bim, extract_homogenous.out.fam, exclude)
 
   emit:
+    bed = extract_homogenous.out.bed
+    bim = extract_homogenous.out.bim
+    fam = extract_homogenous.out.fam
     covar = pca_covariates.out.covar
 } 

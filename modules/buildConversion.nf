@@ -2,25 +2,20 @@
 // Step A4: Create a dictionary file ------------------------------------------
 process dictionary {
   input:
-  path(ch_db)
+  path(picard)
+  path(hg19)
 
   output:
   path "hg19.fa.gz.dict", emit: dict
   
   shell:
   '''
-  # get specific files from db
-  picard=!{ch_db}"/picard.jar"
-  hg19=!{ch_db}"/hg19.fa.gz"
-
-  echo $hg19 $picard
-  
   # make it so!
   java -Dpicard.useLegacyParser=false \
     -Xmx8g \
-    -jar $picard \
+    -jar !{picard} \
     CreateSequenceDictionary \
-    -R $hg19 \
+    -R !{hg19} \
     -O hg19.fa.gz.dict
   '''
 }
@@ -30,17 +25,14 @@ process dictionary {
 process num_to_chr {
   input:
   path(in_vcf)
-  path(ch_db)
+  path(chr_map)
   
   output:
   path "out.vcf.gz", emit: vcf
 
   shell:
   '''
-  # get specific file from db
-  chr_map=!{ch_db}"/1toChr1.txt"
-
-  bcftools annotate --rename-chr $chr_map !{in_vcf} \
+  bcftools annotate --rename-chr !{chr_map} !{in_vcf} \
     -Oz -o out.vcf.gz
   '''
 }
@@ -49,7 +41,9 @@ process num_to_chr {
 process liftover {
   input:
   path(vcf)
-  path(ch_db)
+  path(picard)
+  path(hg19)
+  path(chain)
   path(dict)
   
   output:
@@ -57,19 +51,15 @@ process liftover {
 
   shell:
   '''
-  # get specific files from db
-  picard=!{ch_db}"/picard.jar"
-  hg19=!{ch_db}"/hg19.fa.gz"
-  chain=!{ch_db}"/hg38ToHg19.over.chain"
-  cp $hg19 . # TODO: move this to the database install?
+  # !{dict} unused but needed to stage in file
   java -Dpicard.useLegacyParser=false \
     -Xmx16g \
-    -jar $picard LiftoverVcf \
+    -jar !{picard} LiftoverVcf \
     -I !{vcf} \
     -O out.vcf \
-    -CHAIN $chain \
+    -CHAIN !{chain} \
     -REJECT rejected_variants.vcf \
-    -R hg19.fa.gz
+    -R !{hg19}
   '''
 }
 
@@ -78,17 +68,14 @@ process liftover {
 process chr_to_num {
   input:
   path(vcf)
-  path(ch_db)
+  path(chr_map)
   
   output:
   path "out.vcf.gz", emit: vcf
 
   shell:
   '''
-  # get specific files from db
-  chr_map=!{ch_db}"/1toChr1.txt"
-  
-  awk '{print $2 "\t" $1}' $chr_map > Chr1To1.txt
+  awk '{print $2 "\t" $1}' !{chr_map} > Chr1To1.txt
 
   # Change the chromosome ids again
   bcftools annotate --rename-chr Chr1To1.txt !{vcf} -Oz -o out.vcf.gz

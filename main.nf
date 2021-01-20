@@ -8,7 +8,8 @@ include {printHelp} from './modules/help.nf'
 
 // import subworkflows
 include {buildConversion} from './workflows/buildConversion.nf'
-include {qc} from './workflows/qc.nf'
+include {sample_qc} from './workflows/sample_qc.nf'
+include {variant_qc} from './workflows/variant_qc.nf'
 include {popStrat} from './workflows/popStrat.nf'
 include {imputation} from './workflows/imputation.nf'
 include {postImputation} from './workflows/postImputation.nf'
@@ -49,9 +50,7 @@ if (params.convertBuild ) {
 
 // main workflow
 workflow {
-  Channel
-    .fromPath(params.db, checkIfExists: true)
-    .set{ ch_db }
+  // set up input channels
 
   if ( params.convertBuild ) {
     Channel
@@ -74,46 +73,35 @@ workflow {
       .fromPath(params.fam, checkIfExists: true)
       .set{ ch_fam }
   }
-
-  if ( params.popStrat ) {
-    Channel
-      .fromPath(params.db + '/all_phase3_10.bed', checkIfExists: true )
-      .set{ ch_ref_bed }
-    Channel
-      .fromPath(params.db + '/all_phase3_10.bim', checkIfExists: true )
-      .set{ ch_ref_bim }
-    Channel
-      .fromPath(params.db + '/all_phase3_10.fam', checkIfExists: true)
-      .set{ ch_ref_fam } 
-  }
-
-  if ( params.impute ) {
-  }
-
+  
   main:
-    if ( params.convertBuild && !params.qc) {
-      buildConversion(ch_vcf, ch_db)
+    if ( params.convertBuild) {
+      buildConversion(ch_vcf)
     }
     
-    if ( params.convertBuild && params.qc ) {
-      buildConversion(ch_vcf, ch_db)
-      qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam, ch_db)
+    if ( params.convertBuild && params.qc && !params.popStrat) {
+      sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
+      variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
+    } else if ( !params.convertBuild && params.qc ) {
+      sample_qc(ch_ref_bed, ch_ref_bim, ch_ref_fam)
     }
 
     if (params.qc && params.popStrat) {
-      popStrat(qc.out.bed, qc.out.bim, qc.out.fam, ch_ref_bed, ch_ref_bim, ch_ref_fam, ch_db)
+      sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
+      popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
+      variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)      
     }
 
     if (params.qc && params.impute) {
-      imputation(qc.out.bed, qc.out.bim, qc.out.fam, ch_db)
+      // imputation(qc.out.bed, qc.out.bim, qc.out.fam, ch_db)
     }
 
     if (params.impute && params.postImpute && params.qc) {
-      postImputation(imputation.out.imputed, qc.out.fam)
+      // postImputation(imputation.out.imputed, qc.out.fam)
     }
 
     if (params.qc && params.popStrat && params.gwas) {
-      gwas(qc.out.bed, qc.out.bim, qc.out.fam, popStrat.out.covar)
+      // gwas(qc.out.bed, qc.out.bim, qc.out.fam, popStrat.out.covar)
     }
     
 }

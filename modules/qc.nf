@@ -143,19 +143,16 @@ process heterozygosity_rate {
     path(B4_bed)
     path(B4_bim)
     path(B4_fam) 
-    path(db)
+    path(exclude_regions)
     
     output:
     path "only_indep_snps.het", emit: het
     path "independent_SNPs.prune.in", emit: ind_snps // into ind_SNPs, ind_SNPs_popstrat
 
     shell:
-    '''
-    # extract specific file from DB
-    exclude_regions=!{db}"/PCA.exclude.regions.b37.txt"
-    
+    '''    
     plink --bfile !{B4_bed.baseName} \
-      --exclude $exclude_regions \
+      --exclude !{exclude_regions} \
       --indep-pairwise 50 5 0.2 \
       --out independent_SNPs \
       --range
