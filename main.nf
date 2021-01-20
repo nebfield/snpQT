@@ -14,6 +14,8 @@ include {popStrat} from './workflows/popStrat.nf'
 include {imputation} from './workflows/imputation.nf'
 include {postImputation} from './workflows/postImputation.nf'
 include {gwas} from './workflows/gwas.nf'
+include {download_core} from './workflows/download_db.nf'
+include {download_impute} from './workflows/download_db.nf'
 
 // todo: error checking input configuration
 if (params.help) {
@@ -24,34 +26,36 @@ if (params.help) {
 if (params.convertBuild ) {
   if (!params.vcf) {
     println("Please supply a vcf.gz file for build conversion with --vcf")
+    println("Use --help to print help")
+    System.exit(1)
   }
-  if (params.bed && !params.bim || !params.bed && params.bim ) {
+  if (!params.fam) {
+    println("Please supply a .fam file for build conversion with --fam")
+    println("Use --help to print help")
+    System.exit(1)
+  }
+}
+
+if (params.qc) {
+ if (params.bed && !params.bim || !params.bed && params.bim ) {
     println("--bed and --bim must be supplied together")
     println("Use --help to print help")
     System.exit(1)
   }
-} else if (params.qc) {
-  if (params.qc && !params.convertBuild) {
-    if(params.vcf) {
-      println("QC module is not compatible with direct VCF input") // TODO: fix this 
-      println("Please supply bim, bed, and fam files with --bim, --bed, and --fam")
-      println("Use --help to print help")
-      System.exit(1)
-    }
+}
+
+if (params.gwas) {
+  if(!params.qc || !params.popStrat) {
+    println("GWAS module requires qc and popStrat")
+    println("Please rerun with --qc and --popStrat")
+    println("Use --help to print help")
+    System.exit(1)
   }
-} else if (params.gwas) {
-    if(!params.qc || !params.popStrat) {
-      println("GWAS module requires qc and popStrat")
-      println("Please rerun with --qc and --popStrat")
-      println("Use --help to print help")
-      System.exit(1)
-    }
 }
 
 // main workflow
 workflow {
   // set up input channels
-
   if ( params.convertBuild ) {
     Channel
       .fromPath(params.vcf, checkIfExists: true)
@@ -75,16 +79,22 @@ workflow {
   }
   
   main:
-    if ( params.convertBuild) {
-      buildConversion(ch_vcf)
+    // this is a mess! :( ===============================================
+    if ( params.download_db == "core" ) {
+      download_core()
+    } else if (params.download_db == "impute") {
+      download_impute()
     }
     
+    if ( params.convertBuild) {
+      buildConversion(ch_vcf)
+    }    
     if ( params.convertBuild && params.qc && !params.popStrat) {
       sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
       variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
     } else if ( !params.convertBuild && params.qc ) {
-      sample_qc(ch_ref_bed, ch_ref_bim, ch_ref_fam)
-    }
+      sample_qc(ch_bed, ch_bim, ch_fam)
+    } 
 
     if (params.qc && params.popStrat) {
       sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)

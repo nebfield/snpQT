@@ -48,8 +48,36 @@ workflow download_core {
       .fromPath("ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
       .set{panel}
       
-    // publish to db directory
+    // publish to db directory    
+    println "Downloading core database files..."
     qc_ref_data.out.bed
       .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, chr, decompress.out.file, panel)
       .collectFile(storeDir: "$baseDir/db/")
+}
+
+workflow download_impute {
+  main:
+    // nextflow paths
+    Channel
+      .fromPath("https://github.com/odelaneau/shapeit4/blob/master/maps/genetic_maps.b37.tar.gz\\?raw=true", checkIfExists: true)
+      .set{shapeit4_maps}
+    Channel
+      .fromPath("ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz", checkIfExists: true)
+      .set{dbsnp}
+    Channel
+      .fromPath("ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz.tbi", checkIfExists: true)
+      .set{dbsnp_idx}
+
+    // TODO: figure out a way to nicely download these files & idxs
+    Channel
+      .of(1..22)
+      .map{ chrom -> "'ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr${chrom.toString()}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz'" }
+      .toList()
+      .set{ urls }
+
+    // publish to db directory
+    println "Downloading database files for imputation, this might take a while! Go and have a cup of tea :)"
+    shapeit4_maps
+      .concat(dbsnp, dbsnp_idx)
+      .collectFile(storeDir: "$baseDir/db/impute")
 }
