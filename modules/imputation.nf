@@ -58,21 +58,18 @@ process to_bcf {
 process check_ref_allele {
     input:
     path(bcf)
-    path(db)
+    path(dbsnp)
+    path(g37)
 
     output:
     path "D8.bcf", emit: bcf
 
     shell:
     '''
-    # extract specific file from db
-    dbSNP=!{db}"/All_20180423.vcf.gz"
-    g37=!{db}"/human_g1k_v37.fasta"
-   
     bcftools +fixref !{bcf} \
         -Ob -o D8.bcf -- \
-        -d -f $g37 \
-        -i $dbSNP
+        -d -f !{g37} \
+        -i !{dbsnp}
     '''
 }
 
