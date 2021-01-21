@@ -95,10 +95,23 @@ process index {
   path(x)
 
   output:
-  path("${x}.tbi"), emit: idx
+  path("*.tbi"), emit: idx
 
   shell:
   '''
   tabix -p vcf !{x}
+  '''
+}
+
+process qc {
+  input:
+  tuple val(chr), path(vcf), path(g37)
+
+  output:
+  path "*.vcf.gz", emit: vcf
+  
+  shell:
+  '''
+  bcftools norm -m-any --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup both -o !{chr}.vcf.gz
   '''
 }
