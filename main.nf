@@ -17,12 +17,13 @@ include {gwas} from './workflows/gwas.nf'
 include {download_core} from './workflows/download_db.nf'
 include {download_impute} from './workflows/download_db.nf'
 
-// todo: error checking input configuration
+
 if (params.help) {
   printHelp()
   System.exit(0)
 }
 
+// throw errors on invalid workflow combinations --------------------------
 if (params.convertBuild ) {
   if (!params.vcf) {
     println("Please supply a vcf.gz file for build conversion with --vcf")
@@ -34,6 +35,18 @@ if (params.convertBuild ) {
     println("Use --help to print help")
     System.exit(1)
   }
+} else if (!params.convertBuild) {
+    if (params.vcf) {
+      println("--vcf only compatible with --convertBuild")
+      println("Please supply plink input files with --bed --bim --fam")
+      println("Use --help to print help")
+      System.exit(1)
+  } if (!params.fam) {
+      println("Missing --fam input")
+      println("Use --help to print help")
+      System.exit(1)
+    }
+  }
 }
 
 if (params.qc) {
@@ -42,10 +55,18 @@ if (params.qc) {
     println("Use --help to print help")
     System.exit(1)
   }
+} else if (!params.qc && params.popStrat) {
+  println("--popStrat requires --qc")
+  println("Use --help to print help")
+  System.exit(1)
+} else if (!params.qc && params.impute) {
+  println("--impute requires --qc")
+  println("Use --help to print help")
+  System.exit(1)
 }
 
 if (params.gwas) {
-  if(!params.qc || !params.popStrat) {
+  if (!params.qc || !params.popStrat) {
     println("GWAS module requires qc and popStrat")
     println("Please rerun with --qc and --popStrat")
     println("Use --help to print help")
@@ -53,7 +74,7 @@ if (params.gwas) {
   }
 }
 
-// main workflow
+// main workflow ----------------------------------------------------------
 workflow {
   // set up input channels
   if ( params.convertBuild ) {
@@ -73,45 +94,59 @@ workflow {
       .fromPath(params.fam, checkIfExists: true)
       .set{ ch_fam }
   } else if (params.convertBuild && params.qc) {
-    Channel
-      .fromPath(params.fam, checkIfExists: true)
-      .set{ ch_fam }
+      Channel
+        .fromPath(params.fam, checkIfExists: true)
+        .set{ ch_fam }
   }
   
   main:
-    // this is a mess! :( ===============================================
     if ( params.download_db == "core" ) {
       download_core()
     } else if (params.download_db == "impute") {
       download_impute()
-    }
-    
-    if ( params.convertBuild) {
-      buildConversion(ch_vcf)
-    }    
-    if ( params.convertBuild && params.qc && !params.popStrat) {
-      sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
-      variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-    } else if ( !params.convertBuild && params.qc ) {
-      sample_qc(ch_bed, ch_bim, ch_fam)
     } 
 
-    if (params.qc && params.popStrat) {
-      sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
-      popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-      variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)      
+    // very messy, but it works!
+    // workflow with build conversion
+    if ( params.convertBuild) {
+      buildConversion(ch_vcf)
+      if ( params.qc && ! params.popStrat) {
+        sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
+        variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)  
+      } else if ( params.qc && params.popStrat) {
+        sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
+        popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
+        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)      
+      }
+      if ( params.impute ) {
+        imputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
+	postImputation(imputation.out.imputed, variant_qc.out.fam) 
+      }
+      if ( params.impute && params.gwas ) {
+        gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
+      } else if ( !params.impute && params.gwas ) {
+        gwas(variant_qc.out.bed,  variant_qc.out.bim. variant_qc.out.fam, popStrat.out.covar)
+      }
     }
 
-    if (params.qc && params.impute) {
-      // imputation(qc.out.bed, qc.out.bim, qc.out.fam, ch_db)
-    }
-
-    if (params.impute && params.postImpute && params.qc) {
-      // postImputation(imputation.out.imputed, qc.out.fam)
-    }
-
-    if (params.qc && params.popStrat && params.gwas) {
-      // gwas(qc.out.bed, qc.out.bim, qc.out.fam, popStrat.out.covar)
-    }
-    
+    // workflow without build conversion
+    if ( !params.convertBuild ) {
+      if ( params.qc && !params.popStrat ) {
+        sample_qc(ch_bed, ch_bim, ch_fam)	
+        variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
+      } else if ( params.qc && params.popStrat ) {
+        sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
+        popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
+        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)      
+      }
+      if ( params.impute ) {
+        imputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
+	postImputation(imputation.out.imputed, variant_qc.out.fam) 
+      }
+      if ( params.impute && params.gwas ) {
+        gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
+      } else if ( !params.impute && params.gwas ) {
+        gwas(variant_qc.out.bed,  variant_qc.out.bim. variant_qc.out.fam, popStrat.out.covar)
+      }
+    }      
 }
