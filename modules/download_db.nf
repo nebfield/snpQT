@@ -95,11 +95,11 @@ process index {
   path(x)
 
   output:
-  path("*.tbi"), emit: idx
+  path("*.csi"), emit: idx
 
   shell:
   '''
-  tabix -p vcf !{x}
+  bcftools index !{x}
   '''
 }
 
@@ -113,5 +113,19 @@ process qc {
   shell:
   '''
   bcftools norm -m-any --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup both -o !{chr}.vcf.gz
+  '''
+}
+
+process unzip_shapeit4 {
+  input:
+  path(x)
+
+  output:
+  path "genetic_maps.b37.tar.gz", emit: maps
+
+  shell:
+  '''
+  unzip !{x}
+  mv shapeit4-4.2.0/maps/genetic_maps.b37.tar.gz .
   '''
 }

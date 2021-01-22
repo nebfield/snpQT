@@ -8,6 +8,7 @@ include {qc_ref_data} from '../modules/download_db.nf'
 include {decompress} from '../modules/download_db.nf'
 include {index} from '../modules/download_db.nf'
 include {qc} from '../modules/download_db.nf'
+include {unzip_shapeit4} from '../modules/download_db.nf'
 
 // workflow component for snpqt pipeline
 workflow download_core {
@@ -61,8 +62,9 @@ workflow download_impute {
   main:
     // nextflow paths
     Channel
-      .fromPath("https://github.com/odelaneau/shapeit4/blob/master/maps/genetic_maps.b37.tar.gz\\?raw=true", checkIfExists: true)
+      .fromPath("https://github.com/odelaneau/shapeit4/archive/v4.2.0.zip", checkIfExists: true)
       .set{shapeit4_maps}
+    unzip_shapeit4(shapeit4_maps)
     Channel
       .fromPath("ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz", checkIfExists: true)
       .set{dbsnp}
@@ -89,7 +91,7 @@ workflow download_impute {
 
     // publish to db directory
     println "Downloading database files for imputation, this might take a while! Go and have a cup of tea :)"
-    shapeit4_maps
+    unzip_shapeit4.out.maps
       .concat(dbsnp, dbsnp_idx, qc.out.vcf, index.out.idx)
       .collectFile(storeDir: "$baseDir/db/impute")
 }
