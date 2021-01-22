@@ -59,6 +59,7 @@ process check_ref_allele {
     input:
     path(bcf)
     path(dbsnp)
+    path(dbsnp_idx)
     path(g37)
 
     output:
@@ -119,7 +120,7 @@ process phasing {
         file('genetic_maps.b37.tar.gz')  
 
     output:
-    tuple val(chr), file('D14.vcf.gz'), file('D14.vcf.gz.csi'), emit: chrom
+    tuple val(chr), file('D14.vcf.gz'), emit: chrom
 
     shell:
     '''
@@ -133,8 +134,19 @@ process phasing {
         --thread 1 \
         --output D14.vcf.gz \
         --log log_chr.txt     
+    '''
+}
 
-    bcftools index D14.vcf.gz
+process bcftools_index_chr {
+    input:
+    tuple val(chr), path('chr.vcf.gz')
+
+    output:
+    tuple val(chr), path('chr.vcf.gz'), path('chr.vcf.gz.csi'), emit: chrom_idx
+
+    shell:
+    '''
+    bcftools index chr.vcf.gz
     '''
 }
 
