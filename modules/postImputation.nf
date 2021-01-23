@@ -27,7 +27,7 @@ process filter_imp {
     shell:
     '''
     plink2 --vcf !{imp} \
-        --extract-if-info INFO '>'= 0.7 \
+        --extract-if-info INFO '>'= !{params.info} \
 	--id-delim _ \
 	--maf 0.01 \
 	--set-missing-var-ids @:#:\\$r:\\$a \

@@ -36,17 +36,17 @@ if (params.convertBuild ) {
     System.exit(1)
   }
 } else if (!params.convertBuild) {
-    if (params.vcf) {
-      println("--vcf only compatible with --convertBuild")
-      println("Please supply plink input files with --bed --bim --fam")
-      println("Use --help to print help")
-      System.exit(1)
-  } if (!params.fam) {
-      println("Missing --fam input")
-      println("Use --help to print help")
-      System.exit(1)
-    }
+  if (params.vcf) {
+    println("--vcf only compatible with --convertBuild")
+    println("Please supply plink input files with --bed --bim --fam")
+    println("Use --help to print help")
+    System.exit(1)
   }
+  if (!params.fam) {
+    println("Missing --fam input")
+    println("Use --help to print help")
+    System.exit(1)
+    }
 }
 
 if (params.qc) {

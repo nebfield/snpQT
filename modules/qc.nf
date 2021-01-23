@@ -46,7 +46,7 @@ process individual_missingness {
   
   plink --bfile !{B1_bed.baseName} \
     --make-bed \
-    --mind 0.02 \
+    --mind !{params.mind} \
     --out B2 
   '''
 }
@@ -153,7 +153,7 @@ process heterozygosity_rate {
     '''    
     plink --bfile !{B4_bed.baseName} \
       --exclude !{exclude_regions} \
-      --indep-pairwise 50 5 0.2 \
+      --indep-pairwise !{params.indep_pairwise} \
       --out independent_SNPs \
       --range
     plink --bfile !{B4_bed.baseName} \
@@ -218,7 +218,7 @@ process relatedness {
     plink --bfile !{B5_bed.baseName} \
       --extract !{ind_SNPs} \
       --genome \
-      --min 0.125 \
+      --min !{pihat} \
       --out pihat_0.125
       
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
@@ -272,7 +272,7 @@ process mpv {
     '''
     plink --bfile !{B7_bed.baseName} --missing 
     plink --bfile !{B7_bed.baseName} \
-      --geno 0.05 \
+      --geno !{params.geno} \
       --make-bed \
       --out B8 
     '''
@@ -315,7 +315,7 @@ process hardy {
   awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
 	  plink.hwe > plinkzoomhwe.hwe
   plink --bfile !{B8_bed.baseName} \
-    --hwe 1e-7 \
+    --hwe !{params.hwe} \
     --make-bed \
     --out B9 
   '''
@@ -356,7 +356,7 @@ process maf {
     --freq \
     --out MAF_check
   plink --bfile !{B9_bed.baseName} \
-    --maf 0.05 \
+    --maf !{params.maf} \
     --make-bed \
     --out B10
   '''
@@ -392,7 +392,7 @@ process test_missing {
   '''
   plink --bfile !{B10_bed.baseName} \
     --test-missing
-  awk '{ if ($5 < 10e-7) print $2 }' plink.missing > fail_missingness.txt
+  awk '{ if ($5 < !{params.missingness}) print $2 }' plink.missing > fail_missingness.txt
   plink --bfile !{B10_bed.baseName} \
     --exclude fail_missingness.txt \
     --make-bed \

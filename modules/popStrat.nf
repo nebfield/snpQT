@@ -23,7 +23,7 @@ process filter_maf {
     # Pruning in user's dataset
     plink --bfile maf_filtered \
       --exclude !{exclude_region} \
-      --indep-pairwise 50 5 0.2 \
+      --indep-pairwise !{indep_pairwise} \
       --out indepSNPs_1k
       
     plink --bfile maf_filtered \
@@ -194,7 +194,7 @@ process pca_prep {
     # recalculate independent snps
     plink --bfile !{bed.baseName} \
       --exclude !{exclude_region} \
-      --indep-pairwise 50 5 0.2 \
+      --indep-pairwise !{indep_pairwise} \
       --out independent_SNPs 
 
     # Pruning on merged dataset
@@ -319,7 +319,7 @@ process pca_covariates {
     '''
     plink --bfile !{bed.baseName} \
       --exclude !{exclude_regions} \
-      --indep-pairwise 50 5 0.2 \
+      --indep-pairwise !{indep_pairwise} \
       --out indepSNPs_1k_1
     plink --bfile !{bed.baseName} \
       --extract indepSNPs_1k_1.prune.in \
