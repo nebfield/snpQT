@@ -52,16 +52,18 @@ process individual_missingness {
 }
 
 process plot_missingness {
-    input:
-    path(missing_imiss)
+  publishDir "${params.results}/qc/", mode: 'copy'
 
-    output:
-    path "sample_missingness.png", emit: figure
+  input:
+  path(missing_imiss)
 
-    shell:
-    '''
-    plot_sample_missingness.R !{missing_imiss}
-    '''
+  output:
+  path "sample_missingness.png", emit: figure
+
+  shell:
+  '''
+  plot_sample_missingness.R !{missing_imiss}
+  '''
 }
 
 // STEP B3: Remove samples with sex mismatch -----------------------------------
@@ -279,16 +281,18 @@ process mpv {
 }
 
 process plot_mpv {
-    input:
-    path lmiss
+  publishDir "${params.results}/qc/", mode: 'copy'
 
-    output:
-    path "variant_missingness.png", emit: figure
+  input:
+  path lmiss
+
+  output:
+  path "variant_missingness.png", emit: figure
     
-    shell:
-    '''
-    plot_variant_missingness.R !{lmiss}
-    '''
+  shell:
+  '''
+  plot_variant_missingness.R !{lmiss}
+  '''
 }
 
 // STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
@@ -322,6 +326,8 @@ process hardy {
 }
 
 process plot_hardy {
+  publishDir "${params.results}/qc/", mode: 'copy'
+  
   input:
   path sub
   path zoom
@@ -363,6 +369,8 @@ process maf {
 }
 
 process plot_maf {
+  publishDir "${params.results}/qc/", mode: 'copy'
+  
   input:
   path maf_frq
 
@@ -378,6 +386,8 @@ process plot_maf {
 // STEP B11: Test missingness in case / control status -------------------------
 
 process test_missing {
+  publishDir "${params.results}/qc/bfiles", mode: 'copy'
+  
   input:
   path(B10_bed)
   path(B10_bim)

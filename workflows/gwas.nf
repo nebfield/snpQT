@@ -15,7 +15,4 @@ workflow gwas {
   main:
     run_gwas(ch_bed, ch_bim, ch_fam, covar)
     plot(run_gwas.out.logistic)
-
-  emit:
-    plot.out.qqplot
 }

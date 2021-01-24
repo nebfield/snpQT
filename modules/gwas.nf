@@ -22,11 +22,13 @@ process run_gwas {
 }
 
 process plot {
+    publishDir "${params.results}/gwas/", mode: 'copy'
+    
     input:
     path(logistic)
 
     output:
-    path "qqplot.png", emit: qqplot
+    path "qqplot.png"
     
     shell:
     '''

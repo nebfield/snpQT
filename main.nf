@@ -112,20 +112,20 @@ workflow {
       buildConversion(ch_vcf)
       if ( params.qc && ! params.popStrat) {
         sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
-        variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)  
+        variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
       } else if ( params.qc && params.popStrat) {
         sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
         popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)      
+        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)
       }
       if ( params.impute ) {
         imputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
-	postImputation(imputation.out.imputed, variant_qc.out.fam) 
-      }
-      if ( params.impute && params.gwas ) {
-        gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
+	postImputation(imputation.out.imputed, variant_qc.out.fam)
+	if (params.gwas) {
+	  gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
+	}
       } else if ( !params.impute && params.gwas ) {
-        gwas(variant_qc.out.bed,  variant_qc.out.bim. variant_qc.out.fam, popStrat.out.covar)
+         gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, popStrat.out.covar)
       }
     }
 
@@ -141,12 +141,12 @@ workflow {
       }
       if ( params.impute ) {
         imputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
-	postImputation(imputation.out.imputed, variant_qc.out.fam) 
-      }
-      if ( params.impute && params.gwas ) {
-        gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
-      } else if ( !params.impute && params.gwas ) {
-        gwas(variant_qc.out.bed,  variant_qc.out.bim. variant_qc.out.fam, popStrat.out.covar)
+	postImputation(imputation.out.imputed, variant_qc.out.fam)
+	if (params.gwas) {
+	  gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
+	} 
+      } else if ( !params.impute && params.gwas) {
+          gwas(variant_qc.out.bed,  variant_qc.out.bim. variant_qc.out.fam, popStrat.out.covar)
       }
     }      
 }

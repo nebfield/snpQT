@@ -32,5 +32,4 @@ workflow variant_qc {
     bed = test_missing.out.bed
     bim = test_missing.out.bim
     fam = test_missing.out.fam
-    reports = combine(plot_mpv.out.figure, plot_hardy.out.figure, plot_maf.out.figure)
 } 

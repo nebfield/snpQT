@@ -125,7 +125,9 @@ process duplicates_cat3 {
 
 // STEP E4: update phenotype information
 
-process update_phenotype {   
+process update_phenotype {
+    publishDir "${params.results}/imputation/bfiles", mode: 'copy'
+    
     input:
     path(bed)
     path(bim)

@@ -268,24 +268,26 @@ process eigensoft {
 }
 
 process plot_pca {
-    input:
-    path eigenvec
-    path racefile
+  publishDir "${params.results}/popStrat/", mode: 'copy'
     
-    output:
-    path "*.png"
-    path "*.html"
-    path "popStrat_files"
-
-    shell:
-    '''
-    pop_strat.R !{eigenvec} !{racefile}
-    '''
+  input:
+  path eigenvec
+  path racefile
+    
+  output:
+  path "*", emit: plots
+    
+  shell:
+  '''
+  pop_strat.R !{eigenvec} !{racefile}
+  '''
 }
 
 // STEP C9: Extract homogenous ethnic group ------------------------------------------------------
 
 process extract_homogenous {
+    publishDir "${params.results}/popStrat/bfiles", mode: 'copy'
+    
     input:
     path(bed)
     path(bim)

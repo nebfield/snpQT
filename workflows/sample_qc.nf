@@ -43,5 +43,5 @@ workflow sample_qc {
     bed = missing_phenotype.out.bed
     bim = missing_phenotype.out.bim
     fam = missing_phenotype.out.fam
-    reports = combine(plot_missingness.out.figure, plot_sex.out.figure, plot_heterozygosity.out.figure)
+    plots = concat(plot_missingness.out.figure, plot_sex.out.figure, plot_heterozygosity.out.figure)
 } 
