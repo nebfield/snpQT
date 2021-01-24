@@ -16,14 +16,14 @@ process filter_maf {
     '''
     # MAF filtering < 5%
     plink --bfile !{bed.baseName} \
-      --maf 0.05 \
+      --maf !{params.maf} \
       --make-bed \
       --out maf_filtered
     
     # Pruning in user's dataset
     plink --bfile maf_filtered \
       --exclude !{exclude_region} \
-      --indep-pairwise !{indep_pairwise} \
+      --indep-pairwise !{params.indep_pairwise} \
       --out indepSNPs_1k
       
     plink --bfile maf_filtered \
@@ -194,7 +194,7 @@ process pca_prep {
     # recalculate independent snps
     plink --bfile !{bed.baseName} \
       --exclude !{exclude_region} \
-      --indep-pairwise !{indep_pairwise} \
+      --indep-pairwise !{params.indep_pairwise} \
       --out independent_SNPs 
 
     # Pruning on merged dataset
@@ -216,7 +216,7 @@ process racefile {
     shell:
     '''
     # Make 1st racefile, using the 20130502 panel using superpopulation codes
-    # (i.e., AFR,AMR,EASN,SAS and EUR).
+    # (i.e., AFR,AMR,EASN,SAS and EUR)
     awk '{print $1,$1,$3}' !{panel} > super_racefile.txt
 
     # Make 2nd racefile, using the 20130502 panel using subpopulation codes 
@@ -230,22 +230,22 @@ process eigensoft {
     path bed
     path bim
     path fam
-    path super_racefile
+    path racefile
     path pca_fam
 
     output:
     path "eigenvec", emit: eigenvec
-    path "merged_super_racefile.txt", emit: merged_racefile 
+    path "merged_racefile.txt", emit: merged_racefile 
     path "keep_sample_list.txt", emit: keep_samples
     
     shell:
     '''
-    # Concatenate racefiles: User's + super_racefile
+    # Concatenate racefiles: User's + racefile
     awk '{print $1,$2,"OWN"}' !{pca_fam} > racefile_toy_own.txt
-    cat !{super_racefile} racefile_toy_own.txt | sed -e '1i\\FID IID race' >  merged_super_racefile.txt
+    cat !{racefile} racefile_toy_own.txt | sed -e '1i\\FID IID race' >  merged_racefile.txt
 
     # Assign populations to FID and IIDs, make .pedind
-    awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_super_racefile.txt !{fam} > C6_indep.pedind
+    awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_racefile.txt !{fam} > C6_indep.pedind
 
     # make poplist.txt
     echo "OWN" > poplist.txt 
@@ -270,7 +270,7 @@ process eigensoft {
 process plot_pca {
     input:
     path eigenvec
-    path super_race
+    path racefile
     
     output:
     path "*.png"
@@ -279,7 +279,7 @@ process plot_pca {
 
     shell:
     '''
-    pop_strat.R !{eigenvec} !{super_race}
+    pop_strat.R !{eigenvec} !{racefile}
     '''
 }
 
@@ -319,7 +319,7 @@ process pca_covariates {
     '''
     plink --bfile !{bed.baseName} \
       --exclude !{exclude_regions} \
-      --indep-pairwise !{indep_pairwise} \
+      --indep-pairwise !{params.indep_pairwise} \
       --out indepSNPs_1k_1
     plink --bfile !{bed.baseName} \
       --extract indepSNPs_1k_1.prune.in \

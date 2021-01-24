@@ -47,7 +47,12 @@ workflow popStrat {
       .fromPath("$baseDir/db/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
       .set{ panel }
     racefile(panel)
-    eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, racefile.out.super, filter_maf.out.fam)
+    if (params.racefile == "super") {
+      rf = racefile.out.super
+    } else if (params.racefile == "sub") {
+      rf = racefile.out.sub
+    }
+    eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam)
     plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
     extract_homogenous(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, eigensoft.out.keep_samples)
     pca_covariates(extract_homogenous.out.bed, extract_homogenous.out.bim, extract_homogenous.out.fam, exclude)

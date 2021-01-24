@@ -218,13 +218,13 @@ process relatedness {
     plink --bfile !{B5_bed.baseName} \
       --extract !{ind_SNPs} \
       --genome \
-      --min !{pihat} \
+      --min !{params.pihat} \
       --out pihat_0.125
       
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
     # relatives of each pair, having the most missingness. Output those failing
     # samples to pihat_failed_samples.txt
-    run_IBD_QC.pl !{imiss} pihat_0.125.genome
+    run_IBD_QC.pl !{imiss} pihat_0.125.genome !{params.pihat}
 
     plink --bfile !{B5_bed.baseName} \
       --remove pihat_failed_samples.txt \
@@ -272,7 +272,7 @@ process mpv {
     '''
     plink --bfile !{B7_bed.baseName} --missing 
     plink --bfile !{B7_bed.baseName} \
-      --geno !{params.geno} \
+      --geno !{params.variant_geno} \
       --make-bed \
       --out B8 
     '''
