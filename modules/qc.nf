@@ -397,6 +397,7 @@ process test_missing {
   path "B11.bed", emit: bed
   path "B11.bim", emit: bim
   path "B11.fam", emit: fam
+  path "plink.missing", emit: missing
   
   shell:
   '''
@@ -408,4 +409,19 @@ process test_missing {
     --make-bed \
     --out B11
   '''
+}
+
+process plot_missing_by_cohort {
+  publishDir "${params.results}/qc/", mode: 'copy'
+  
+  input:
+  path(imiss)
+  
+  output:
+  path "cs_missingness.png"
+
+  shell:
+  '''
+  plot_missing_cohort.R !{imiss}
+  ''' 
 }

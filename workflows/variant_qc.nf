@@ -11,6 +11,7 @@ include {plot_hardy} from '../modules/qc.nf' // B9
 include {maf} from '../modules/qc.nf' // B10
 include {plot_maf} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
+include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
 
 // workflow component for snpqt pipeline
 workflow variant_qc {
@@ -27,6 +28,7 @@ workflow variant_qc {
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)
     plot_maf(maf.out.frq)
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
+    plot_missing_by_cohort(test_missing.out.missing)
 
   emit:
     bed = test_missing.out.bed
