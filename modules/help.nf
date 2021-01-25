@@ -11,12 +11,14 @@ def printHelp() {
     -profile 
   
   Main workflow arguments:
-    --convertBuild                   Run the build conversion workflow
-    --qc                             Run the quality control workflow
-    --popStrat                       Run the population stratification workflow
-    --impute                         Run the imputation & post-imputation quality control workflows
-    --gwas                           Run the genome wide association study workflow
-    --download_db                    Run the reference database setup workflow
+    --convertBuild                            Run the build conversion workflow
+    --qc                                      Run the quality control workflow
+    --popStrat                                Run the population stratification workflow
+    --impute                                  Run the imputation & post-imputation quality control workflows
+    --gwas                                    Run the genome wide association study workflow
+    --download_db                             Run the reference database setup workflow
+
+    --results                                 The output directory for results files (default: snpQT/results)
 
   Quality control workflow options:
     Mandatory:
@@ -33,8 +35,8 @@ def printHelp() {
       --missingness (Default: 10e-7)
 
     Database download workflow options:
-      --download-db core            Download the core reference files to enable --convertBuild, --qc, --popStrat, and --gwas
-      --download-db impute          Download additional reference files to enable --impute
+      --download-db core                      Download the core reference files to enable --convertBuild, --qc, --popStrat, and --gwas
+      --download-db impute                    Download additional reference files to enable --impute
 
   Population stratification options:
     Mandatory:
@@ -45,16 +47,19 @@ def printHelp() {
       --indep-pairwise (Default: "50 5 0.2")
       --racefile ([super (default), sub])
 
-  Imputation options:
+  Imputation and post-imputation options:
     Mandatory:
-
-  Post-imputation options:
-    Mandatory:
+      --qc
 
     Optional:
       --info (default: 0.7)
 
-   GWAS options:
-     Mandatory:       
+  GWAS options:
+    Mandatory:
+      --qc
+      -popStrat
+
+    Optional:
+      --impute  
   """.stripIndent()
 }
