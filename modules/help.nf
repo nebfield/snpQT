@@ -20,12 +20,17 @@ def printHelp() {
 
     --results                                 The output directory for results files (default: snpQT/results)
 
+  Build conversion workflow options:
+    Mandatory:
+      --vcf                                   Path to VCF file (hg39)
+      --fam                                   Path to fam file containing phenotypes
+
   Quality control workflow options:
     Mandatory:
-      --fam
-      --bed
-      --bim (if input not --vcf)
-      --vcf (if input not --bed & --bim)
+      --bed                                   Path to bed file
+      --bim                                   Path to bim file
+      --fam                                   Path to fam file
+
     Optional:
       --mind  (Default: 0.02)
       --indep_pairwise (Default: "50 5 0.2")
@@ -47,17 +52,17 @@ def printHelp() {
       --indep-pairwise (Default: "50 5 0.2")
       --racefile ([super (default), sub])
 
-  Imputation and post-imputation options:
+  Imputation & post-imputation workflow options:
     Mandatory:
       --qc
 
     Optional:
       --info (default: 0.7)
 
-  GWAS options:
+  GWAS workflow options:
     Mandatory:
       --qc
-      -popStrat
+      --popStrat
 
     Optional:
       --impute  
