@@ -26,16 +26,22 @@ workflow sample_qc {
   main:
     variant_missingness(ch_inbed, ch_inbim, ch_infam)
     individual_missingness(variant_missingness.out.bed, variant_missingness.out.bim, variant_missingness.out.fam)
-    plot_missingness(individual_missingness.out.imiss)
-    check_sex(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam)
-    plot_sex(check_sex.out.sexcheck)
-    extract_autosomal(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam)
+    plot_missingness(individual_missingness.out.imiss)    
     Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
-      .set{exclude}
-    heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, exclude)
-    plot_heterozygosity(heterozygosity_rate.out.het)
-    heterozygosity_prune(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, plot_heterozygosity.out.failed)
+      .set{exclude}      
+    if (params.sexcheck) {
+      check_sex(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam)
+      plot_sex(check_sex.out.sexcheck)
+      extract_autosomal(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam)
+      heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, exclude)
+      plot_heterozygosity(heterozygosity_rate.out.het)
+      heterozygosity_prune(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, plot_heterozygosity.out.failed)
+      } else {
+      heterozygosity_rate(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, exclude)
+      plot_heterozygosity(heterozygosity_rate.out.het)
+      heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, plot_heterozygosity.out.failed)
+    }
     relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam, heterozygosity_rate.out.ind_snps, individual_missingness.out.imiss)
     missing_phenotype(relatedness.out.bed, relatedness.out.bim, relatedness.out.fam)
 
@@ -43,5 +49,4 @@ workflow sample_qc {
     bed = missing_phenotype.out.bed
     bim = missing_phenotype.out.bim
     fam = missing_phenotype.out.fam
-    plots = concat(plot_missingness.out.figure, plot_sex.out.figure, plot_heterozygosity.out.figure)
 } 
