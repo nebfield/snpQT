@@ -66,12 +66,19 @@ if (params.qc) {
 }
 
 if (params.gwas) {
-  if (!params.qc || !params.popStrat) {
-    println("GWAS module requires qc and popStrat")
-    println("Please rerun with --qc and --popStrat")
+  if (!params.qc) {
+    println("GWAS module requires qc")
+    println("Please rerun with --qc")
     println("Use --help to print help")
     System.exit(1)
   }
+}
+
+// throw errors on dumb mistakes I've made
+if (file(params.fam).getExtension() != "fam") {
+  println("Your fam file doesn't have a .fam extension. Are you sure about that?")
+  println("Please rename your fam file")
+  System.exit(1)
 }
 
 // main workflow ----------------------------------------------------------
@@ -125,7 +132,13 @@ workflow {
 	  gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
 	}
       } else if ( !params.impute && params.gwas ) {
-         gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, popStrat.out.covar)
+         if (params.popStrat) {
+	   gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, popStrat.out.covar)
+	 } else if (!params.popStrat) {
+	   // use dummy covar
+	   Channel.fromPath("$baseDir/bootstrap/covar.txt").set{ covar }
+	   gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, covar)
+        }
       }
     }
 
