@@ -248,8 +248,8 @@ process eigensoft {
     awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_racefile.txt !{fam} > C6_indep.pedind
 
     # make poplist.txt
-    echo "OWN" > poplist.txt 
-    cut -d ' ' -f 6  C6_indep.pedind | sort | uniq | grep -v 'OWN' >> poplist.txt
+    echo "OWN" > poplist.txt
+    echo !{params.racecode} | xargs -n1 >> poplist.txt
     
     echo "genotypename: !{bed}" > parfile
     echo "snpname:      !{bim}" >> parfile
