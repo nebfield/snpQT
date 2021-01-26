@@ -14,7 +14,7 @@ process filter_maf {
     
     shell:
     '''
-    plink2 --bfile !{bed.baseName} \
+    plink --bfile !{bed.baseName} \
       --geno !{params.variant_geno} \
       --make-bed \
       --out geno
