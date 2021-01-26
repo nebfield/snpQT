@@ -14,5 +14,8 @@ workflow gwas {
     
   main:
     run_gwas(ch_bed, ch_bim, ch_fam, covar)
-    plot(run_gwas.out.logistic)
+    run_gwas.out.logistic.flatten()
+      .map { file -> tuple(file.simpleName, file) }
+      .set{logistic}
+    plot(logistic)
 }
