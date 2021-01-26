@@ -14,8 +14,13 @@ process filter_maf {
     
     shell:
     '''
+    plink2 --bfile !{bed.baseName} \
+      --geno !{params.variant_geno} \
+      --make-bed \
+      --out geno
+      
     # MAF filtering < 5%
-    plink --bfile !{bed.baseName} \
+    plink --bfile geno \
       --maf !{params.maf} \
       --make-bed \
       --out maf_filtered
