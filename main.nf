@@ -17,12 +17,17 @@ include {gwas} from './workflows/gwas.nf'
 include {download_core} from './workflows/download_db.nf'
 include {download_impute} from './workflows/download_db.nf'
 
-
 if (params.help) {
   printHelp()
   System.exit(0)
 }
 
+println """
+=================================================================
+snpQT is ready to make your single-nucleotide polymorphisms cute!
+v1.0, January 2020
+=================================================================
+        """.stripIndent()
 // throw errors on invalid workflow combinations --------------------------
 if (params.convertBuild ) {
   if (!params.vcf) {
