@@ -1,15 +1,8 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install curl unzip \
-  python-pip zlib1g-dev libbz2-dev liblzma-dev tabix r-base r-base-dev \
-  libcurl4-openssl-dev libssl-dev libxml2-dev
-
-RUN curl http://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20200219.zip \
-  --output /opt/plink.zip
-RUN unzip /opt/plink.zip -d /opt/plink
-ENV PATH="/opt/plink:${PATH}"
+RUN apt-get clean && apt-get update --fix-missing && apt-get -y install unzip r-base curl
 
 RUN curl https://github.com/samtools/bcftools/releases/download/1.10.2/bcftools-1.10.2.tar.bz2 \
   -L -o /opt/bcftools.tar.bz2
@@ -25,4 +18,4 @@ RUN curl http://s3.amazonaws.com/plink2-assets/alpha2/plink2_linux_avx2.zip \
 RUN unzip /opt/plink2.zip -d /opt/plink2/
 ENV PATH="/opt/plink2:${PATH}"
 
-RUN apt-get -y install pandoc
+RUN apt-get update --fix-missing && apt-get -y install samtools 
