@@ -29,7 +29,7 @@ v1.0, January 2020
 =================================================================
         """.stripIndent()
 // throw errors on invalid workflow combinations --------------------------
-if (params.convertBuild ) {
+if (params.convertBuild) {
   if (!params.vcf) {
     println("Please supply a vcf.gz file for build conversion with --vcf")
     println("Use --help to print help")
@@ -40,7 +40,7 @@ if (params.convertBuild ) {
     println("Use --help to print help")
     System.exit(1)
   }
-} else if (!params.convertBuild) {
+} else if (!params.convertBuild && !params.download_db) {
   if (params.vcf) {
     println("--vcf only compatible with --convertBuild")
     println("Please supply plink input files with --bed --bim --fam")
@@ -80,10 +80,12 @@ if (params.gwas) {
 }
 
 // throw errors on dumb mistakes I've made
-if (file(params.fam).getExtension() != "fam") {
-  println("Your fam file doesn't have a .fam extension. Are you sure about that?")
-  println("Please rename your fam file")
-  System.exit(1)
+if (params.convertBuild || params.qc ) {
+  if (file(params.fam).getExtension() != "fam") {
+    println("Your fam file doesn't have a .fam extension. Are you sure about that?")
+    println("Please rename your fam file")
+    System.exit(1)
+  }
 }
 
 // main workflow ----------------------------------------------------------
