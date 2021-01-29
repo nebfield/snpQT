@@ -18,4 +18,4 @@ RUN curl http://s3.amazonaws.com/plink2-assets/alpha2/plink2_linux_avx2.zip \
 RUN unzip /opt/plink2.zip -d /opt/plink2/
 ENV PATH="/opt/plink2:${PATH}"
 
-RUN apt-get update --fix-missing && apt-get -y install samtools 
+RUN apt-get update --fix-missing && apt-get -y install samtools tabix
