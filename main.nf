@@ -112,7 +112,11 @@ workflow {
         .fromPath(params.fam, checkIfExists: true)
         .set{ ch_fam }
   }
-  
+
+ if (!params.popStrat && params.gwas ) {
+  Channel.fromPath("$baseDir/bootstrap/covar.txt").set{ dummy_covar }
+ }
+
   main:
     if ( params.download_db == "core" ) {
       download_core()
@@ -134,17 +138,16 @@ workflow {
       }
       if ( params.impute ) {
         imputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
-	postImputation(imputation.out.imputed, variant_qc.out.fam)
-	if (params.gwas) {
-	  gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
+	      postImputation(imputation.out.imputed, variant_qc.out.fam)
+	      if (params.gwas) {
+	    gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
 	}
       } else if ( !params.impute && params.gwas ) {
          if (params.popStrat) {
 	   gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, popStrat.out.covar)
 	 } else if (!params.popStrat) {
-	   // use dummy covar
-	   Channel.fromPath("$baseDir/bootstrap/covar.txt").set{ covar }
-	   gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, covar)
+     // use dummy covar
+	   gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, dummy_covar)
         }
       }
     }
@@ -157,16 +160,25 @@ workflow {
       } else if ( params.qc && params.popStrat ) {
         sample_qc(ch_bed, ch_bim, ch_fam)
         popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)      
+        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)  
       }
+      // imputation 
       if ( params.impute ) {
         imputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
-	postImputation(imputation.out.imputed, variant_qc.out.fam)
-	if (params.gwas) {
-	  gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
-	} 
-      } else if ( !params.impute && params.gwas) {
-          gwas(variant_qc.out.bed,  variant_qc.out.bim. variant_qc.out.fam, popStrat.out.covar)
+	      postImputation(imputation.out.imputed, variant_qc.out.fam)
+	      if (params.gwas && params.popStrat) {
+          gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, popStrat.out.covar)
+        } else if (params.gwas && ! params.popStrat) {
+          gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, dummy_covar)
+        }
+      } 
+      if ( !params.impute && params.gwas ) {
+        if (params.popStrat) {
+          gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, popStrat.out.covar)
+        } else if (!params.popStrat) {
+          // use dummy covar
+          gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, dummy_covar)
       }
-    }      
+    }
+  }
 }
