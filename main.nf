@@ -155,7 +155,7 @@ workflow {
         sample_qc(ch_bed, ch_bim, ch_fam)	
         variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
       } else if ( params.qc && params.popStrat ) {
-        sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
+        sample_qc(ch_bed, ch_bim, ch_fam)
         popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
         variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)      
       }
