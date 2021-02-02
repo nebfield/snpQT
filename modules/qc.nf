@@ -275,11 +275,11 @@ process mpv {
 
     shell:
     '''
-    plink --bfile !{B7_bed.baseName} --missing 
     plink --bfile !{B7_bed.baseName} \
       --geno !{params.variant_geno} \
       --make-bed \
       --out B8 
+    plink --bfile !{B8_bed.baseName} --missing 
     '''
 }
 
