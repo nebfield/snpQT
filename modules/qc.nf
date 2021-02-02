@@ -279,7 +279,7 @@ process mpv {
       --geno !{params.variant_geno} \
       --make-bed \
       --out B8 
-    plink --bfile !{B8_bed.baseName} --missing 
+    plink --bfile B8 --missing 
     '''
 }
 
