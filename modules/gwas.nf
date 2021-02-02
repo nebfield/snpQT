@@ -38,6 +38,6 @@ process plot {
     shell:
     '''
     qqplot.R !{logistic}
-    # manhattan.R !{logistic} # qqman broken >:( 
+    manhattan.R !{logistic}
     '''
 }
