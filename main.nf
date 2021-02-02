@@ -91,6 +91,11 @@ if (params.convertBuild || params.qc ) {
   }
 }
 
+if (params.popstrat) {
+  println("I think you mean --popStrat not --popstrat. Please try again with --popStrat")
+  System.exit(1)
+}
+
 // main workflow ----------------------------------------------------------
 workflow {
   // set up input channels
