@@ -34,7 +34,8 @@ process plot {
 
     output:
     path "qqplot.png"
-    
+    path "*.pdf"
+ 
     shell:
     '''
     qqplot.R !{logistic}
