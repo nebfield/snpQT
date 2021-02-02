@@ -98,6 +98,8 @@ process check_sex {
 }
 
 process plot_sex {
+    publishDir "${params.results}/qc/", mode: 'copy'
+
     input:
     path(sexcheck) 
 
@@ -165,6 +167,8 @@ process heterozygosity_rate {
 }
 
 process plot_heterozygosity { 
+    publishDir "${params.results}/qc/", mode: 'copy'
+
     input: 
     path het
 
