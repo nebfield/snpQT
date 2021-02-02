@@ -26,8 +26,11 @@ println """
 =================================================================
 snpQT is ready to make your single-nucleotide polymorphisms cute!
 v1.0, January 2020
+Parameters in effect:
+${params}
 =================================================================
         """.stripIndent()
+
 // throw errors on invalid workflow combinations --------------------------
 if (params.convertBuild) {
   if (!params.vcf) {
