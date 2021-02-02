@@ -231,6 +231,8 @@ process racefile {
 
 // STEP C8: Eigensoft ----------------------------------------------------------------
 process eigensoft {
+    publishDir "${params.results}/popStrat/", mode: 'copy', pattern: "eigenvec"
+
     input:
     path bed
     path bim
