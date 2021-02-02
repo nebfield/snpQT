@@ -14,7 +14,6 @@ process variant_missingness {
 
   shell:
   '''  
-  cp !{in_fam} !{in_bed.baseName}.fam # rename fam file to match input bim / bed
   plink --bfile !{in_bed.baseName} \
       --make-bed \
       --out data 
