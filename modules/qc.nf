@@ -40,13 +40,12 @@ process individual_missingness {
   shell:
   '''
   plink --bfile !{B1_bed.baseName} \
-    --missing \
-    --out missing 
-  
-  plink --bfile !{B1_bed.baseName} \
     --make-bed \
     --mind !{params.mind} \
     --out B2 
+  plink --bfile B2 \
+    --missing \
+    --out missing 
   '''
 }
 
