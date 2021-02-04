@@ -54,7 +54,7 @@ workflow popStrat {
     }
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam)
     plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
-    extract_homogenous(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, eigensoft.out.keep_samples)
+    extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)
     pca_covariates(extract_homogenous.out.bed, extract_homogenous.out.bim, extract_homogenous.out.fam, exclude)
 
   emit:
