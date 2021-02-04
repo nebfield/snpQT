@@ -16,6 +16,7 @@ process fix_duplicates {
     path "D3.bed", emit: bed
     path "D3.bim", emit: bim
     path "D3.fam", emit: fam
+    path "D3.log", emit: log
     
     shell:
     '''
@@ -39,9 +40,10 @@ process to_bcf {
     path(bed)
     path(bim)
     path(fam)
-
+    
     output:
     path "D7.bcf", emit: bcf
+    path "D6.log", emit: log
 
     shell:
     '''

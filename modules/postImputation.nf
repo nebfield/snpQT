@@ -23,6 +23,7 @@ process filter_imp {
     path "E2.bed", emit: bed
     path "E2.bim", emit: bim
     path "E2.fam", emit: fam
+    path "E2.log", emit: log
     
     shell:
     '''
@@ -49,6 +50,7 @@ process duplicates_cat1 {
     path "E3_cat1.bed", emit: bed
     path "E3_cat1.bim", emit: bim
     path "E3_cat1.fam", emit: fam
+    path "E3_cat1.log", emit: log
     
     shell:
     '''
@@ -77,6 +79,7 @@ process duplicates_cat2 {
     path "E3_cat2.bed", emit: bed
     path "E3_cat2.bim", emit: bim 
     path "E3_cat2.fam", emit: fam
+    path "E3_cat2.log", emit: log
 
     shell:
     '''
@@ -99,6 +102,7 @@ process duplicates_cat3 {
     path "E3_cat3.bed", emit: bed
     path "E3_cat3.bim", emit: bim 
     path "E3_cat3.fam", emit: fam
+    path "E3_cat3.log", emit: log
     
     shell:
     '''
@@ -138,6 +142,7 @@ process update_phenotype {
     path "post_annotation.bed", emit: bed
     path "post_annotation.bim", emit: bim
     path "post_annotation.fam", emit: fam
+    path "post_annotation.log", emit: log 
     
     shell:
     '''
