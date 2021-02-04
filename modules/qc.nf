@@ -11,6 +11,7 @@ process variant_missingness {
   path "B1.bed", emit: bed
   path "B1.bim", emit: bim
   path "B1.fam", emit: fam
+  path "B1.log", emit: log
 
   shell:
   '''  
@@ -36,6 +37,7 @@ process individual_missingness {
   path "B2.bim", emit: bim
   path "B2.fam", emit: fam
   path "missing.imiss", emit: imiss
+  path "B2.log", emit: log
   
   shell:
   '''
@@ -79,6 +81,7 @@ process check_sex {
     path "B3.bim", emit: bim
     path "B3.fam", emit: fam
     path "plink.sexcheck", emit: sexcheck
+    path "B3.log", emit: log
     
     // vcf to bed + fam https://www.biostars.org/p/313943/
     shell:
@@ -123,6 +126,7 @@ process extract_autosomal {
     path "B4.bed", emit: bed
     path "B4.bim", emit: bim 
     path "B4.fam", emit: fam
+    path "B4.log", emit: log
     
     shell:
     '''
@@ -192,6 +196,7 @@ process heterozygosity_prune {
     path "B5.bed", emit: bed
     path "B5.bim", emit: bim
     path "B5.fam", emit: fam
+    path "B5.log", emit: log
 
     shell:
     '''
@@ -216,6 +221,7 @@ process relatedness {
     path "B6.bed", emit: bed
     path "B6.bim", emit: bim
     path "B6.fam", emit: fam
+    path "B6.log", emit: log
     
     shell:
     '''
@@ -248,6 +254,7 @@ process missing_phenotype {
     path "B7.bed", emit: bed
     path "B7.bim", emit: bim
     path "B7.fam", emit: fam
+    path "B7.log", emit: log
 
     shell:
     '''
@@ -271,6 +278,7 @@ process mpv {
     path "B8.bim", emit: bim
     path "B8.fam", emit: fam
     path "plink.lmiss", emit: lmiss
+    path "B8.log", emit: log
 
     shell:
     '''
@@ -311,6 +319,7 @@ process hardy {
   path "B9.fam", emit: fam
   path "plink_sub.hwe", emit: sub
   path "plinkzoomhwe.hwe", emit: zoom
+  path "B9.log", emit: log
   
   shell: 
   '''
@@ -357,6 +366,7 @@ process maf {
   path "B10.bim", emit: bim
   path "B10.fam", emit: fam
   path "MAF_check.frq", emit: frq
+  path "B10.log", emit: log
   
   shell:
   '''
@@ -400,6 +410,7 @@ process test_missing {
   path "B11.bim", emit: bim
   path "B11.fam", emit: fam
   path "plink.missing", emit: missing
+  path "B11.log", emit: log
   
   shell:
   '''
@@ -426,4 +437,21 @@ process plot_missing_by_cohort {
   '''
   plot_missing_cohort.R !{imiss}
   ''' 
+}
+
+process parse_logs {
+  publishDir "${params.results}/${dir}", mode: 'copy'
+	
+  input:
+  val(dir)
+  path(logs)
+  val(fn)
+
+  output:
+  path "${fn}", emit: log
+  
+  shell:
+  '''
+  ls | sort -V | xargs awk '/loaded/ { print FILENAME,$1,$2 }' > !{fn}
+  '''
 }

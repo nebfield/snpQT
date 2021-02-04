@@ -12,6 +12,7 @@ include {maf} from '../modules/qc.nf' // B10
 include {plot_maf} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
 include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
+include {parse_logs} from '../modules/qc.nf'
 
 // workflow component for snpqt pipeline
 workflow variant_qc {
@@ -29,7 +30,9 @@ workflow variant_qc {
     plot_maf(maf.out.frq)
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
     plot_missing_by_cohort(test_missing.out.missing)
-
+    logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
+    parse_logs("qc", logs, "variant_qc.log")
+ 
   emit:
     bed = test_missing.out.bed
     bim = test_missing.out.bim
