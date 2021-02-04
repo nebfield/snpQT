@@ -11,6 +11,7 @@ process filter_maf {
     path "C3.bed", emit: bed
     path "C3.bim", emit: bim
     path "C3.fam", emit: fam
+    path "C3.log", emit: log
     
     shell:
     '''
@@ -73,6 +74,7 @@ process flip_snps {
   path "C4.bed", emit: bed
   path "C4.bim", emit: bim
   path "C4.fam", emit: fam
+  path "C4.log", emit: log
   
   shell:
   '''
@@ -105,6 +107,7 @@ process align {
   path "C5.bed", emit: bed
   path "C5.bim", emit: bim
   path "C5.fam", emit: fam
+  path "C5.log", emit: log
   
   shell:
   '''
@@ -133,6 +136,7 @@ process merge {
     path "C6.bed", emit: bed
     path "C6.bim", emit: bim
     path "C6.fam", emit: fam
+    path "C6.log", emit: log
     
     shell:
     '''
@@ -193,7 +197,8 @@ process pca_prep {
     path("C6_indep.bed"), emit: bed 
     path("C6_indep.bim"), emit: bim
     path("C6_indep.fam"), emit: fam
-
+    path("C6_indep.log"), emit: log
+    
     shell:
     '''
     # recalculate independent snps
@@ -305,6 +310,7 @@ process extract_homogenous {
     path "C9.bed", emit: bed
     path "C9.bim", emit: bim
     path "C9.fam", emit: fam
+    path "C9.log", emit: log
     
     shell:
     '''
@@ -323,6 +329,7 @@ process pca_covariates {
 
     output:
     path "covar_pca", emit: covar
+    path "C10_indep.log", emit: log 
     
     shell:
     '''

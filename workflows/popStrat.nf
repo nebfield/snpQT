@@ -13,6 +13,7 @@ include {eigensoft} from '../modules/popStrat.nf' // C8
 include {plot_pca} from '../modules/popStrat.nf' // C8
 include {extract_homogenous} from '../modules/popStrat.nf' // C9
 include {pca_covariates} from '../modules/popStrat.nf' // C10
+include {parse_logs} from '../modules/qc.nf'
 
 // workflow component for snpqt pipeline
 workflow popStrat {
@@ -56,6 +57,8 @@ workflow popStrat {
     plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
     extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)
     pca_covariates(extract_homogenous.out.bed, extract_homogenous.out.bim, extract_homogenous.out.fam, exclude)
+    logs = filter_maf.out.log.concat(flip_snps.out.log, align.out.log, merge.out.log, pca_prep.out.log, extract_homogenous.out.log, pca_covariates.out.log).collect()
+    parse_logs("popStrat", logs, "popStrat.log")
 
   emit:
     bed = extract_homogenous.out.bed
