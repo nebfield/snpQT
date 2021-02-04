@@ -11,6 +11,7 @@ process run_gwas {
 
     output:
     path "*.logistic", emit: logistic
+    path "*.log", emit: log
     
     shell:
     '''

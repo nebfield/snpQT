@@ -4,6 +4,7 @@ nextflow.preview.dsl = 2
 // import modules
 include {run_gwas} from '../modules/gwas.nf' // E1
 include {plot} from '../modules/gwas.nf' // E2
+include {parse_logs} from '../modules/qc.nf'
 
 workflow gwas {
   take:
@@ -18,4 +19,5 @@ workflow gwas {
       .map { file -> tuple(file.simpleName, file) }
       .set{logistic}
     plot(logistic)
+    parse_logs("gwas", run_gwas.out.log, "gwas.log")
 }
