@@ -452,6 +452,6 @@ process parse_logs {
   
   shell:
   '''
-  ls | sort -V | xargs awk '/loaded/ { print FILENAME,$1,$2 }' > !{fn}
+  ls | sort -V | xargs parse_logs.awk > !{fn}
   '''
 }
