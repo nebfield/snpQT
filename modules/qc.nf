@@ -58,7 +58,7 @@ process plot_missingness {
   path(missing_imiss)
 
   output:
-  path "sample_missingness.png", emit: figure
+  path "*.png", emit: figure
 
   shell:
   '''

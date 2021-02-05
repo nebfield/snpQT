@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library("tidyverse")
-library("gridExtra")
 
 # Plot sample missingness 
 # Args
@@ -18,9 +17,10 @@ ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
   theme_classic() + 
   xlab("Missing call rate") + 
-  ylab("Sample count") -> sample_missingness_plt
+  ylab("Sample count") +
+  ggtitle("Sample missingness rate")
+ggsave("sample_missingness_hist.png")
 
-n <- nrow(sample_missingness)
 ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter() +
   theme_classic() + 
@@ -28,7 +28,7 @@ ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   xlab(glue::glue("Sample (n = {n})")) +
   theme(axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) + 
-  coord_flip() -> sample_jitter
+  coord_flip() +
+  ggtitle("Sample missingness rate")
 
-ggsave("sample_missingness.png", arrangeGrob(sample_missingness_plt, 
-  sample_jitter, ncol=2), dpi = 300)
+ggsave("sample_missingness_scatter.png")
