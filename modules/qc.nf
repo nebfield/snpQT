@@ -348,8 +348,8 @@ process plot_hardy {
   
   shell:
   '''
-  hwe.R !{sub} ""
-  hwe.R !{zoom} "strongly deviating SNPs only"
+  plot_hwe.R !{sub} ""
+  plot_hwe.R !{zoom} "strongly deviating SNPs only"
   '''
 }
 
