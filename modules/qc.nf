@@ -297,7 +297,7 @@ process plot_mpv {
   path lmiss
 
   output:
-  path "variant_missingness.png", emit: figure
+  path "*.png", emit: figure
     
   shell:
   '''

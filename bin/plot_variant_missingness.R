@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library("tidyverse")
-library("gridExtra")
 
 # Plot sample missingness 
 # Args
@@ -18,9 +17,9 @@ ggplot(variant_missingness, aes(x = F_MISS)) +
   theme_classic() +
   ylab("Variant count") +
   xlab("F_MISS") + 
-  ggtitle("Variant missingness rate") -> variant_hist 
-  
-n <- nrow(variant_missingness)
+  ggtitle("Variant missingness rate")  
+ggsave("variant_missingness_hist.png")  
+
 ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter(alpha=0.2) +
   theme_classic() + 
@@ -29,7 +28,6 @@ ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
   xlab(glue::glue("Variant (n = {n})")) +
   theme(axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) + 
-  coord_flip() -> variant_scatter
+  coord_flip() 
 
-ggsave("variant_missingness.png", arrangeGrob(variant_hist, 
-  variant_scatter, ncol=2), dpi = 300)
+ggsave("variant_missingness_scatter.png")
