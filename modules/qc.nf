@@ -452,6 +452,6 @@ process parse_logs {
   
   shell:
   '''
-  ls | sort -V | xargs parse_logs.awk > !{fn}
+  ls | sort -V | xargs -n1 parse_logs.awk > !{fn}
   '''
 }
