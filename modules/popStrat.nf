@@ -265,7 +265,7 @@ process eigensoft {
     echo "evaloutname:  eigenval" >> parfile
     echo "numthreads:   10" >> parfile
     echo "poplistname: poplist.txt" >> parfile
-    echo "numoutlierevec: 5" >> parfile
+    echo "numoutlierevec: 10" >> parfile
     echo "autoshrink: YES" >> parfile
 
     smartpca -p parfile > log.txt
