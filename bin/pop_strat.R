@@ -61,4 +61,4 @@ fancy_plot <- plot_ly(
   color =  ~ race
 )
 
-saveWidget(fancy_plot, "popStrat.html", selfcontained = F)
+saveWidget(fancy_plot, "popStrat.html", selfcontained = T)
