@@ -58,7 +58,7 @@ process plot_missingness {
   path(missing_imiss)
 
   output:
-  path "sample_missingness.png", emit: figure
+  path "*.png", emit: figure
 
   shell:
   '''
@@ -297,7 +297,7 @@ process plot_mpv {
   path lmiss
 
   output:
-  path "variant_missingness.png", emit: figure
+  path "*.png", emit: figure
     
   shell:
   '''
@@ -348,8 +348,8 @@ process plot_hardy {
   
   shell:
   '''
-  hwe.R !{sub} ""
-  hwe.R !{zoom} "strongly deviating SNPs only"
+  plot_hwe.R !{sub} ""
+  plot_hwe.R !{zoom} "strongly deviating SNPs only"
   '''
 }
 
@@ -449,9 +449,11 @@ process parse_logs {
 
   output:
   path "${fn}", emit: log
+  path "*.png"
   
   shell:
   '''
-  ls | sort -V | xargs parse_logs.awk > !{fn}
+  ls | sort -V | xargs -n1 parse_logs.awk > !{fn}
+  plot_logs.R !{fn} $(basename -s .log !{fn})
   '''
 }

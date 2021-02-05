@@ -15,5 +15,6 @@ read.table(args[[1]], header = T) %>%
 hwe %>%
   ggplot(., aes(x = P)) +
   geom_histogram() +
+  theme_bw() +
   ggtitle(paste("Hardy-Weinberg Equilibrium (HWE) ", args[[2]]))
 ggsave(paste0(args[[1]], ".png"))
