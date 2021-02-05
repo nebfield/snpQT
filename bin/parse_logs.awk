@@ -16,5 +16,6 @@ END {
     
     print FILENAME, loaded["variants"], loaded["people"],
 	pheno["cases"] + pheno["controls"] + pheno["missing"],
-	pheno["cases"], pheno["controls"], pheno["missing"]
+	pheno["cases"], pheno["controls"], pheno["missing"],
+	loaded["wd"]
 }
