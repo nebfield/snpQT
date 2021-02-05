@@ -16,7 +16,8 @@ colnames(df) <-
     "pheno",
     "pheno_case",
     "pheno_control",
-    "pheno_miss")
+    "pheno_miss",
+    "wd")
 df %>% 
   mutate(stage = word(stage, sep = "\\.")) %>%
   ggplot(., aes(x = stage, y = variants, group = 1)) + 
