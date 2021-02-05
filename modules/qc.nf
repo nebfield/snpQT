@@ -449,9 +449,11 @@ process parse_logs {
 
   output:
   path "${fn}", emit: log
+  path "*.png"
   
   shell:
   '''
   ls | sort -V | xargs -n1 parse_logs.awk > !{fn}
+  plot_logs.R !{fn} $(basename -s .log !{fn})
   '''
 }
