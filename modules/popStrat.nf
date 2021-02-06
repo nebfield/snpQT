@@ -271,8 +271,8 @@ process eigensoft {
     echo "numthreads:   10" >> parfile
     echo "poplistname: poplist.txt" >> parfile
     echo "numoutlierevec: 10" >> parfile
-    echo "shrinkmode: YES" >> parfile
 	echo "outlieroutname: excluded_outliers.txt" >> parfile
+	echo "shrinkmode: YES" >> parfile
 
 
     smartpca -p parfile > log.txt
