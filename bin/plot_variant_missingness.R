@@ -12,6 +12,8 @@ read.table(args[[1]], header = TRUE) %>%
   as_tibble(.) %>%
   mutate(plink = "plink") -> variant_missingness # plink is a dummy column
 
+n <- nrow(variant_missingness)
+
 ggplot(variant_missingness, aes(x = F_MISS)) +
   geom_histogram() +
   theme_classic() +
