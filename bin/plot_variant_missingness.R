@@ -16,7 +16,7 @@ n <- nrow(variant_missingness)
 
 ggplot(variant_missingness, aes(x = F_MISS)) +
   geom_histogram() +
-  theme_classic() +
+  theme_linedraw() +
   ylab("Variant count") +
   xlab("F_MISS") + 
   ggtitle("Variant missingness rate")  
@@ -24,7 +24,7 @@ ggsave("variant_missingness_hist.png")
 
 ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter(alpha=0.2) +
-  theme_classic() + 
+  theme_linedraw() + 
   ggtitle("Variant missingness rate") + 
   ylab("F_MISS") +
   xlab(glue::glue("Variant (n = {n})")) +

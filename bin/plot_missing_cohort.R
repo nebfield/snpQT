@@ -15,7 +15,7 @@ read.table(args[[1]], header = TRUE) %>%
 
 ggplot(cs_missingness, aes(x = P)) +
   geom_histogram() +
-  theme_classic() +
+  theme_linedraw() +
   ylab("Variant count") +
   xlab("P-value") + 
   ggtitle("Missingness vs Case/Control status") -> cs_missingness_hist 

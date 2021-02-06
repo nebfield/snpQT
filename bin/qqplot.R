@@ -33,7 +33,7 @@ logistic %>%
   geom_abline(intercept = 0, slope = 1) + 
   xlab("Expected -log10 p-value") +
   ylab("Observed -log10 p-value") +
-  theme_classic() +
+  theme_linedraw() +
   # force origin to start at 0 
   scale_x_continuous(expand = c(0, 0), limits = c(0, NA)) + 
   scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) + 

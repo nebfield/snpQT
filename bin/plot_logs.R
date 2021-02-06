@@ -23,7 +23,7 @@ df %>%
   ggplot(., aes(x = stage, y = variants, group = 1)) + 
   geom_point() + 
   geom_line() + 
-  theme_bw() +
+  theme_linedraw() +
   labs(x = "Stage", y = "Number of variants")
 ggsave(paste0(args[[2]], "_variants.png"))
 
@@ -32,6 +32,6 @@ df %>%
   ggplot(., aes(x = stage, y = samples, group = 1)) + 
   geom_point() + 
   geom_line() + 
-  theme_bw() +
+  theme_linedraw() +
   labs(x = "Stage", y = "Number of samples")
 ggsave(paste0(args[[2]], "_samples.png"))

@@ -40,7 +40,7 @@ plot_pca <- function(df, ax1, ax2) {
   # {{ }} tidy evaluation for column names
   ggplot(df, aes(x = {{ ax1 }} , y = {{ ax2 }}, colour = race)) +
     geom_point() +
-    theme_classic()
+    theme_linedraw()
 }
 
 plot_pca(df, PCA1, PCA2)

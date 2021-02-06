@@ -17,7 +17,7 @@ n <- nrow(sample_missingness)
 
 ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
-  theme_classic() + 
+  theme_linedraw() + 
   xlab("Missing call rate") + 
   ylab("Sample count") +
   ggtitle("Sample missingness rate")
@@ -25,7 +25,7 @@ ggsave("sample_missingness_hist.png")
 
 ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter() +
-  theme_classic() + 
+  theme_linedraw() + 
   ylab("Missing call rate") +
   xlab(glue::glue("Sample (n = {n})")) +
   theme(axis.text.y=element_blank(),

@@ -12,7 +12,7 @@ read.table(args[[1]], header = TRUE) %>%
   
 ggplot(het, aes(x = IID, y = HET_RATE)) + 
   geom_point() + 
-  theme_classic() +
+  theme_linedraw() +
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) + 
   xlab("Sample") +
