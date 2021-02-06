@@ -18,7 +18,7 @@ ggplot(variant_missingness, aes(x = F_MISS)) +
   geom_histogram() +
   theme_linedraw() +
   ylab("Variant count") +
-  xlab("F_MISS") + 
+  xlab("Missing call rate") + 
   ggtitle("Variant missingness rate")  
 ggsave("variant_missingness_hist.png")  
 
@@ -26,7 +26,7 @@ ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter(alpha=0.2) +
   theme_linedraw() + 
   ggtitle("Variant missingness rate") + 
-  ylab("F_MISS") +
+  ylab("Missing call rate") +
   xlab(glue::glue("Variant (n = {n})")) +
   theme(axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) + 

@@ -27,7 +27,7 @@ ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter() +
   theme_linedraw() + 
   ylab("Missing call rate") +
-  xlab(glue::glue("Sample (n = {n})")) +
+  xlab(glue::glue("Samples (n = {n})")) +
   theme(axis.text.y=element_blank(),
         axis.ticks.y=element_blank()) + 
   coord_flip() +
