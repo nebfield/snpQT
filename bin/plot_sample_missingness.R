@@ -13,6 +13,8 @@ read.table(args[[1]], header = TRUE) %>%
   mutate(IID = as.factor(IID)) %>%
   mutate(plink = "plink") -> sample_missingness # plink is a dummy column
 
+n <- nrow(sample_missingness)
+
 ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
   theme_classic() + 
