@@ -271,8 +271,7 @@ process eigensoft {
     echo "numthreads:   10" >> parfile
     echo "poplistname: poplist.txt" >> parfile
     echo "numoutlierevec: 10" >> parfile
-	echo "outliersigmathresh: 8.0" >> parfile
-    echo "autoshrink: YES" >> parfile
+    echo "shrinkmode: YES" >> parfile
 	echo "outlieroutname: excluded_outliers.txt" >> parfile
 
 
