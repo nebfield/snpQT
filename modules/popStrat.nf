@@ -263,7 +263,7 @@ process eigensoft {
     echo "OWN" > poplist.txt
     echo !{params.racecode} | xargs -n1 >> poplist.txt
     
-    echo "genotypename: !{bed}" > parfile
+	echo "genotypename: !{bed}" > parfile
     echo "snpname:      !{bim}" >> parfile
     echo "indivname:    C6_indep.pedind" >> parfile
     echo "evecoutname:  eigenvec" >> parfile
@@ -271,7 +271,10 @@ process eigensoft {
     echo "numthreads:   10" >> parfile
     echo "poplistname: poplist.txt" >> parfile
     echo "numoutlierevec: 10" >> parfile
+	echo "outliersigmathresh: 8.0" >> parfile
     echo "autoshrink: YES" >> parfile
+	echo "outlieroutname: excluded_outliers.txt" >> parfile
+
 
     smartpca -p parfile > log.txt
 
