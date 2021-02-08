@@ -261,7 +261,7 @@ process eigensoft {
 
     # make poplist.txt
     echo "OWN" > poplist.txt
-    #echo !{params.racecode} | xargs -n1 >> poplist.txt
+    echo !{params.racecode} | xargs -n1 >> poplist.txt
     
     echo "genotypename: !{bed}" > parfile
     echo "snpname:      !{bim}" >> parfile
@@ -270,7 +270,7 @@ process eigensoft {
     echo "evaloutname:  eigenval" >> parfile
     echo "numthreads:   10" >> parfile
     echo "poplistname: poplist.txt" >> parfile
-    echo "numoutlierevec: 8" >> parfile
+    echo "numoutlierevec: 7" >> parfile
     echo "autoshrink: YES" >> parfile
 	echo "outlieroutname: excluded_outliers.txt" >> parfile
 
