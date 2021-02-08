@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library("tidyverse")
-library("gridExtra")
 
 # Plot missingness per case/control status
 # Args

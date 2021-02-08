@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library('tidyverse')
-library('gridExtra')
 
 # Args
 # 1: plink.frq file path

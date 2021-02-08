@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library('tidyverse')
-library('gridExtra')
 
 # Args
 # 1: plink.hwe file path
@@ -13,7 +12,7 @@ read.table(args[[1]], header = T) %>%
   as_tibble(.) -> hwe
 
 hwe %>%
-  ggplot(., aes(x = P-value, y = Variant count) +
+  ggplot(., aes(x = P-value, y = Variant count)) +
   geom_histogram() +
   theme_linedraw() +
   ggtitle(paste("Hardy-Weinberg Equilibrium (HWE) ", args[[2]]))

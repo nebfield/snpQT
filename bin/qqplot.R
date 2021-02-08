@@ -2,7 +2,6 @@
 
 library("tidyverse")
 
-
 # Plot sample missingness 
 # Args
 # 1: plink assoc.logistic file
