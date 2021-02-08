@@ -34,7 +34,7 @@ workflow variant_qc {
     Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
-    pca_covariates(test_missing.out.bed, test_missing.bim, test_missing.out.fam, exclude)
+    pca_covariates(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
     logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
     parse_logs("qc", logs, "variant_qc.log")
  
