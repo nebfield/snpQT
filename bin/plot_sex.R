@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library('tidyverse')
+library('gridExtra')
 
 # Args
 # 1: plink.sexcheck file path
