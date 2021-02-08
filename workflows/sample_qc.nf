@@ -46,7 +46,7 @@ workflow sample_qc {
     relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam, heterozygosity_rate.out.ind_snps, individual_missingness.out.imiss)
     missing_phenotype(relatedness.out.bed, relatedness.out.bim, relatedness.out.fam)
     logs = variant_missingness.out.log.concat(individual_missingness.out.log, check_sex.out.log, extract_autosomal.out.log, heterozygosity_prune.out.log, relatedness.out.log, missing_phenotype.out.log).collect()
-    parse_logs("qc", logs, "sample_qc.log")
+    parse_logs("qc", logs, "sample_qc_log.txt")
   
 
   emit:

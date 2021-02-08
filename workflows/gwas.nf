@@ -19,5 +19,5 @@ workflow gwas {
       .map { file -> tuple(file.simpleName, file) }
       .set{logistic}
     plot(logistic)
-    parse_logs("gwas", run_gwas.out.log, "gwas.log")
+    parse_logs("gwas", run_gwas.out.log, "gwas_log.txt")
 }

@@ -56,7 +56,7 @@ workflow popStrat {
     plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
     extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)
     logs = filter_maf.out.log.concat(flip_snps.out.log, align.out.log, merge.out.log, pca_prep.out.log, extract_homogenous.out.log).collect()
-    parse_logs("popStrat", logs, "popStrat.log")
+    parse_logs("popStrat", logs, "popStrat_log.txt")
 
   emit:
     bed = extract_homogenous.out.bed

@@ -36,7 +36,7 @@ workflow variant_qc {
       .set{ exclude }
     pca_covariates(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
     logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
-    parse_logs("qc", logs, "variant_qc.log")
+    parse_logs("qc", logs, "variant_qc_log.txt")
  
   emit:
     bed = test_missing.out.bed

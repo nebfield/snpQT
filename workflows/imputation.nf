@@ -64,7 +64,7 @@ workflow imputation {
     convert_imp5(thousand_genomes_with_idx)
     impute5(convert_imp5.out.chrom.join(phased).combine(ch_map))
     // logs = fix_duplicates.out.log.concat(to_bcf.out.log).collect()
-    // parse_logs("imputation", logs, "imputation.log")
+    // parse_logs("imputation", logs, "imputation_log.txt")
 
   emit:
     imputed = impute5.out.imputed.collect()
