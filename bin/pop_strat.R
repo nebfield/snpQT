@@ -44,11 +44,11 @@ plot_pca <- function(df, ax1, ax2) {
 }
 
 plot_pca(df, PCA1, PCA2)
-ggsave("pca1vspca2.png")
+ggsave("pca1vspca2_eig.png")
 plot_pca(df, PCA1, PCA3)
-ggsave("pca1vspca3.png")
+ggsave("pca1vspca3_eig.png")
 plot_pca(df, PCA2, PCA3)
-ggsave("pca2vspca3.png")
+ggsave("pca2vspca3_eig.png")
 
 fancy_plot <- plot_ly(
   df,
@@ -61,4 +61,4 @@ fancy_plot <- plot_ly(
   color =  ~ race
 )
 
-saveWidget(fancy_plot, "popStrat.html", selfcontained = T)
+saveWidget(fancy_plot, "popStrat_eig.html", selfcontained = T)
