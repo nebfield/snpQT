@@ -11,6 +11,7 @@ include {pca_prep} from '../modules/popStrat.nf' // C7
 include {racefile} from '../modules/popStrat.nf' // C7
 include {eigensoft} from '../modules/popStrat.nf' // C8
 include {plot_pca} from '../modules/popStrat.nf' // C8
+include {pca_plink} from '../modules/popStrat.nf' // C8 
 include {extract_homogenous} from '../modules/popStrat.nf' // C9
 include {parse_logs} from '../modules/qc.nf'
 
@@ -54,6 +55,7 @@ workflow popStrat {
     }
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam)
     plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
+    pca_plink(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, eigensoft.out.eigenvec)
     extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)
     logs = filter_maf.out.log.concat(flip_snps.out.log, align.out.log, merge.out.log, pca_prep.out.log, extract_homogenous.out.log).collect()
     parse_logs("popStrat", logs, "popStrat_log.txt")

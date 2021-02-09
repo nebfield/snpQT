@@ -296,6 +296,44 @@ process plot_pca {
   '''
 }
 
+process pca_plink {
+    input:
+    path bed
+    path bim
+    path fam
+    path eigenvec
+
+    output:
+    path 'before.eigenvec', emit: before
+    path 'after.eigenvec', emit: after
+    
+    shell:
+    '''
+    plink --bfile !{bed.baseName} \
+      --pca header \
+      --out before
+    # Keep only a homogenous ethnic cohort
+    awk '{print $1}' !{eigenvec} | tail -n +2 | awk -F ":" '{print $1,$2}' > keep_sample_list.txt
+    plink --bfile !{bed.baseName} \
+        --keep keep_sample_list.txt \
+        --make-bed \
+        --out keep
+    plink --bfile keep \
+        --pca header \
+	--out after
+    '''
+}
+
+process plot_plink_pca {
+    input:
+    tuple val(id), path(eigenvec), path(racefile)
+
+    shell:
+    '''
+    plot_pca_plink.R !{eigenvec} !{racefile} !{id}
+    '''    
+}
+
 // STEP C9: Extract homogenous ethnic group ------------------------------------------------------
 
 process extract_homogenous {
