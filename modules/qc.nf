@@ -453,7 +453,8 @@ process parse_logs {
   
   shell:
   '''
-  ls | sort -V | xargs -n1 parse_logs.awk > !{fn}
+  echo "stage variants samples pheno pheno_case pheno_control pheno_miss wd" > !{fn}
+  ls *.log | sort -V | xargs -n1 parse_logs.awk >> !{fn}
   plot_logs.R !{fn} $(basename -s .log !{fn})
   '''
 }
