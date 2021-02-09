@@ -36,18 +36,23 @@ process individual_missingness {
   path "B2.bed", emit: bed
   path "B2.bim", emit: bim
   path "B2.fam", emit: fam
-  path "missing.imiss", emit: imiss
   path "B2.log", emit: log
+  path "before.imiss", emit: imiss_before
+  path "after.imiss", emit: imiss_after
+  
   
   shell:
   '''
+  plink --bfile B1 \
+    --missing \
+    --out before
   plink --bfile !{B1_bed.baseName} \
     --make-bed \
     --mind !{params.mind} \
     --out B2 
   plink --bfile B2 \
     --missing \
-    --out missing 
+    --out after
   '''
 }
 
@@ -56,13 +61,15 @@ process plot_missingness {
 
   input:
   path(missing_imiss)
+  val(threshold)
+  val(name)
 
   output:
   path "*.png", emit: figure
 
   shell:
   '''
-  plot_sample_missingness.R !{missing_imiss}
+  plot_sample_missingness.R !{missing_imiss} !{threshold} !{name}
   '''
 }
 
@@ -174,6 +181,7 @@ process plot_heterozygosity {
 
     input: 
     path het
+	val(name)
 
     output:
     path "het_failed_samples.txt", emit: failed
@@ -181,7 +189,7 @@ process plot_heterozygosity {
 
     shell:
     '''
-    plot_heterozygosity.R !{het} # get outliers too
+    plot_heterozygosity.R !{het} !{name} # get outliers too
     '''
 }
 
@@ -295,13 +303,15 @@ process plot_mpv {
 
   input:
   path lmiss
+  val(threshold)
+  val(name)
 
   output:
   path "*.png", emit: figure
     
   shell:
   '''
-  plot_variant_missingness.R !{lmiss}
+  plot_variant_missingness.R !{lmiss} !{threshold} !{name} 
   '''
 }
 
@@ -342,6 +352,8 @@ process plot_hardy {
   input:
   path sub
   path zoom
+  val(threshold)
+  val(name)
 
   output:
   path "*.png", emit: figure
@@ -349,7 +361,7 @@ process plot_hardy {
   shell:
   '''
   plot_hwe.R !{sub} ""
-  plot_hwe.R !{zoom} "strongly deviating SNPs only"
+  plot_hwe.R !{zoom} "strongly deviating SNPs only" !{threshold} !{name} 
   '''
 }
 
@@ -385,13 +397,15 @@ process plot_maf {
   
   input:
   path maf_frq
+  val(threshold)
+  val(name)
 
   output:
   path "maf.png", emit: figure
   
   shell:
   '''
-  plot_maf.R !{maf_frq}
+  plot_maf.R !{maf_frq} !{threshold} !{name}
   '''
 }
 
@@ -428,14 +442,16 @@ process plot_missing_by_cohort {
   publishDir "${params.results}/qc/", mode: 'copy'
   
   input:
-  path(imiss)
+  path(missing)
+  val(threshold)
+  val(name)
   
   output:
   path "cs_missingness.png"
 
   shell:
   '''
-  plot_missing_cohort.R !{imiss}
+  plot_missing_cohort.R !{missing} !{threshold} !{name}
   ''' 
 }
 

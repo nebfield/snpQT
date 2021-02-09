@@ -27,7 +27,8 @@ workflow sample_qc {
   main:
     variant_missingness(ch_inbed, ch_inbim, ch_infam)
     individual_missingness(variant_missingness.out.bed, variant_missingness.out.bim, variant_missingness.out.fam)
-    plot_missingness(individual_missingness.out.imiss)    
+    plot_missingness(individual_missingness.out.before.imiss, params.mind,"before")
+	plot_missingness(individual_missingness.out.after.imiss, params.mind,"after")    
     Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{exclude}      
