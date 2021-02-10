@@ -8,7 +8,10 @@ library("tidyverse")
 
 args <- commandArgs(trailingOnly = TRUE)
 
-df <- read_delim(args[[1]], delim = " ")
+df <- read_delim(args[[1]], delim = " ") %>%
+    mutate(num = as.integer(str_extract(stage, "\\d+"))) %>%
+    mutate(stage = word(stage, sep = "\\.")) %>%
+    mutate(stage = fct_reorder(stage, num))
 
 df %>% 
   mutate(stage = word(stage, sep = "\\.")) %>%
