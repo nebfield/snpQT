@@ -4,36 +4,43 @@ library("tidyverse")
 
 # Plot sample missingness 
 # Args
-# 1: plink.lmiss file path
-# 2: missingness threshold
-# 3: before or after threshold
+# 1: plink.lmiss before file path
+# 2: plink.lmiss after file path
+# 3: missingness threshold
 
 args <- commandArgs(trailingOnly = TRUE)
 
-read.table(args[[1]], header = TRUE) %>%
-  as_tibble(.) %>%
-  mutate(plink = "plink") -> variant_missingness # plink is a dummy column
+read_table(args[[1]]) %>%
+    mutate(plink = "plink") %>% # dummy column
+    mutate(type = "before") -> before
+
+read_table(args[[2]]) %>%
+    mutate(plink = "plink") %>%
+    mutate(type = "after") %>%
+    bind_rows(before) %>%
+    mutate(type = fct_relevel(type, "before")) -> variant_missingness
 
 n <- nrow(variant_missingness)
 
 ggplot(variant_missingness, aes(x = F_MISS)) +
-  geom_histogram() +
-  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
-  theme_linedraw() +
-  ylab("Variant count") +
-  xlab("Missing call rate") + 
-  ggtitle("Variant missingness rate")  
-ggsave(paste0("variant_missingness_hist_", args[[3]], ".png")) 
+    geom_histogram() +
+    geom_vline(xintercept = as.numeric(args[[3]]), colour = "red") +
+    facet_grid(~ type) +
+    theme_linedraw() +
+    ylab("Variant count") +
+    xlab("Missing call rate") +
+    ggtitle("Variant missingness rate")  
+ggsave("variant_missingness_hist.png")
 
 ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
-  geom_jitter(alpha=0.2) +
-  geom_hline(yintercept = as.numeric(args[[2]]), colour = "red") +
-  theme_linedraw() + 
-  ggtitle("Variant missingness rate") + 
-  ylab("Missing call rate") +
-  xlab(glue::glue("Variant (n = {n})")) +
-  theme(axis.text.y=element_blank(),
-        axis.ticks.y=element_blank()) + 
-  coord_flip() 
-
-ggsave(paste0("variant_missingness_scatter_", args[[3]], ".png"))
+    geom_jitter(alpha=0.2) +
+    geom_hline(yintercept = as.numeric(args[[3]]), colour = "red") +
+    facet_grid(~ type) + 
+    theme_linedraw() +
+    ggtitle("Variant missingness rate") +
+    ylab("Missing call rate") +
+    xlab(glue::glue("Variant (n = {n})")) +
+    theme(axis.text.y=element_blank(),
+          axis.ticks.y=element_blank()) +
+    coord_flip() 
+ggsave("variant_missingness_scatter.png")

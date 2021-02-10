@@ -322,16 +322,16 @@ process plot_mpv {
   publishDir "${params.results}/qc/", mode: 'copy'
 
   input:
-  path lmiss
+  path lmiss_before
+  path lmiss_after
   val(threshold)
-  val(name)
 
   output:
   path "*.png", emit: figure
     
   shell:
   '''
-  plot_variant_missingness.R !{lmiss} !{threshold} !{name} 
+  plot_variant_missingness.R !{lmiss_before} !{lmiss_after} !{threshold} 
   '''
 }
 
