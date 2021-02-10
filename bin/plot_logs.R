@@ -8,13 +8,12 @@ library("tidyverse")
 
 args <- commandArgs(trailingOnly = TRUE)
 
-df <- read_delim(args[[1]], delim = " ") %>%
+read_delim(args[[1]], delim = " ") %>%
     mutate(num = as.integer(str_extract(stage, "\\d+"))) %>%
     mutate(stage = word(stage, sep = "\\.")) %>%
-    mutate(stage = fct_reorder(stage, num))
+    mutate(stage = fct_reorder(stage, num)) -> df
 
 df %>% 
-  mutate(stage = word(stage, sep = "\\.")) %>%
   ggplot(., aes(x = stage, y = variants, group = 1)) + 
   geom_point() + 
   geom_line() + 
