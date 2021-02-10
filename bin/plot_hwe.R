@@ -3,23 +3,29 @@
 library('tidyverse')
 
 # Args
-# 1: plink.hwe file path
-# 2: plot title
-# 3: hwe threshold
-# 4: before or after threshold
-# 5: sub or zoom
+# 1: plink.hwe file path before
+# 2: plink.hwe file path after
+# 3: threshold
+# 4: plot title
 
 args <- commandArgs(trailingOnly = TRUE)
 
-hwe <- read_table(args[[1]])
+read_table(args[[1]]) %>%
+    mutate(type = "before") -> before
 
-fn <- ifelse(args[[5]] == "zoom", "zoom", "sub")
+read_table(args[[2]]) %>%
+    mutate(type = "after") %>%
+    bind_rows(before) %>%
+    mutate(type = fct_relevel(type, "before")) -> hwe
+
+fn <- ifelse(args[[4]] != "", "hwe_zoom.png", "hwe_sub.png")
 
 ggplot(hwe, aes(x = P)) +
-  geom_histogram() +
-  geom_vline(xintercept = as.numeric(args[[3]]), colour = "red") +
-  theme_linedraw() +
-  xlab("P-value") + 
-  ylab("Variant count")+
-  ggtitle(paste("Hardy-Weinberg Equilibrium (HWE) ", args[[2]]))
-ggsave(paste0("hwe_", fn, "_", args[[4]], ".png"), device = "png", height = 7, width = 7)
+    geom_histogram() +
+    geom_vline(xintercept = as.numeric(args[[3]]), colour = "red") +
+    facet_grid(~ type) +
+    theme_linedraw() +
+    xlab("P-value") +
+    ylab("Variant count")+
+    ggtitle(paste("Hardy-Weinberg Equilibrium (HWE) ", args[[4]]))
+ggsave(fn) 

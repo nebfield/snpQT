@@ -7,7 +7,7 @@ nextflow.preview.dsl = 2
 include {mpv} from '../modules/qc.nf' // B8
 include {plot_mpv} from '../modules/qc.nf' // B8
 include {hardy} from '../modules/qc.nf' // B9
-include {plot_hardy as ph_before; plot_hardy as ph_after} from '../modules/qc.nf' // B9
+include {plot_hardy} from '../modules/qc.nf' // B9
 include {maf} from '../modules/qc.nf' // B10
 include {plot_maf as pm_before; plot_maf as pm_after} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
@@ -26,8 +26,7 @@ workflow variant_qc {
     mpv(ch_inbed, ch_inbim, ch_infam)
     plot_mpv(mpv.out.lmiss_before, mpv.out.lmiss_after, params.variant_geno)
     hardy(mpv.out.bed, mpv.out.bim, mpv.out.fam)
-    ph_before(hardy.out.sub_before, hardy.out.zoom_before, params.hwe, "before")
-    ph_after(hardy.out.sub_after, hardy.out.zoom_after, params.hwe, "after")
+    plot_hardy(hardy.out.sub_before, hardy.out.zoom_before, hardy.out.sub_after, hardy.out.zoom_after, params.hwe)
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)
     pm_before(maf.out.before, params.maf, "before")
     pm_after(maf.out.after, params.maf, "after")

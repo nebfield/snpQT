@@ -379,18 +379,19 @@ process plot_hardy {
   publishDir "${params.results}/qc/", mode: 'copy'
   
   input:
-  path sub
-  path zoom
+  path sub_before
+  path zoom_before
+  path sub_after
+  path zoom_after
   val(threshold)
-  val(name)
 
   output:
   path "*.png", emit: figure
   
   shell:
   '''
-  plot_hwe.R !{sub} "" !{threshold} !{name} "sub"
-  plot_hwe.R !{zoom} "strongly deviating SNPs only" !{threshold} !{name} "zoom"
+  plot_hwe.R !{sub_before} !{sub_after} !{threshold} "" 
+  plot_hwe.R !{zoom_before} !{zoom_after} !{threshold} "strongly deviating SNPs only"
   '''
 }
 
