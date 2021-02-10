@@ -24,7 +24,8 @@ workflow variant_qc {
 
   main:
     mpv(ch_inbed, ch_inbim, ch_infam)
-    plot_mpv(mpv.out.lmiss)
+    plot_mpv(mpv.out.lmiss_B8_before, params.variant_geno, "before")
+	plot_mpv(mpv.out.lmiss_B8_after, params.variant_geno, "after"))
     hardy(mpv.out.bed, mpv.out.bim, mpv.out.fam)
     plot_hardy(hardy.out.sub, hardy.out.zoom)
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)

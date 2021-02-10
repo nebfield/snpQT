@@ -295,16 +295,18 @@ process mpv {
     path "B8.bed", emit: bed
     path "B8.bim", emit: bim
     path "B8.fam", emit: fam
-    path "plink.lmiss", emit: lmiss
     path "B8.log", emit: log
-
+	path "B8_before.lmiss", emit: lmiss_B8_before
+    path "B8_after.lmiss", emit: lmiss_B8_after
+	
     shell:
     '''
+	plink --bfile B8 --missing --out B8_before
     plink --bfile !{B7_bed.baseName} \
       --geno !{params.variant_geno} \
       --make-bed \
       --out B8 
-    plink --bfile B8 --missing 
+    plink --bfile B8 --missing --out B8_after
     '''
 }
 
