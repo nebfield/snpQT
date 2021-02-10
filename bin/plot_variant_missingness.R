@@ -18,7 +18,7 @@ n <- nrow(variant_missingness)
 
 ggplot(variant_missingness, aes(x = F_MISS)) +
   geom_histogram() +
-  geom_vline(xintercept = args[[2]], colour = "red")+
+  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
   theme_linedraw() +
   ylab("Variant count") +
   xlab("Missing call rate") + 
@@ -27,7 +27,7 @@ ggsave(paste0("variant_missingness_hist_", args[[3]], ".png"))
 
 ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter(alpha=0.2) +
-  geom_vline(xintercept = args[[2]], colour = "red")+
+  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
   theme_linedraw() + 
   ggtitle("Variant missingness rate") + 
   ylab("Missing call rate") +

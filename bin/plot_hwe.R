@@ -16,7 +16,7 @@ read.table(args[[1]], header = T) %>%
 hwe %>%
   ggplot(., aes(x = P)) +
   geom_histogram() +
-  geom_vline(xintercept = args[[3]], colour = "red")+
+  geom_vline(xintercept = as.numeric(args[[3]]), colour = "red")+
   theme_linedraw() +
   xlab("P-value") + 
   ylab("Variant count")+

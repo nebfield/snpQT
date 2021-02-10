@@ -19,7 +19,7 @@ n <- nrow(sample_missingness)
 
 ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
-  geom_vline(xintercept = args[[2]], colour = "red")+
+  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
   theme_linedraw() + 
   xlab("Missing call rate") + 
   ylab("Sample count") +
@@ -28,7 +28,7 @@ ggsave(paste0("sample_missingness_hist_", args[[3]], ".png"))
 
 ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter() +
-  geom_vline(xintercept = args[[2]], colour = "red")+
+  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
   theme_linedraw() + 
   ylab("Missing call rate") +
   xlab(glue::glue("Samples (n = {n})")) +

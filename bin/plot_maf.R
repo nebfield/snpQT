@@ -16,7 +16,7 @@ read.table(args[[1]], header=T) %>%
 
 ggplot(maf, aes(x = MAF)) +
   geom_histogram() +
-  geom_vline(xintercept = args[[2]], colour = "red")+
+  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
   theme_linedraw() + 
   xlab("Minor allele frequency") + 
   ylab("Variant count") -> maf_hist

@@ -17,7 +17,7 @@ read.table(args[[1]], header = TRUE) %>%
 
 ggplot(cs_missingness, aes(x = P)) +
   geom_histogram() +
-  geom_vline(xintercept = args[[2]], colour = "red")+
+  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
   theme_linedraw() +
   ylab("Variant count") +
   xlab("P-value") + 

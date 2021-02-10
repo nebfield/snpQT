@@ -25,7 +25,7 @@ ggplot(het, aes(x = IID, y = HET_RATE)) +
   xlab("Sample") +
   ylab("Heterozygosity rate") +
   ggtitle("Heterozygosity rate per sample")
-ggsave(paste0("heterozygosity_rate_",args[[2]],".png", device = "png")
+ggsave(paste0("heterozygosity_rate_",args[[2]],".png"), device = "png")
 
 
 het %>%
