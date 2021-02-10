@@ -4,24 +4,29 @@ library("tidyverse")
 
 # Plot missingness per case/control status
 # Args
-# 1: plink.missing file path
-# 2: missingness threshold
-# 3: before or after threshold
-
+# 1: plink.missing before file path
+# 2: plink.missing after file path
+# 3: missingness threshold
 
 args <- commandArgs(trailingOnly = TRUE)
 
-read.table(args[[1]], header = TRUE) %>%
-  as_tibble(.) %>%
-  mutate(plink = "plink") -> cs_missingness # plink is a dummy column
+
+read_table(args[[1]]) %>%
+    mutate(plink = "plink") %>% # dummy column
+    mutate(type = "before") -> before
+
+read_table(args[[2]]) %>%
+    mutate(plink = "plink") %>%
+    mutate(type = "after") %>%
+    bind_rows(before) %>%
+    mutate(type = fct_relevel(type, "before")) -> cs_missingness 
 
 ggplot(cs_missingness, aes(x = P)) +
-  geom_histogram() +
-  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
-  theme_linedraw() +
-  ylab("Variant count") +
-  xlab("P-value") + 
-  ggtitle("Missingness vs Case/Control status") -> cs_missingness_hist 
-
-
-ggsave(paste0("cs_missingness_", args[[3]], ".png"), cs_missingness_hist, dpi = 300)
+    geom_histogram() +
+    geom_vline(xintercept = as.numeric(args[[3]]), colour = "red")+
+    facet_grid(~ type) +
+    theme_linedraw() +
+    ylab("Variant count") +
+    xlab("P-value") +
+    ggtitle("Missingness vs Case/Control status")
+ggsave("missingness_per_cohort.png")

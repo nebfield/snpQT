@@ -477,16 +477,16 @@ process plot_missing_by_cohort {
   publishDir "${params.results}/qc/", mode: 'copy'
   
   input:
-  path(missing)
+  path(missing_before)
+  path(missing_after)
   val(threshold)
-  val(name)
   
   output:
   path "*.png"
 
   shell:
   '''
-  plot_missing_cohort.R !{missing} !{threshold} !{name}
+  plot_missing_cohort.R !{missing_before} !{missing_after} !{threshold} 
   ''' 
 }
 

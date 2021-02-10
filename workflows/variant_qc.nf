@@ -11,7 +11,7 @@ include {plot_hardy} from '../modules/qc.nf' // B9
 include {maf} from '../modules/qc.nf' // B10
 include {plot_maf as pm_before; plot_maf as pm_after} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
-include {plot_missing_by_cohort as pmc_before; plot_missing_by_cohort as pmc_after} from '../modules/qc.nf' // B11
+include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
 include {parse_logs} from '../modules/qc.nf'
 include {pca_covariates} from '../modules/popStrat.nf' // C10
 
@@ -31,8 +31,7 @@ workflow variant_qc {
     pm_before(maf.out.before, params.maf, "before")
     pm_after(maf.out.after, params.maf, "after")
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
-    pmc_before(test_missing.out.before, params.missingness, "before")
-    pmc_after(test_missing.out.after, params.missingness, "after")
+    plot_missing_by_cohort(test_missing.out.before, test_missing.out.after, params.missingness)
    
    Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
