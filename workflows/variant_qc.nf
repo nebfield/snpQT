@@ -5,13 +5,13 @@ nextflow.preview.dsl = 2
 
 // import modules
 include {mpv} from '../modules/qc.nf' // B8
-include {plot_mpv} from '../modules/qc.nf' // B8
+include {plot_mpv as mpv_before; plot_mpv as mpv_after} from '../modules/qc.nf' // B8
 include {hardy} from '../modules/qc.nf' // B9
-include {plot_hardy} from '../modules/qc.nf' // B9
+include {plot_hardy as ph_before; plot_hardy as ph_after} from '../modules/qc.nf' // B9
 include {maf} from '../modules/qc.nf' // B10
-include {plot_maf} from '../modules/qc.nf' // B10
+include {plot_maf as pm_before; plot_maf as pm_after} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
-include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
+include {plot_missing_by_cohort as pmc_before; plot_missing_by_cohort as pmc_after} from '../modules/qc.nf' // B11
 include {parse_logs} from '../modules/qc.nf'
 include {pca_covariates} from '../modules/popStrat.nf' // C10
 
@@ -24,17 +24,17 @@ workflow variant_qc {
 
   main:
     mpv(ch_inbed, ch_inbim, ch_infam)
-    plot_mpv(mpv.out.lmiss_B8_before, params.variant_geno, "before")
-	plot_mpv(mpv.out.lmiss_B8_after, params.variant_geno, "after"))
+    mpv_before(mpv.out.lmiss_before, params.variant_geno, "before")
+    mpv_after(mpv.out.lmiss_after, params.variant_geno, "after")
     hardy(mpv.out.bed, mpv.out.bim, mpv.out.fam)
-    plot_hardy(hardy.out.sub_before, hardy.out.zoom_before, params.hwe, "before")
-	plot_hardy(hardy.out.sub_after, hardy.out.zoom_after, params.hwe, "after")
+    ph_before(hardy.out.sub_before, hardy.out.zoom_before, params.hwe, "before")
+    ph_after(hardy.out.sub_after, hardy.out.zoom_after, params.hwe, "after")
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)
-    plot_maf(maf.out.before.frq, params.maf, "before")
-    plot_maf(maf.out.after.frq, params.maf, "after")
-	test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
-    plot_missing_by_cohort(test_missing.out.before.missing, params.missingness, "before")
-    plot_missing_by_cohort(test_missing.out.after.missing, params.missingness, "after")
+    pm_before(maf.out.before, params.maf, "before")
+    pm_after(maf.out.after, params.maf, "after")
+    test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
+    pmc_before(test_missing.out.before, params.missingness, "before")
+    pmc_after(test_missing.out.after, params.missingness, "after")
    
    Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)

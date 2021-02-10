@@ -164,10 +164,6 @@ process heterozygosity_rate {
 
     shell:
     '''    
-	 plink --bfile !{B4_bed.baseName} \
-      --extract independent_SNPs.prune.in \
-      --het \
-      --out only_indep_snps 
     plink --bfile !{B4_bed.baseName} \
       --exclude !{exclude_regions} \
       --indep-pairwise !{params.indep_pairwise} \
@@ -176,7 +172,7 @@ process heterozygosity_rate {
     plink --bfile !{B4_bed.baseName} \
       --extract independent_SNPs.prune.in \
       --het \
-      --out only_indep_snps 
+      --out only_indep_snps
     '''
 }
 
@@ -203,14 +199,14 @@ process heterozygosity_prune {
     path(B4_bim)
     path(B4_fam)
     path(het_failed)
-	path(ind_SNPs)
+    path(ind_SNPs)
 
     output:
     path "B5.bed", emit: bed
     path "B5.bim", emit: bim
     path "B5.fam", emit: fam
     path "B5.log", emit: log
-	path "B5_after.het", emit: het
+    path "B5_after.het", emit: het
 
     shell:
     '''
@@ -222,7 +218,7 @@ process heterozygosity_prune {
 	plink --bfile B5 \
       --extract !{ind_SNPs} \
       --het \
-      --out B5_het
+      --out B5_after
     '''
 }
 
@@ -296,12 +292,12 @@ process mpv {
     path "B8.bim", emit: bim
     path "B8.fam", emit: fam
     path "B8.log", emit: log
-	path "B8_before.lmiss", emit: lmiss_B8_before
-    path "B8_after.lmiss", emit: lmiss_B8_after
+    path "B8_before.lmiss", emit: lmiss_before
+    path "B8_after.lmiss", emit: lmiss_after
 	
     shell:
     '''
-	plink --bfile B8 --missing --out B8_before
+    plink --bfile !{B7_bed.baseName} --missing --out B8_before
     plink --bfile !{B7_bed.baseName} \
       --geno !{params.variant_geno} \
       --make-bed \
@@ -381,7 +377,7 @@ process plot_hardy {
   
   shell:
   '''
-  plot_hwe.R !{sub} ""
+  plot_hwe.R !{sub} "" !{threshold} !{name}
   plot_hwe.R !{zoom} "strongly deviating SNPs only" !{threshold} !{name} 
   '''
 }
@@ -398,8 +394,8 @@ process maf {
   path "B10.bed", emit: bed
   path "B10.bim", emit: bim
   path "B10.fam", emit: fam
-  path "MAF_check_before.frq", emit: before.frq
-  path "MAF_check_after.frq", emit: after.frq
+  path "MAF_check_before.frq", emit: before
+  path "MAF_check_after.frq", emit: after
   path "B10.log", emit: log
   
   shell:
@@ -426,7 +422,7 @@ process plot_maf {
   val(name)
 
   output:
-  path "maf.png", emit: figure
+  path "*.png", emit: figure
   
   shell:
   '''
@@ -448,19 +444,19 @@ process test_missing {
   path "B11.bed", emit: bed
   path "B11.bim", emit: bim
   path "B11.fam", emit: fam
-  path "before.missing", emit: before.missing
-  path "after.missing", emit: after.missing
+  path "before.missing", emit: before
+  path "after.missing", emit: after
   path "B11.log", emit: log
   
   shell:
   '''
-  plink --bfile !{B10_bed.baseName} \
-    --test-missing --out before
-  awk '{ if ($5 < !{params.missingness}) print $2 }' plink.missing > fail_missingness.txt
+  plink --bfile !{B10_bed.baseName} --test-missing --out before
+  awk '{ if ($5 < !{params.missingness}) print $2 }' before.missing > fail_missingness.txt
   plink --bfile !{B10_bed.baseName} \
     --exclude fail_missingness.txt \
     --make-bed \
     --out B11
+  plink --bfile B11 --test-missing --out after
   '''
 }
 
@@ -473,7 +469,7 @@ process plot_missing_by_cohort {
   val(name)
   
   output:
-  path "cs_missingness.png"
+  path "*.png"
 
   shell:
   '''
