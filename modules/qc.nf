@@ -176,20 +176,32 @@ process heterozygosity_rate {
     '''
 }
 
+process filter_het {
+    input:
+    path het
+
+    output:
+    path "het_failed_samples.txt", emit: failed
+    
+    shell:
+    '''
+    filter_het.R !{het}
+    '''
+}
+
 process plot_heterozygosity { 
     publishDir "${params.results}/qc/", mode: 'copy'
 
     input: 
-    path het
-	val(name)
+    path het_before
+    path het_after
 
     output:
-    path "het_failed_samples.txt", emit: failed
     path "*.png", emit: figure
 
     shell:
     '''
-    plot_heterozygosity.R !{het} !{name} # get outliers too
+    plot_heterozygosity.R !{het_before} !{het_after}
     '''
 }
 
