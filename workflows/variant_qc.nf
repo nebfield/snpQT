@@ -30,10 +30,13 @@ workflow variant_qc {
     plot_hardy(hardy.out.sub_before, hardy.out.zoom_before, params.hwe, "before")
 	plot_hardy(hardy.out.sub_after, hardy.out.zoom_after, params.hwe, "after")
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)
-    plot_maf(maf.out.frq)
-    test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
-    plot_missing_by_cohort(test_missing.out.missing)
-    Channel
+    plot_maf(maf.out.before.frq, params.maf, "before")
+    plot_maf(maf.out.after.frq, params.maf, "after")
+	test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
+    plot_missing_by_cohort(test_missing.out.before.missing, params.missingness, "before")
+    plot_missing_by_cohort(test_missing.out.after.missing, params.missingness, "after")
+   
+   Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
     pca_covariates(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)

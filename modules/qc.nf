@@ -398,18 +398,22 @@ process maf {
   path "B10.bed", emit: bed
   path "B10.bim", emit: bim
   path "B10.fam", emit: fam
-  path "MAF_check.frq", emit: frq
+  path "MAF_check_before.frq", emit: before.frq
+  path "MAF_check_after.frq", emit: after.frq
   path "B10.log", emit: log
   
   shell:
   '''
   plink --bfile !{B9_bed.baseName} \
     --freq \
-    --out MAF_check
+    --out MAF_check_before
   plink --bfile !{B9_bed.baseName} \
     --maf !{params.maf} \
     --make-bed \
     --out B10
+  plink --bfile B10 \
+    --freq \
+    --out MAF_check_after
   '''
 }
 
@@ -444,13 +448,14 @@ process test_missing {
   path "B11.bed", emit: bed
   path "B11.bim", emit: bim
   path "B11.fam", emit: fam
-  path "plink.missing", emit: missing
+  path "before.missing", emit: before.missing
+  path "after.missing", emit: after.missing
   path "B11.log", emit: log
   
   shell:
   '''
   plink --bfile !{B10_bed.baseName} \
-    --test-missing
+    --test-missing --out before
   awk '{ if ($5 < !{params.missingness}) print $2 }' plink.missing > fail_missingness.txt
   plink --bfile !{B10_bed.baseName} \
     --exclude fail_missingness.txt \
