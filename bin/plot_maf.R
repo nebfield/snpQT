@@ -3,22 +3,26 @@
 library('tidyverse')
 
 # Args
-# 1: plink.frq file path
-# 2: maf threshold
-# 3: before or after threshold
-
+# 1: plink.frq before file path
+# 2: plink.frq after file path 
+# 3: maf threshold
 
 args <- commandArgs(trailingOnly = TRUE)
 
-read.table(args[[1]], header=T) %>%
-  as_tibble(.) %>%
-  mutate(plink = "plink") -> maf
+read_table(args[[1]]) %>%
+    mutate(type = "before") -> before
+
+read_table(args[[2]]) %>%
+    mutate(type = "after") %>%
+    bind_rows(before) %>%
+    mutate(type = fct_relevel(type, "before")) %>%
+    mutate(plink = "plink") -> maf
 
 ggplot(maf, aes(x = MAF)) +
-  geom_histogram() +
-  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
-  theme_linedraw() + 
-  xlab("Minor allele frequency") + 
-  ylab("Variant count") -> maf_hist
-
-ggsave(paste0("maf", "_", args[[3]], ".png"), dpi = 300)
+    geom_histogram() +
+    geom_vline(xintercept = as.numeric(args[[3]]), colour = "red") +
+    facet_grid(~ type) +
+    theme_linedraw() +
+    xlab("Minor allele frequency") +
+    ylab("Variant count") 
+ggsave("maf.png")

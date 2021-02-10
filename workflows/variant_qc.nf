@@ -9,7 +9,7 @@ include {plot_mpv} from '../modules/qc.nf' // B8
 include {hardy} from '../modules/qc.nf' // B9
 include {plot_hardy} from '../modules/qc.nf' // B9
 include {maf} from '../modules/qc.nf' // B10
-include {plot_maf as pm_before; plot_maf as pm_after} from '../modules/qc.nf' // B10
+include {plot_maf} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
 include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
 include {parse_logs} from '../modules/qc.nf'
@@ -28,8 +28,7 @@ workflow variant_qc {
     hardy(mpv.out.bed, mpv.out.bim, mpv.out.fam)
     plot_hardy(hardy.out.sub_before, hardy.out.zoom_before, hardy.out.sub_after, hardy.out.zoom_after, params.hwe)
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)
-    pm_before(maf.out.before, params.maf, "before")
-    pm_after(maf.out.after, params.maf, "after")
+    plot_maf(maf.out.before, maf.out.after, params.maf)
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
     plot_missing_by_cohort(test_missing.out.before, test_missing.out.after, params.missingness)
    

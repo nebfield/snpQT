@@ -430,16 +430,16 @@ process plot_maf {
   publishDir "${params.results}/qc/", mode: 'copy'
   
   input:
-  path maf_frq
+  path maf_before
+  path maf_after
   val(threshold)
-  val(name)
 
   output:
   path "*.png", emit: figure
   
   shell:
   '''
-  plot_maf.R !{maf_frq} !{threshold} !{name}
+  plot_maf.R !{maf_before} !{maf_after} !{threshold} 
   '''
 }
 
