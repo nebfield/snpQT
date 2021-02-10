@@ -8,16 +8,8 @@ library("tidyverse")
 
 args <- commandArgs(trailingOnly = TRUE)
 
-df <- read_delim(args[[1]], col_names = FALSE, delim = " ")
-colnames(df) <-
-  c("stage",
-    "variants",
-    "samples",
-    "pheno",
-    "pheno_case",
-    "pheno_control",
-    "pheno_miss",
-    "wd")
+df <- read_delim(args[[1]], delim = " ")
+
 df %>% 
   mutate(stage = word(stage, sep = "\\.")) %>%
   ggplot(., aes(x = stage, y = variants, group = 1)) + 
