@@ -60,16 +60,16 @@ process plot_missingness {
   publishDir "${params.results}/qc/", mode: 'copy'
 
   input:
-  path(missing_imiss)
+  path(before_imiss)
+  path(after_imiss)
   val(threshold)
-  val(name)
 
   output:
   path "*.png", emit: figure
 
   shell:
   '''
-  plot_sample_missingness.R !{missing_imiss} !{threshold} !{name}
+  plot_sample_missingness.R !{before_imiss} !{after_imiss} !{threshold} 
   '''
 }
 

@@ -4,32 +4,41 @@ library("tidyverse")
 
 # Plot sample missingness 
 # Args
-# 1: plink.imiss file path
-# 2: missingness threshold
-# 3: before or after threshold
+# 1: before plink imiss file path
+# 2: after plink imiss file path
+# 3: missingness threshold
 
 args <- commandArgs(trailingOnly = TRUE)
 
-read.table(args[[1]], header = TRUE) %>%
-  as_tibble(.) %>%
+read_table(args[[1]]) %>%
   mutate(IID = as.factor(IID)) %>%
-  mutate(plink = "plink") -> sample_missingness # plink is a dummy column
+  mutate(plink = "plink") %>% # dummy column
+  mutate(type = "before") -> before 
+
+read_table(args[[2]]) %>%
+  mutate(IID = as.factor(IID)) %>%
+  mutate(plink = "plink") %>% 
+  mutate(type = "after") %>%
+  bind_rows(before) %>%
+  mutate(type = fct_relevel(type, "before")) -> sample_missingness 
 
 n <- nrow(sample_missingness)
 
 ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
-  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
-  theme_linedraw() + 
+  geom_vline(xintercept = as.numeric(args[[3]]), colour = "red")+
+  theme_linedraw() +
+  facet_grid(~ type ) +
   xlab("Missing call rate") + 
   ylab("Sample count") +
   ggtitle("Sample missingness rate")
-ggsave(paste0("sample_missingness_hist_", args[[3]], ".png"))
+ggsave("sample_missingness_hist.png")
 
 ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   geom_jitter() +
-  geom_vline(xintercept = as.numeric(args[[2]]), colour = "red")+
-  theme_linedraw() + 
+  geom_hline(yintercept = as.numeric(args[[3]]), colour = "red")+
+  theme_linedraw() +
+  facet_grid(~ type) +
   ylab("Missing call rate") +
   xlab(glue::glue("Samples (n = {n})")) +
   theme(axis.text.y=element_blank(),
@@ -37,4 +46,4 @@ ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
   coord_flip() +
   ggtitle("Sample missingness rate")
 
-ggsave(paste0("sample_missingness_scatter_", args[[3]], ".png"))
+ggsave("sample_missingness_scatter.png")
