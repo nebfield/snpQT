@@ -37,9 +37,10 @@ workflow sample_qc {
       plot_sex(check_sex.out.sexcheck)
       extract_autosomal(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam)
       heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, exclude)
-      plot_heterozygosity(heterozygosity_rate.out.het)
-      heterozygosity_prune(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, plot_heterozygosity.out.failed)
-      } else {
+      plot_heterozygosity(heterozygosity_rate.out.het,"before")   
+      heterozygosity_prune(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, plot_heterozygosity.out.failed, heterozygosity_rate.out.ind_snps)
+      plot_heterozygosity(heterozygosity_prune.out.het,"after")
+	  } else {
       heterozygosity_rate(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, exclude)
       plot_heterozygosity(heterozygosity_rate.out.het)
       heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, plot_heterozygosity.out.failed)

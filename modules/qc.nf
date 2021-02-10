@@ -164,6 +164,10 @@ process heterozygosity_rate {
 
     shell:
     '''    
+	 plink --bfile !{B4_bed.baseName} \
+      --extract independent_SNPs.prune.in \
+      --het \
+      --out only_indep_snps 
     plink --bfile !{B4_bed.baseName} \
       --exclude !{exclude_regions} \
       --indep-pairwise !{params.indep_pairwise} \
@@ -185,7 +189,7 @@ process plot_heterozygosity {
 
     output:
     path "het_failed_samples.txt", emit: failed
-    path "heterozygosity_rate.png", emit: figure
+    path "*.png", emit: figure
 
     shell:
     '''
@@ -199,12 +203,14 @@ process heterozygosity_prune {
     path(B4_bim)
     path(B4_fam)
     path(het_failed)
+	path(ind_SNPs)
 
     output:
     path "B5.bed", emit: bed
     path "B5.bim", emit: bim
     path "B5.fam", emit: fam
     path "B5.log", emit: log
+	path "B5_after.het", emit: het
 
     shell:
     '''
@@ -213,6 +219,10 @@ process heterozygosity_prune {
       --make-bed \
       --remove het_failed_plink.txt \
       --out B5
+	plink --bfile B5 \
+      --extract !{ind_SNPs} \
+      --het \
+      --out B5_het
     '''
 }
 
