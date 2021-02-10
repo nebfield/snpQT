@@ -325,9 +325,15 @@ process pca_plink {
 }
 
 process plot_plink_pca {
+    publishDir "${params.results}/popStrat/", mode: 'copy'
+    
     input:
     tuple val(id), path(eigenvec), path(racefile)
 
+    output:
+    path "*.png"
+    path "*.html"
+    
     shell:
     '''
     plot_pca_plink.R !{eigenvec} !{racefile} !{id}

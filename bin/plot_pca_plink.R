@@ -11,10 +11,15 @@ library("htmlwidgets")
 
 args <- commandArgs(trailingOnly = TRUE)
 
-eigenvec<- read.table(args[[1]],header=TRUE)
-race<- read.table(args[[2]],header=TRUE)
-    
-datafile<- merge(eigenvec,race,by=c("IID"))
+eigenvec<- read_delim(args[[1]], delim = " ")
+racefile<- read_delim(args[[2]], delim = " ")
+# important to override colnames to make super / sub race file input consistent
+colnames(racefile) <- c("IID", "IID2", "race")
+
+eigenvec %>%
+    left_join(racefile, by = "IID") %>%
+    # missing race means it's user data
+    replace_na(list(race = "OWN")) -> datafile
 
 datafile %>%
   select(IID, race, PC1, PC2) %>%
