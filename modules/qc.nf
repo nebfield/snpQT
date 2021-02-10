@@ -339,22 +339,31 @@ process hardy {
   path "B9.bed", emit: bed
   path "B9.bim", emit: bim
   path "B9.fam", emit: fam
-  path "plink_sub.hwe", emit: sub
-  path "plinkzoomhwe.hwe", emit: zoom
   path "B9.log", emit: log
+  path "plink_sub_before.hwe", emit: sub_before
+  path "plinkzoomhwe_before.hwe", emit: zoom_before
+  path "plink_sub_after.hwe", emit: sub_after
+  path "plinkzoomhwe_after.hwe", emit: zoom_after
+  
   
   shell: 
   '''
-  plink --bfile !{B8_bed.baseName} --hardy 
+  plink --bfile !{B8_bed.baseName} --hardy --out plink_before
   # sample 1% of SNPs
-  head -n1 plink.hwe > plink_sub.hwe
-  perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink.hwe) >> plink_sub.hwe
+  head -n1 plink_before.hwe > plink_sub_before.hwe
+  perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_before.hwe) >> plink_sub_before.hwe
   awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
-	  plink.hwe > plinkzoomhwe.hwe
+	  plink_before.hwe > plinkzoomhwe_before.hwe
   plink --bfile !{B8_bed.baseName} \
     --hwe !{params.hwe} \
     --make-bed \
     --out B9 
+  plink --bfile B9 --hardy --out plink_after
+  # sample 1% of SNPs
+  head -n1 plink_after.hwe > plink_sub_after.hwe
+  perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_after.hwe) >> plink_sub_after.hwe
+  awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
+	  plink_after.hwe > plinkzoomhwe_after.hwe
   '''
 }
 
