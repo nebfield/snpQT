@@ -15,6 +15,8 @@ include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
 include {parse_logs} from '../modules/qc.nf'
 include {pca_covariates} from '../modules/popStrat.nf' // C10
 
+include {variant_report} from '../modules/qc.nf'
+
 // workflow component for snpqt pipeline
 workflow variant_qc {
   take:
@@ -31,13 +33,19 @@ workflow variant_qc {
     plot_maf(maf.out.before, maf.out.after, params.maf)
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
     plot_missing_by_cohort(test_missing.out.before, test_missing.out.after, params.missingness)
-   
-   Channel
+    Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
     pca_covariates(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
     logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
     parse_logs("qc", logs, "variant_qc_log.txt")
+    figures = plot_mpv.out.figure
+      .concat(plot_hardy.out.figure, plot_maf.out.figure, plot_missing_by_cohort.out.figure, parse_logs.out.figure)
+      .collect()
+    Channel
+      .fromPath("$baseDir/bootstrap/variant_report.Rmd", checkIfExists: true)
+      .set{ rmd }
+    variant_report(figures, rmd)
  
   emit:
     bed = test_missing.out.bed

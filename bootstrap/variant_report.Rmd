@@ -1,0 +1,34 @@
+---
+title: "Variant report"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Missingness
+
+![](variant_missingness_hist.png)
+![](variant_missingness_scatter.png)
+
+## HWE
+
+![](hwe_sub.png)
+![](hwe_zoom.png)
+
+## MAF
+
+![](maf.png)
+
+## Missingness per cohort
+
+![](missingness_per_cohort.png)
+
+## Log
+
+![](variant_qc_log_samples.png)
+![](variant_qc_log_variants.png)

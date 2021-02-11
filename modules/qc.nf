@@ -57,7 +57,7 @@ process individual_missingness {
 }
 
 process plot_missingness {
-  publishDir "${params.results}/qc/", mode: 'copy'
+  publishDir "${params.results}/qc/figures", mode: 'copy'
 
   input:
   path(before_imiss)
@@ -107,7 +107,7 @@ process check_sex {
 }
 
 process plot_sex {
-    publishDir "${params.results}/qc/", mode: 'copy'
+    publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input:
     path(sexcheck) 
@@ -190,7 +190,7 @@ process filter_het {
 }
 
 process plot_heterozygosity { 
-    publishDir "${params.results}/qc/", mode: 'copy'
+    publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input: 
     path het_before
@@ -319,7 +319,7 @@ process mpv {
 }
 
 process plot_mpv {
-  publishDir "${params.results}/qc/", mode: 'copy'
+  publishDir "${params.results}/qc/figures/", mode: 'copy'
 
   input:
   path lmiss_before
@@ -376,7 +376,7 @@ process hardy {
 }
 
 process plot_hardy {
-  publishDir "${params.results}/qc/", mode: 'copy'
+  publishDir "${params.results}/qc/figures/", mode: 'copy'
   
   input:
   path sub_before
@@ -427,7 +427,7 @@ process maf {
 }
 
 process plot_maf {
-  publishDir "${params.results}/qc/", mode: 'copy'
+  publishDir "${params.results}/qc/figures/", mode: 'copy'
   
   input:
   path maf_before
@@ -474,7 +474,7 @@ process test_missing {
 }
 
 process plot_missing_by_cohort {
-  publishDir "${params.results}/qc/", mode: 'copy'
+  publishDir "${params.results}/qc/figures/", mode: 'copy'
   
   input:
   path(missing_before)
@@ -482,7 +482,7 @@ process plot_missing_by_cohort {
   val(threshold)
   
   output:
-  path "*.png"
+  path "*.png", emit: figure
 
   shell:
   '''
@@ -491,7 +491,8 @@ process plot_missing_by_cohort {
 }
 
 process parse_logs {
-  publishDir "${params.results}/${dir}", mode: 'copy'
+  publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
+  publishDir "${params.results}/${dir}/", mode: 'copy', pattern: "*.txt"
 	
   input:
   val(dir)
@@ -500,12 +501,33 @@ process parse_logs {
 
   output:
   path "${fn}", emit: log
-  path "*.png"
+  path "*.png", emit: figure
   
   shell:
   '''
   echo "stage variants samples pheno pheno_case pheno_control pheno_miss wd" > !{fn}
   ls *.log | sort -V | xargs -n1 parse_logs.awk >> !{fn}
   plot_logs.R !{fn} $(basename -s .txt !{fn})
+  '''
+}
+
+process variant_report {
+  publishDir "${params.results}/qc/", mode: 'copy'
+  // rmarkdown doesn't respect symlinks
+  // https://github.com/rstudio/rmarkdown/issues/1508
+  stageInMode 'copy'
+  
+  input:
+  path x
+  path rmd
+
+  output:
+  path "variant_report.html"
+  
+  shell:
+  '''
+  #!/usr/bin/env Rscript
+
+  rmarkdown::render('!{rmd}', output_options=list(self_contained=TRUE))
   '''
 }
