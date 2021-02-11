@@ -9,6 +9,6 @@ args <- commandArgs(trailingOnly = TRUE)
 
 gwas <- read.table(file = args[[1]], sep = "", header = TRUE)
 
-pdf("manhattan.pdf")
+png("manhattan.png")
 manhattan(gwas, main = "Manhattan Plot", cex = 0.5, cex.axis = 0.8)
 dev.off()
