@@ -15,7 +15,7 @@ include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
 include {parse_logs} from '../modules/qc.nf'
 include {pca_covariates} from '../modules/popStrat.nf' // C10
 
-include {variant_report} from '../modules/qc.nf'
+include {report} from '../modules/qc.nf'
 
 // workflow component for snpqt pipeline
 workflow variant_qc {
@@ -45,7 +45,7 @@ workflow variant_qc {
     Channel
       .fromPath("$baseDir/bootstrap/variant_report.Rmd", checkIfExists: true)
       .set{ rmd }
-    variant_report(figures, rmd)
+    report("qc", figures, rmd)
  
   emit:
     bed = test_missing.out.bed

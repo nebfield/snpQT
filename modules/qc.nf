@@ -492,7 +492,7 @@ process plot_missing_by_cohort {
 
 process parse_logs {
   publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
-  publishDir "${params.results}/${dir}/", mode: 'copy', pattern: "*.txt"
+  publishDir "${params.results}/${dir}/logs", mode: 'copy', pattern: "*.txt"
 	
   input:
   val(dir)
@@ -511,18 +511,19 @@ process parse_logs {
   '''
 }
 
-process variant_report {
-  publishDir "${params.results}/qc/", mode: 'copy'
+process report {
+  publishDir "${params.results}/${dir}/", mode: 'copy'
   // rmarkdown doesn't respect symlinks
   // https://github.com/rstudio/rmarkdown/issues/1508
   stageInMode 'copy'
   
   input:
+  val dir
   path x
   path rmd
 
   output:
-  path "variant_report.html"
+  path "*_report.html"
   
   shell:
   '''

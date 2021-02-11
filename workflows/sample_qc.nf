@@ -17,6 +17,7 @@ include {heterozygosity_prune} from '../modules/qc.nf' // B5
 include {relatedness} from '../modules/qc.nf' // B6
 include {missing_phenotype} from '../modules/qc.nf' // B7
 include {parse_logs} from '../modules/qc.nf'
+include {report} from '../modules/qc.nf'
 
 // workflow component for snpqt pipeline
 workflow sample_qc {
@@ -49,7 +50,13 @@ workflow sample_qc {
     missing_phenotype(relatedness.out.bed, relatedness.out.bim, relatedness.out.fam)
     logs = variant_missingness.out.log.concat(individual_missingness.out.log, check_sex.out.log, extract_autosomal.out.log, heterozygosity_prune.out.log, relatedness.out.log, missing_phenotype.out.log).collect()
     parse_logs("qc", logs, "sample_qc_log.txt")
-  
+    figures = plot_missingness.out.figure
+      .concat(plot_sex.out.figure, plot_heterozygosity.out.figure, parse_logs.out.figure)
+      .collect()
+    Channel
+      .fromPath("$baseDir/bootstrap/sample_report.Rmd", checkIfExists: true)
+      .set{ rmd }
+    report("qc", figures, rmd)  
 
   emit:
     bed = missing_phenotype.out.bed
