@@ -17,6 +17,7 @@ process run_gwas {
     '''
     plink --bfile !{bed.baseName} \
       --covar !{covar} \
+	  --hide-covar\
       --ci 0.95 \
       --logistic \
       --allow-no-sex \
