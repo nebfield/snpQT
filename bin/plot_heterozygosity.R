@@ -19,19 +19,18 @@ read_table(args[[2]]) %>%
     mutate(type = fct_relevel(type, "before")) -> het
 
 het %>%
-  filter(type == "before") %>%
-  summarise(thresh_max = mean(HET_RATE) + (3 * sd(HET_RATE))) %>%
-  pull(thresh_max) -> thresh_max
+  group_by(type) %>%
+  summarise(thresh_max = mean(HET_RATE) + (3 * sd(HET_RATE))) -> thresh_max
 
 het %>%
-  filter(type == "before") %>%
+  group_by(type) %>%
   summarise(thresh_min = mean(HET_RATE) - (3 * sd(HET_RATE))) %>%
-  pull(thresh_min) -> thresh_min
+  left_join(thresh_max) -> thresholds
 
 ggplot(het, aes(x = IID, y = HET_RATE)) + 
   geom_point() +
-  geom_hline(yintercept = thresh_max, colour = "red") +
-  geom_hline(yintercept = thresh_min, colour = "red") +
+  geom_hline(data = thresholds, aes(yintercept = thresh_max), colour = "red") +
+  geom_hline(data = thresholds, aes(yintercept = thresh_min), colour = "red") +
   facet_grid(~ type) +
   theme_bw() +
   theme(axis.text.x=element_blank(),
