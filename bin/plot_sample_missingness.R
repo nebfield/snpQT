@@ -35,7 +35,7 @@ ggplot(sample_missingness, aes(x = F_MISS)) +
 ggsave("sample_missingness_hist.png")
 
 ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
-  geom_jitter() +
+  geom_point() +
   geom_hline(yintercept = as.numeric(args[[3]]), colour = "red")+
   theme_linedraw() +
   facet_grid(~ type) +
