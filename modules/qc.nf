@@ -14,7 +14,9 @@ process variant_missingness {
   path "B1.log", emit: log
 
   shell:
-  '''  
+  '''
+  # fam won't match if convertBuild is true
+  mv !{in_fam} !{in_bed.baseName}.fam
   plink --bfile !{in_bed.baseName} \
       --make-bed \
       --out data 
