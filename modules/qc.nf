@@ -2,6 +2,7 @@
 
 // STEP B1: Remove SNPs < 90% missingness --------------------------------------
 process variant_missingness {
+  stageInMode 'copy'
   input:
   path(in_bed)
   path(in_bim)
@@ -16,7 +17,7 @@ process variant_missingness {
   shell:
   '''
   # fam won't match if convertBuild is true
- cp !{in_fam} !{in_bed.baseName}.fam
+ mv !{in_fam} !{in_bed.baseName}.fam
   plink --bfile !{in_bed.baseName} \
       --make-bed \
       --out data 
