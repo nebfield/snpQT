@@ -69,7 +69,7 @@ workflow popStrat {
     parse_logs("popStrat", logs, "popStrat_log.txt")
 
     figures = plot_pca.out.figure
-      .concat(plot_plink_pca.out.figure, parse_logs.out.figure)
+      .concat(plot_plink_pca.out.figure, plot_plink_pca.out.rds, parse_logs.out.figure)
       .collect()
     Channel
       .fromPath("$baseDir/bootstrap/popstrat_report.Rmd", checkIfExists: true)

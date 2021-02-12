@@ -15,13 +15,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### PC1 vs PC2
 
-#### Before
+#### Before outlier removal
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("PC1vsPC2_before.png")
 ```
 
-#### After
+#### After outlier removal
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("PC1vsPC2_after.png")
@@ -29,13 +29,13 @@ knitr::include_graphics("PC1vsPC2_after.png")
 
 ### PC1 vs PC3
 
-#### Before
+#### Before outlier removal
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("PC1vsPC3_before.png")
 ```
 
-#### After
+#### After outlier removal
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("PC1vsPC3_after.png")
@@ -43,13 +43,13 @@ knitr::include_graphics("PC1vsPC3_after.png")
 
 ### PC2 vs PC3
 
-#### Before
+#### Before outlier removal
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("PC2vsPC3_before.png")
 ```
 
-#### After
+#### After outlier removal
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("PC2vsPC3_after.png")
@@ -57,9 +57,18 @@ knitr::include_graphics("PC2vsPC3_after.png")
 
 ### 3D
 
+#### Before outlier removal
+
 ```{r, echo=FALSE, out.width="80%"}
-pca <- readRDS("3D_pca.rds")
-pca
+pca_before <- readRDS("plink_3D_pcabefore.rds")
+pca_before
+```
+
+#### After outlier removal
+
+```{r, echo=FALSE, out.width="80%"}
+pca_after <- readRDS("plink_3D_pcaafter.rds")
+pca_after
 ```
 
 ## Log

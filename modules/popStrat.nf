@@ -289,7 +289,6 @@ process plot_pca {
     
   output:
   path "*", emit: figure
-  path "*.rds", emit: rds
     
   shell:
   '''
