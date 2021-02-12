@@ -17,7 +17,7 @@ process variant_missingness {
   shell:
   '''
   # fam won't match if convertBuild is true
- cp !{in_fam} !{in_bed.baseName}.fam
+ mv -f !{in_fam} !{in_bed.baseName}.fam
   plink --bfile !{in_bed.baseName} \
       --make-bed \
       --out data 
