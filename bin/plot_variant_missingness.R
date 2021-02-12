@@ -33,7 +33,7 @@ ggplot(variant_missingness, aes(x = F_MISS)) +
 ggsave("variant_missingness_hist.png")
 
 ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
-    geom_jitter(alpha=0.2) +
+    geom_point(alpha=0.2) +
     geom_hline(yintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) + 
     theme_linedraw() +
