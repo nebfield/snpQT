@@ -11,11 +11,9 @@ library("tidyverse")
 args <- commandArgs(trailingOnly = TRUE)
 
 read_table(args[[1]]) %>%
-    mutate(plink = "plink") %>% # dummy column
     mutate(type = "before") -> before
 
 read_table(args[[2]]) %>%
-    mutate(plink = "plink") %>%
     mutate(type = "after") %>%
     bind_rows(before) %>%
     mutate(type = fct_relevel(type, "before")) -> variant_missingness
@@ -32,11 +30,12 @@ ggplot(variant_missingness, aes(x = F_MISS)) +
     ggtitle("Variant missingness rate")  
 ggsave("variant_missingness_hist.png")
 
-ggplot(variant_missingness, aes(x = plink, y = F_MISS)) +
-    geom_point(alpha=0.2) +
+variant_missingness %>%
+    ggplot(aes(x = SNP, y = F_MISS)) +
+    geom_jitter(alpha=0.2) +
     geom_hline(yintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) + 
-    theme_linedraw() +
+    theme_bw() +
     ggtitle("Variant missingness rate") +
     ylab("Missing call rate") +
     xlab(glue::glue("Variant (n = {n})")) +
