@@ -1,0 +1,70 @@
+---
+title: "Population stratification report"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PCA 
+
+### PC1 vs PC2
+
+#### Before
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC1vsPC2_before.png")
+```
+
+#### After
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC1vsPC2_after.png")
+```
+
+### PC1 vs PC3
+
+#### Before
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC1vsPC3_before.png")
+```
+
+#### After
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC1vsPC3_after.png")
+```
+
+### PC2 vs PC3
+
+#### Before
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC2vsPC3_before.png")
+```
+
+#### After
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC2vsPC3_after.png")
+```
+
+### 3D
+
+```{r, echo=FALSE, out.width="80%"}
+pca <- readRDS("3D_pca.rds")
+pca
+```
+
+## Log
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("popStrat_log_samples.png")
+knitr::include_graphics("popStrat_log_variants.png")
+```
