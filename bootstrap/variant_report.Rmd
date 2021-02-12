@@ -7,28 +7,40 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Missingness
 
-![](variant_missingness_hist.png)
-![](variant_missingness_scatter.png)
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("variant_missingness_hist.png")
+knitr::include_graphics("variant_missingness_scatter.png")
+```
 
 ## HWE
 
-![](hwe_sub.png)
-![](hwe_zoom.png)
+```{r, echo=FALSE, out.width="80%"}
+hwe <- list.files()[str_detect(list.files(), "hwe*")]
+knitr::include_graphics(hwe)
+```
 
 ## MAF
 
-![](maf.png)
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("maf.png")
+```
 
 ## Missingness per cohort
 
-![](missingness_per_cohort.png)
+```{r, echo=FALSE, out.width="80%"}
+mpc <- list.files()[str_detect(list.files(), "missingness_per_cohort.png")]
+if (length(mpc) > 0) knitr::include_graphics(mpc)
+```
 
 ## Log
 
-![](variant_qc_log_samples.png)
-![](variant_qc_log_variants.png)
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("variant_qc_log_samples.png")
+knitr::include_graphics("variant_qc_log_variants.png")
+```

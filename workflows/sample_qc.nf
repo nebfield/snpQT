@@ -58,19 +58,16 @@ workflow sample_qc {
       figures = plot_missingness.out.figure
         .concat(plot_sex.out.figure, plot_heterozygosity.out.figure, parse_logs.out.figure)
         .collect()
-      Channel
-        .fromPath("$baseDir/bootstrap/sample_report.Rmd", checkIfExists: true)
-        .set{ rmd }
     } else {
       logs = variant_missingness.out.log.concat(individual_missingness.out.log, heterozygosity_prune.out.log, relatedness.out.log, missing_phenotype.out.log).collect()
       parse_logs("qc", logs, "sample_qc_log.txt")
       figures = plot_missingness.out.figure
         .concat(plot_heterozygosity.out.figure, parse_logs.out.figure)
         .collect()
-      Channel
-        .fromPath("$baseDir/bootstrap/sample_nosex_report.Rmd", checkIfExists: true)
-        .set{ rmd }
-    }   
+    } 
+    Channel
+      .fromPath("$baseDir/bootstrap/sample_report.Rmd", checkIfExists: true)
+      .set{ rmd }
     report("qc", figures, rmd)  
 
   emit:

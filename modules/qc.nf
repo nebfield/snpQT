@@ -389,7 +389,7 @@ process plot_hardy {
   val(threshold)
 
   output:
-  path "*.png", emit: figure
+  path "*.png", optional: true, emit: figure
   
   shell:
   '''
@@ -485,7 +485,7 @@ process plot_missing_by_cohort {
   val(threshold)
   
   output:
-  path "*.png", emit: figure
+  path "*.png", optional: true, emit: figure
 
   shell:
   '''

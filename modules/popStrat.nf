@@ -332,7 +332,6 @@ process plot_plink_pca {
 
     output:
     path "*.png"
-    path "*.html"
     
     shell:
     '''

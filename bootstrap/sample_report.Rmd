@@ -7,23 +7,38 @@ output:
 ---
 
 ```{r setup, include=FALSE}
+library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Check sex
 
-![](sexcheck.png)
+```{r, echo=FALSE, out.width="80%"}
+sexcheck <- list.files()[str_detect(list.files(), "sexcheck*")]
+if (length(sexcheck) > 0) {
+  knitr::include_graphics(sexcheck)
+} else {
+  print("--sexcheck false")
+}
+```
 
 ## Missingness
 
-![](sample_missingness_hist.png)
-![](sample_missingness_scatter.png)
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("sample_missingness_hist.png")
+knitr::include_graphics("sample_missingness_scatter.png")
+```
 
 ## Heterozygosity rate
 
-![](heterozygosity_rate.png)
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("heterozygosity_rate.png")
+```
 
 ## Log
 
-![](sample_qc_log_samples.png)
-![](sample_qc_log_variants.png)
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("sample_qc_log_samples.png")
+knitr::include_graphics("sample_qc_log_variants.png")
+```
