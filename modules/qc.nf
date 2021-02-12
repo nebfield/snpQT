@@ -18,6 +18,7 @@ process variant_missingness {
   '''
   # fam won't match if convertBuild is true
   plink --bfile !{in_bed.baseName} \
+      --fam !{in_fam} \
       --make-bed \
       --out data 
   plink --bfile data \
