@@ -22,6 +22,13 @@ if (params.help) {
   System.exit(0)
 }
 
+if (!params.convertBuild && !params.qc && !params.popStrat && !params.impute && !params.gwas) {
+  println("Please specify some workflow options")
+  println("------------------------------------")
+  printHelp()
+  System.exit(1)
+}
+
 println """
 =================================================================
 snpQT is ready to make your single-nucleotide polymorphisms cute!
