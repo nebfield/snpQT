@@ -22,7 +22,8 @@ if (params.help) {
   System.exit(0)
 }
 
-if (!params.convertBuild && !params.qc && !params.popStrat && !params.impute && !params.gwas) {
+if (!params.convertBuild && !params.qc && !params.popStrat && !params.impute && !params.gwas && !params.download_db) {
+  println("${params}")
   println("Please specify some workflow options")
   println("------------------------------------")
   printHelp()
@@ -39,29 +40,33 @@ ${params}
         """.stripIndent()
 
 // throw errors on invalid workflow combinations --------------------------
-if (params.convertBuild) {
-  if (!params.vcf) {
-    println("Please supply a vcf.gz file for build conversion with --vcf")
-    println("Use --help to print help")
-    System.exit(1)
-  }
+if (!params.download_db ==~ "core" || !params.download_db ==~ "impute") {
+  println("Please use --download_db core or --download_db impute")
+  System.exit(1)
+  if (params.convertBuild) {
+    if (!params.vcf) {
+      println("Please supply a vcf.gz file for build conversion with --vcf")
+      println("Use --help to print help")
+      System.exit(1)
+      }
   if (!params.fam) {
     println("Please supply a .fam file for build conversion with --fam")
     println("Use --help to print help")
     System.exit(1)
-  }
-} else if (!params.convertBuild && !params.download_db) {
-  if (params.vcf) {
-    println("--vcf only compatible with --convertBuild")
-    println("Please supply plink input files with --bed --bim --fam")
-    println("Use --help to print help")
-    System.exit(1)
-  }
-  if (!params.fam) {
-    println("Missing --fam input")
-    println("Use --help to print help")
-    System.exit(1)
     }
+  } else if (!params.convertBuild) {
+    if (params.vcf) {
+      println("--vcf only compatible with --convertBuild")
+      println("Please supply plink input files with --bed --bim --fam")
+      println("Use --help to print help")
+      System.exit(1)
+      }
+    if (!params.fam) {
+      println("Missing --fam input")
+      println("Use --help to print help")
+      System.exit(1)
+      }
+  }
 }
 
 if (params.qc) {
