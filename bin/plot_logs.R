@@ -9,6 +9,8 @@ library("tidyverse")
 args <- commandArgs(trailingOnly = TRUE)
 
 read_delim(args[[1]], delim = " ") %>%
+    mutate(variants = as.integer(variants)) %>%
+    mutate(samples = as.integer(samples)) %>%
     mutate(num = as.integer(str_extract(stage, "\\d+"))) %>%
     mutate(stage = word(stage, sep = "\\.")) %>%
     mutate(stage = fct_reorder(stage, num)) -> df
@@ -22,7 +24,6 @@ df %>%
 ggsave(paste0(args[[2]], "_variants.png"))
 
 df %>% 
-  mutate(stage = word(stage, sep = "\\.")) %>%
   ggplot(., aes(x = stage, y = samples, group = 1)) + 
   geom_point() + 
   geom_line() + 
