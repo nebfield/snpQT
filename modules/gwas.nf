@@ -1,7 +1,7 @@
 // Step F1: Run logistic regression, adjusting for covariates
 
 process run_gwas {    
-    publishDir "${params.results}/gwas/", mode: 'copy'
+    publishDir "${params.results}/gwas/figures", mode: 'copy'
 
     input:
     path(bed)
@@ -31,18 +31,20 @@ process run_gwas {
 }
 
 process plot {
-    publishDir "${params.results}/gwas/$id/", mode: 'copy'
+    publishDir "${params.results}/gwas/figures/", mode: 'copy'
     
     input:
     tuple id, path(logistic)
 
     output:
-    path "qqplot.png"
-    path "*.pdf"
+    path "*_qqplot.png", emit: qqplot
+    path "*_manhattan.png", emit: manhattan
  
     shell:
     '''
     qqplot.R !{logistic}
     manhattan.R !{logistic}
+    cp qqplot.png !{id}_qqplot.png
+    cp manhattan.png !{id}_manhattan.png
     '''
 }
