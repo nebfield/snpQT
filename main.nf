@@ -33,7 +33,7 @@ if (!params.convertBuild && !params.qc && !params.popStrat && !params.impute && 
 println """
 =================================================================
 snpQT is ready to make your single-nucleotide polymorphisms cute!
-v1.0, January 2020
+v1.0, February 2021
 Parameters in effect:
 ${params}
 =================================================================
