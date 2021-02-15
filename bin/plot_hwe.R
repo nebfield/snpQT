@@ -13,6 +13,8 @@ args <- commandArgs(trailingOnly = TRUE)
 read_table(args[[1]]) %>%
     mutate(type = "before") -> before
 
+if (nrow(before) == 0) quit(save = "no", status = 0)
+
 read_table(args[[2]]) %>%
     mutate(type = "after") %>%
     bind_rows(before) %>%

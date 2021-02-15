@@ -15,11 +15,15 @@ read_table(args[[1]]) %>%
     mutate(plink = "plink") %>% # dummy column
     mutate(type = "before") -> before
 
+if (nrow(before) == 0) quit(save = "no", status = 0)
+
 read_table(args[[2]]) %>%
     mutate(plink = "plink") %>%
     mutate(type = "after") %>%
     bind_rows(before) %>%
     mutate(type = fct_relevel(type, "before")) -> cs_missingness 
+
+if (nrow(cs_missingness) == 0) quit(save = "no", status = 0)
 
 ggplot(cs_missingness, aes(x = P)) +
     geom_histogram() +

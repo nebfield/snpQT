@@ -52,5 +52,4 @@ fancy_plot <- plot_ly(
   mode = "markers",
   color =  ~ race
 )
-
-saveWidget(fancy_plot, paste0("C6_3d_",args[[3]],".html"), selfcontained = T)
+saveRDS(fancy_plot, paste0("plink_3D_pca", args[[3]], ".rds"))

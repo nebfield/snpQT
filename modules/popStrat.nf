@@ -281,14 +281,14 @@ process eigensoft {
 }
 
 process plot_pca {
-  publishDir "${params.results}/popStrat/", mode: 'copy'
+  publishDir "${params.results}/popStrat/figures", mode: 'copy'
     
   input:
   path eigenvec
   path racefile
     
   output:
-  path "*", emit: plots
+  path "*", emit: figure
     
   shell:
   '''
@@ -325,14 +325,14 @@ process pca_plink {
 }
 
 process plot_plink_pca {
-    publishDir "${params.results}/popStrat/", mode: 'copy'
+    publishDir "${params.results}/popStrat/figures", mode: 'copy'
     
     input:
     tuple val(id), path(eigenvec), path(racefile)
 
     output:
-    path "*.png"
-    path "*.html"
+    path "*.png", emit: figure
+    path "*.rds", emit: rds
     
     shell:
     '''

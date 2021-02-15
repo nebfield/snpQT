@@ -18,6 +18,7 @@ process variant_missingness {
   '''
   # fam won't match if convertBuild is true
   plink --bfile !{in_bed.baseName} \
+      --fam !{in_fam} \
       --make-bed \
       --out data 
   plink --bfile data \
@@ -388,7 +389,7 @@ process plot_hardy {
   val(threshold)
 
   output:
-  path "*.png", emit: figure
+  path "*.png", optional: true, emit: figure
   
   shell:
   '''
@@ -484,7 +485,7 @@ process plot_missing_by_cohort {
   val(threshold)
   
   output:
-  path "*.png", emit: figure
+  path "*.png", optional: true, emit: figure
 
   shell:
   '''

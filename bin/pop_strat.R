@@ -60,5 +60,5 @@ fancy_plot <- plot_ly(
   mode = "markers",
   color =  ~ race
 )
-
-saveWidget(fancy_plot, "popStrat_eig.html", selfcontained = T)
+#saveRDS(fancy_plot, "3D_pca.rds")
+# saveWidget(fancy_plot, "popStrat_eig.html", selfcontained = T)

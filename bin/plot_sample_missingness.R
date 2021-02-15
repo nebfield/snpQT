@@ -12,12 +12,10 @@ args <- commandArgs(trailingOnly = TRUE)
 
 read_table(args[[1]]) %>%
   mutate(IID = as.factor(IID)) %>%
-  mutate(plink = "plink") %>% # dummy column
   mutate(type = "before") -> before 
 
 read_table(args[[2]]) %>%
   mutate(IID = as.factor(IID)) %>%
-  mutate(plink = "plink") %>% 
   mutate(type = "after") %>%
   bind_rows(before) %>%
   mutate(type = fct_relevel(type, "before")) -> sample_missingness 
@@ -34,16 +32,17 @@ ggplot(sample_missingness, aes(x = F_MISS)) +
   ggtitle("Sample missingness rate")
 ggsave("sample_missingness_hist.png")
 
-ggplot(sample_missingness, aes(x = plink, y = F_MISS)) +
-  geom_jitter() +
-  geom_hline(yintercept = as.numeric(args[[3]]), colour = "red")+
-  theme_linedraw() +
-  facet_grid(~ type) +
-  ylab("Missing call rate") +
-  xlab(glue::glue("Samples (n = {n})")) +
-  theme(axis.text.y=element_blank(),
-        axis.ticks.y=element_blank()) + 
-  coord_flip() +
-  ggtitle("Sample missingness rate")
+sample_missingness %>%
+  ggplot(aes(x = IID, y = F_MISS)) +
+    geom_jitter(alpha=0.2) +
+    geom_hline(yintercept = as.numeric(args[[3]]), colour = "red") +
+    facet_grid(~ type) + 
+    theme_bw() +  
+    ylab("Missing call rate") +
+    xlab(glue::glue("Samples (n = {n})")) +
+    theme(axis.text.y=element_blank(),
+          axis.ticks.y=element_blank()) + 
+    coord_flip() +
+    ggtitle("Sample missingness rate")
 
 ggsave("sample_missingness_scatter.png")
