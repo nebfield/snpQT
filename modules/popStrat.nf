@@ -244,6 +244,7 @@ process eigensoft {
     path fam
     path racefile
     path pca_fam
+    path parfile
 
     output:
     path "eigenvec", emit: eigenvec
@@ -268,12 +269,10 @@ process eigensoft {
     echo "indivname:    C6_indep.pedind" >> parfile
     echo "evecoutname:  eigenvec" >> parfile
     echo "evaloutname:  eigenval" >> parfile
-    echo "numthreads:   10" >> parfile
-    echo "poplistname: poplist.txt" >> parfile
-    echo "numoutlierevec: 7" >> parfile
-    echo "autoshrink: YES" >> parfile
-	echo "outlieroutname: excluded_outliers.txt" >> parfile
+    echo "outlieroutname: excluded_outliers.txt" >> parfile
 
+    cat !{parfile} >> parfile
+    
     smartpca -p parfile > log.txt
 
     awk -F " " '{print $1}' eigenvec | sed '1d' | awk -F ":" '{print $1,$2}' > keep_sample_list.txt

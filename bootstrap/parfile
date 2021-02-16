@@ -1,0 +1,4 @@
+echo "numthreads: 10"
+echo "poplistname: poplist.txt" 
+echo "numoutlierevec: 7" 
+echo "autoshrink: YES"

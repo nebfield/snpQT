@@ -55,7 +55,16 @@ workflow popStrat {
     } else if (params.racefile == "sub") {
       rf = racefile.out.sub
     }
-    eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam)
+    if (params.parfile == false ) {
+      Channel
+        .fromPath("$baseDir/bootstrap/parfile", checkIfExists: true)
+        .set{ parfile_ch }
+    } else {
+      Channel
+        .fromPath(params.racefile, checkIfExists: true)
+        .set{ parfile_ch }
+    }    
+    eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam, parfile_ch)
     plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
     pca_plink(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, eigensoft.out.eigenvec)
     // prepare plink pca files for plotting
