@@ -21,34 +21,40 @@ read_table(args[[2]]) %>%
 
 gender %>%
   ggplot(.) +
-	theme_linedraw() + 
+	theme_linedraw() +
+	facet_grid(~ type ) +
     geom_histogram(aes(x = F)) +
     ggtitle("All") -> sexcheck
+ggsave("sexcheck_all_hist.png")
 
 gender %>%
   filter(PEDSEX == 1) %>%
   ggplot(.) +
 	theme_linedraw() + 
+	facet_grid(~ type ) +
     geom_histogram(aes(x = F)) +
     ggtitle("Men") -> sexcheck_men
+ggsave("sexcheck_men_hist.png")
 
 gender %>%
   filter(PEDSEX == 2) %>%
   ggplot(.) +
 	theme_linedraw() + 
+	facet_grid(~ type ) +
     geom_histogram(aes(x = F)) +
     ggtitle("Women") -> sexcheck_women
+ggsave("sexcheck_women_hist.png")
 
 gender %>%
   mutate(PEDSEX = as.factor(PEDSEX)) %>%
   ggplot(.) +
 	theme_linedraw() + 
+	facet_grid(~ type ) +
     geom_point(aes(x=PEDSEX,y=F,colour=PEDSEX)) +
     scale_color_manual(breaks = c("0", "1", "2"), 
       values=c("black", "blue","red")) +
     scale_x_discrete(breaks=c("0", "1", "2"), 
       labels=c("Missing", "Males","Females")) +
     ggtitle("All") -> sexcheck_scatterplot
+ggsave("sexcheck_all_scatter.png")
 
-ggsave("sexcheck.png", arrangeGrob(sexcheck, sexcheck_men, sexcheck_women, 
-  sexcheck_scatterplot, ncol=2), dpi = 300)
