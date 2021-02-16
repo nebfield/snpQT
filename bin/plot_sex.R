@@ -23,6 +23,7 @@ gender %>%
   ggplot(.) +
 	theme_linedraw() +
 	facet_grid(~ type ) +
+	ylab("Sample count") +
     geom_histogram(aes(x = F)) +
     ggtitle("All") -> sexcheck
 ggsave("sexcheck_all_hist.png")
@@ -32,6 +33,7 @@ gender %>%
   ggplot(.) +
 	theme_linedraw() + 
 	facet_grid(~ type ) +
+	ylab("Sample count") +
     geom_histogram(aes(x = F)) +
     ggtitle("Men") -> sexcheck_men
 ggsave("sexcheck_men_hist.png")
@@ -41,6 +43,7 @@ gender %>%
   ggplot(.) +
 	theme_linedraw() + 
 	facet_grid(~ type ) +
+	ylab("Sample count") +
     geom_histogram(aes(x = F)) +
     ggtitle("Women") -> sexcheck_women
 ggsave("sexcheck_women_hist.png")

@@ -22,8 +22,11 @@ read_table(args[[2]]) %>%
   bind_rows(before) %>%
   mutate(type = fct_relevel(type, "before")) -> sample_missingness 
 
-n <- nrow(sample_missingness)/2
-
+sample_missingness %>%
+  filter(type == "before") %>%
+  count() %>%
+  pull(n) -> n
+  
 ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
   geom_vline(xintercept = as.numeric(args[[3]]), colour = "red")+
@@ -39,7 +42,7 @@ sample_missingness %>%
     geom_jitter(alpha=0.3) +
     geom_hline(yintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) + 
-    theme_linedraw() +  
+    theme_classic() +  
     ylab("Missing call rate") +
     xlab(glue::glue("Samples (n = {n})")) +
     theme(axis.text.y=element_blank(),
