@@ -101,7 +101,7 @@ process check_sex {
     plink --bfile !{B2_bed.baseName} \
       --check-sex --out before
     # Identify the samples with sex discrepancy 
-    grep "PROBLEM" plink.sexcheck | awk '{print $1,$2}'> \
+    grep "PROBLEM" before.sexcheck | awk '{print $1,$2}'> \
       problematic_samples.txt
     # Delete all problematic samples
     plink --bfile !{B2_bed.baseName} \
