@@ -61,7 +61,7 @@ workflow popStrat {
         .set{ parfile_ch }
     } else {
       Channel
-        .fromPath(params.racefile, checkIfExists: true)
+        .fromPath(params.parfile, checkIfExists: true)
         .set{ parfile_ch }
     }    
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam, parfile_ch)
