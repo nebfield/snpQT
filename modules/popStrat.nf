@@ -270,6 +270,7 @@ process eigensoft {
     echo "evecoutname:  eigenvec" >> parfile
     echo "evaloutname:  eigenval" >> parfile
     echo "outlieroutname: excluded_outliers.txt" >> parfile
+    echo "poplistname: poplist.txt" >> parfile
 
     cat !{parfile} >> parfile
     
