@@ -241,7 +241,7 @@ process heterozygosity_prune {
       --out independent_SNPs_new \
       --range
 	plink --bfile B5 \
-      --extract independent_SNPs_new \
+      --extract independent_SNPs_new.prune.in \
       --het \
       --out B5_after
     '''
