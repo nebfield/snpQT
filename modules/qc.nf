@@ -219,7 +219,7 @@ process heterozygosity_prune {
     path(B4_bim)
     path(B4_fam)
     path(het_failed)
-    path(ind_SNPs)
+    path(exclude_regions)
 
     output:
     path "B5.bed", emit: bed
@@ -236,7 +236,12 @@ process heterozygosity_prune {
       --remove het_failed_plink.txt \
       --out B5
 	plink --bfile B5 \
-      --extract !{ind_SNPs} \
+      --exclude !{exclude_regions} \
+      --indep-pairwise !{params.indep_pairwise} \
+      --out independent_SNPs_new \
+      --range
+	plink --bfile B5 \
+      --extract independent_SNPs_new \
       --het \
       --out B5_after
     '''
