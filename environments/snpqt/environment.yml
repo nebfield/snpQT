@@ -15,3 +15,4 @@ dependencies:
   - r-plotly=4.9.3
   - tabix=0.2.6
   - r-qqman=0.1.4
+  - r-cowplot=1.1.1
