@@ -57,7 +57,7 @@ workflow popStrat {
     }
     if (params.parfile == false ) {
       Channel
-        .fromPath("$baseDir/bootstrap/parfile", checkIfExists: true)
+        .fromPath("$baseDir/bootstrap/default_parfile", checkIfExists: true)
         .set{ parfile_ch }
     } else {
       Channel
