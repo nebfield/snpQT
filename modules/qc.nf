@@ -236,7 +236,7 @@ process heterozygosity_prune {
       --remove het_failed_plink.txt \
       --out B5
 	plink --bfile B5 \
-      --exclude !{ind_SNPs} \
+      --extract !{ind_SNPs} \
       --het \
       --out B5_after
     '''
