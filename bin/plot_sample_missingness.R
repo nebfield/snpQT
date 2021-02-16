@@ -43,7 +43,7 @@ sample_missingness %>%
     geom_jitter(alpha=0.3) +
     geom_hline(yintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) + 
-    theme_cow() +
+    theme_cowplot() +
 	panel_border() +
     ylab("Missing call rate") +
     xlab(glue::glue("Samples (n = {n})")) +
