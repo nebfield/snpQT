@@ -36,7 +36,7 @@ workflow sample_qc {
     
     if (params.sexcheck) {
       check_sex(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam)
-      plot_sex(check_sex.out.sexcheck)
+      plot_sex(check_sex.out.sexcheck_before,check_sex.out.sexcheck_after)
       extract_autosomal(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam)
       heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, exclude)
       filter_het(heterozygosity_rate.out.het)

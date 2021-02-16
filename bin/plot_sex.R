@@ -4,12 +4,20 @@ library('tidyverse')
 library('gridExtra')
 
 # Args
-# 1: plink.sexcheck file path
+# 1: before plink .sexcheck file path
+# 2: after plink .sexcheck file path
 
 args <- commandArgs(trailingOnly = TRUE)
 
-read.table(args[[1]], header=T) %>%
-  as_tibble(.) -> gender
+read_table(args[[1]]) %>%
+  mutate(IID = as.factor(IID)) %>%
+  mutate(type = "before") -> before 
+
+read_table(args[[2]]) %>%
+  mutate(IID = as.factor(IID)) %>%
+  mutate(type = "after") %>%
+  bind_rows(before) %>%
+  mutate(type = fct_relevel(type, "before")) -> gender 
 
 gender %>%
   ggplot(.) +

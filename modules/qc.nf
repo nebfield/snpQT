@@ -90,14 +90,16 @@ process check_sex {
     path "B3.bed", emit: bed 
     path "B3.bim", emit: bim
     path "B3.fam", emit: fam
-    path "plink.sexcheck", emit: sexcheck
     path "B3.log", emit: log
+	path "before.sexcheck", emit: sexcheck_before
+    path "after.sexcheck", emit: sexcheck_after
+ 
     
     // vcf to bed + fam https://www.biostars.org/p/313943/
     shell:
     '''
     plink --bfile !{B2_bed.baseName} \
-      --check-sex 
+      --check-sex --out before
     # Identify the samples with sex discrepancy 
     grep "PROBLEM" plink.sexcheck | awk '{print $1,$2}'> \
       problematic_samples.txt
@@ -106,6 +108,8 @@ process check_sex {
       --remove problematic_samples.txt \
       --make-bed \
       --out B3
+	plink --bfile B3 \
+      --check-sex --out after 
     '''
 }
 
@@ -113,14 +117,15 @@ process plot_sex {
     publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input:
-    path(sexcheck) 
+    path(sexcheck_before)
+	path(sexcheck_after) 
 
     output:
     path "sexcheck.png", emit: figure
 
     shell:
     '''
-    plot_sex.R !{sexcheck}
+    plot_sex.R !{sexcheck_before} !{sexcheck_after}
     '''
 }
 
