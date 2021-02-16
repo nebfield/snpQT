@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library("tidyverse")
+library(cowplot)
 
 # Args
 # 1: before .het file path

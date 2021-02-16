@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library("tidyverse")
+library(cowplot)
 
 # Plot sample missingness 
 # Args
