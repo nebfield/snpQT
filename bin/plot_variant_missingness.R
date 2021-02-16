@@ -18,7 +18,10 @@ read_table(args[[2]]) %>%
     bind_rows(before) %>%
     mutate(type = fct_relevel(type, "before")) -> variant_missingness
 
-n <- nrow(variant_missingness)
+variant_missingness %>%
+  filter(type == "before") %>%
+  count() %>%
+  pull(n) -> n
 
 ggplot(variant_missingness, aes(x = F_MISS)) +
     geom_histogram() +
@@ -32,10 +35,10 @@ ggsave("variant_missingness_hist.png")
 
 variant_missingness %>%
     ggplot(aes(x = SNP, y = F_MISS)) +
-    geom_jitter(alpha=0.2) +
+    geom_jitter(alpha=0.3) +
     geom_hline(yintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) + 
-    theme_bw() +
+    theme_classic() +
     ggtitle("Variant missingness rate") +
     ylab("Missing call rate") +
     xlab(glue::glue("Variant (n = {n})")) +

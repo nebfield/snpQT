@@ -121,7 +121,7 @@ process plot_sex {
 	path(sexcheck_after) 
 
     output:
-    path "sexcheck.png", emit: figure
+    path "*.png", emit: figure
 
     shell:
     '''

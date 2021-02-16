@@ -28,14 +28,14 @@ het %>%
   left_join(thresh_max) -> thresholds
 
 ggplot(het, aes(x = IID, y = HET_RATE)) + 
-  geom_point() +
+  geom_jitter(alpha=0.3) +
   geom_hline(data = thresholds, aes(yintercept = thresh_max), colour = "red") +
   geom_hline(data = thresholds, aes(yintercept = thresh_min), colour = "red") +
   facet_grid(~ type) +
-  theme_bw() +
+  theme_classic() +
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) + 
-  xlab("Sample") +
+  xlab("Samples") +
   ylab("Heterozygosity rate") +
   ggtitle("Heterozygosity rate per sample")
 ggsave("heterozygosity_rate.png")
