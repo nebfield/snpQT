@@ -32,7 +32,8 @@ ggplot(het, aes(x = IID, y = HET_RATE)) +
   geom_hline(data = thresholds, aes(yintercept = thresh_max), colour = "red") +
   geom_hline(data = thresholds, aes(yintercept = thresh_min), colour = "red") +
   facet_grid(~ type) +
-  theme_classic() +
+  theme_cow() +
+  panel_border() +
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) + 
   xlab("Samples") +
