@@ -35,7 +35,7 @@ ggplot(variant_missingness, aes(x = F_MISS)) +
     ylab("Variant count") +
     xlab("Missing call rate") +
     ggtitle("Variant missingness rate")  
-ggsave("variant_missingness_hist.png", height = 7, width = 10)
+ggsave("variant_missingness_hist.png", height = 7, width = 12)
 
 variant_missingness %>%
     ggplot(aes(x = SNP, y = F_MISS)) +
@@ -50,4 +50,4 @@ variant_missingness %>%
     theme(axis.text.y=element_blank(),
           axis.ticks.y=element_blank()) +
     coord_flip() 
-ggsave("variant_missingness_scatter.png", height = 7, width = 10)
+ggsave("variant_missingness_scatter.png", height = 7, width = 12)
