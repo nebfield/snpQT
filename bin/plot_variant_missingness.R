@@ -28,7 +28,10 @@ ggplot(variant_missingness, aes(x = F_MISS)) +
     geom_histogram() +
     geom_vline(xintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) +
-    theme_linedraw() +
+    theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
     ylab("Variant count") +
     xlab("Missing call rate") +
     ggtitle("Variant missingness rate")  

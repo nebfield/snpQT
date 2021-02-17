@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library("tidyverse")
+library('cowplot')
 
 # Plot missingness per case/control status
 # Args
@@ -29,7 +30,10 @@ ggplot(cs_missingness, aes(x = P)) +
     geom_histogram() +
     geom_vline(xintercept = as.numeric(args[[3]]), colour = "red")+
     facet_grid(~ type) +
-    theme_linedraw() +
+    theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+   
     ylab("Variant count") +
     xlab("P-value") +
     ggtitle("Missingness vs Case/Control status")

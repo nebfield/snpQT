@@ -31,7 +31,10 @@ sample_missingness %>%
 ggplot(sample_missingness, aes(x = F_MISS)) +
   geom_histogram() +
   geom_vline(xintercept = as.numeric(args[[3]]), colour = "red")+
-  theme_linedraw() +
+  theme_cowplot() +
+  background_grid()+
+  panel_border() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
   facet_grid(~ type ) +
   xlab("Missing call rate") + 
   ylab("Sample count") +

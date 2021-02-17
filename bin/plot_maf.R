@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library('tidyverse')
+library('cowplot')
 
 # Args
 # 1: plink.frq before file path
@@ -22,7 +23,10 @@ ggplot(maf, aes(x = MAF)) +
     geom_histogram() +
     geom_vline(xintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) +
-    theme_linedraw() +
+    theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
     xlab("Minor allele frequency") +
     ylab("Variant count") 
 ggsave("maf.png")

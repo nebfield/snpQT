@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library('tidyverse')
+library('cowplot')
 
 # Args
 # 1: plink.hwe file path before
@@ -26,7 +27,10 @@ ggplot(hwe, aes(x = P)) +
     geom_histogram() +
     geom_vline(xintercept = as.numeric(args[[3]]), colour = "red") +
     facet_grid(~ type) +
-    theme_linedraw() +
+    theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
     xlab("P-value") +
     ylab("Variant count")+
     ggtitle(paste("Hardy-Weinberg Equilibrium (HWE) ", args[[4]]))

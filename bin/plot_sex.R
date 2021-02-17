@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 library('tidyverse')
-
+library('cowplot')
 
 # Args
 # 1: before plink .sexcheck file path
@@ -21,7 +21,10 @@ read_table(args[[2]]) %>%
 
 gender %>%
   ggplot(.) +
-	theme_linedraw() +
+	theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
 	facet_grid(~ type ) +
 	ylab("Sample count") +
     geom_histogram(aes(x = F)) +
@@ -31,7 +34,10 @@ ggsave("sexcheck_all_hist.png")
 gender %>%
   filter(PEDSEX == 1) %>%
   ggplot(.) +
-	theme_linedraw() + 
+	theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
 	facet_grid(~ type ) +
 	ylab("Sample count") +
     geom_histogram(aes(x = F)) +
@@ -41,7 +47,10 @@ ggsave("sexcheck_men_hist.png")
 gender %>%
   filter(PEDSEX == 2) %>%
   ggplot(.) +
-	theme_linedraw() + 
+	theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
 	facet_grid(~ type ) +
 	ylab("Sample count") +
     geom_histogram(aes(x = F)) +
@@ -51,7 +60,10 @@ ggsave("sexcheck_women_hist.png")
 gender %>%
   mutate(PEDSEX = as.factor(PEDSEX)) %>%
   ggplot(.) +
-	theme_linedraw() + 
+	theme_cowplot() +
+	background_grid()+
+	panel_border() +
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+ 
 	facet_grid(~ type ) +
     geom_point(aes(x=PEDSEX,y=F,colour=PEDSEX)) +
     scale_color_manual(breaks = c("0", "1", "2"), 
