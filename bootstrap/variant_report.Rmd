@@ -38,6 +38,35 @@ mpc <- list.files()[str_detect(list.files(), "missingness_per_cohort.png")]
 if (length(mpc) > 0) knitr::include_graphics(mpc)
 ```
 
+## PCA 
+
+### PC1 vs PC2
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC1vsPC2_onlyUsersData.png")
+```
+
+### PC1 vs PC3
+
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC1vsPC3_onlyUsersData.png")
+```
+
+
+### PC2 vs PC3
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("PC2vsPC3_onlyUsersData.png")
+```
+
+### 3D PCA 
+
+```{r, echo=FALSE, out.width="80%"}
+pca_onlyUserData <- readRDS("plink_3D_PCA_onlyUsersData.rds")
+pca_onlyUserData
+```
+
 ## Log
 
 ```{r, echo=FALSE, out.width="80%"}

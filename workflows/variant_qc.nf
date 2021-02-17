@@ -42,7 +42,7 @@ workflow variant_qc {
 	logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
     parse_logs("qc", logs, "variant_qc_log.txt")
     figures = plot_mpv.out.figure
-      .concat(plot_hardy.out.figure, plot_maf.out.figure, plot_missing_by_cohort.out.figure, parse_logs.out.figure)
+      .concat(plot_hardy.out.figure, plot_maf.out.figure, plot_missing_by_cohort.out.figure, plot_pca_user_data.out.figure ,parse_logs.out.figure)
       .collect()
     Channel
       .fromPath("$baseDir/bootstrap/variant_report.Rmd", checkIfExists: true)
