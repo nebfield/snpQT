@@ -363,33 +363,4 @@ process extract_homogenous {
     '''
 }
 
-// STEP C10: Covariates ---------------------------------------------------------------------------
 
-process pca_covariates {
-    input:
-    path(bed)
-    path(bim)
-    path(fam)
-    path(exclude_regions)
-
-    output:
-    path "covar_pca", emit: covar
-    path "C10_indep.log", emit: log 
-    
-    shell:
-    '''
-    plink --bfile !{bed.baseName} \
-      --exclude !{exclude_regions} \
-      --indep-pairwise !{params.indep_pairwise} \
-      --out indepSNPs_1k_1
-    plink --bfile !{bed.baseName} \
-      --extract indepSNPs_1k_1.prune.in \
-      --make-bed \
-      --out C10_indep
-
-    # Perform a PCA on user's data without ethnic outliers.    
-    plink --bfile C10_indep --pca header --out C10_pca
-    # Create covariate file including the first 3 PCs
-    awk '{print $1, $2, $3, $4, $5}' C10_pca.eigenvec > covar_pca
-    '''
-}

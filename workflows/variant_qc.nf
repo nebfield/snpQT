@@ -13,7 +13,8 @@ include {plot_maf} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
 include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
 include {parse_logs} from '../modules/qc.nf'
-include {pca_covariates} from '../modules/popStrat.nf' // C10
+include {pca_covariates} from '../modules/qc.nf' // B12
+include {plot_pca_user_data} from '../modules/qc.nf' // B13
 
 include {report} from '../modules/qc.nf'
 
