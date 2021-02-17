@@ -524,6 +524,7 @@ process pca_covariates {
     output:
     path "covar_pca", emit: covar
     path "C10_indep.log", emit: log 
+	path "C10_pca.eigenvec", emit: eigenvec_user 
     
     shell:
     '''
