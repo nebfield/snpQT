@@ -37,7 +37,8 @@ workflow variant_qc {
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
     pca_covariates(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
-    logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
+    plot_pca_user_data(pca_covariates.out.eigenvec_user)
+	logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
     parse_logs("qc", logs, "variant_qc_log.txt")
     figures = plot_mpv.out.figure
       .concat(plot_hardy.out.figure, plot_maf.out.figure, plot_missing_by_cohort.out.figure, parse_logs.out.figure)

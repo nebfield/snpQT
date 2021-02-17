@@ -498,6 +498,22 @@ process plot_missing_by_cohort {
   ''' 
 }
 
+process plot_pca_user_data {
+    publishDir "${params.results}/qc/figures", mode: 'copy'
+    
+    input:
+    path(eigenvec)
+
+    output:
+    path "*.png", emit: figure
+    path "*.rds", emit: rds
+    
+    shell:
+    '''
+    plot_pca_OnlyUsersData.r !{eigenvec}
+    '''    
+}
+
 process parse_logs {
   publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
   publishDir "${params.results}/${dir}/logs", mode: 'copy', pattern: "*.txt"
