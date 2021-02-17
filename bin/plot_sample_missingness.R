@@ -39,7 +39,7 @@ ggplot(sample_missingness, aes(x = F_MISS)) +
   xlab("Missing call rate") + 
   ylab("Sample count") +
   ggtitle("Sample missingness rate")
-ggsave("sample_missingness_hist.png")
+ggsave("sample_missingness_hist.png", height = 7, width = 10)
 
 sample_missingness %>%
   ggplot(aes(x = plink, y = F_MISS)) +
@@ -55,4 +55,4 @@ sample_missingness %>%
     coord_flip() +
     ggtitle("Sample missingness rate")
 
-ggsave("sample_missingness_scatter.png")
+ggsave("sample_missingness_scatter.png", height = 7, width = 10)
