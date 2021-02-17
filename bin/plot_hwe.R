@@ -34,4 +34,4 @@ ggplot(hwe, aes(x = P)) +
     xlab("P-value") +
     ylab("Variant count")+
     ggtitle(paste("Hardy-Weinberg Equilibrium (HWE) ", args[[4]]))
-ggsave(fn) 
+ggsave(fn, , height = 7, width = 10) 
