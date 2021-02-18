@@ -12,7 +12,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 eigenvec<- read_delim(args[[1]], delim = " ")
 status<- read_delim(args[[2]], delim = " ")
-colnames(racefile) <- c("IID", "IID2", "Status")
+colnames(status) <- c("FID", "IID", "Status")
 
 eigenvec %>%
     left_join(status, by = "IID") -> datafile
