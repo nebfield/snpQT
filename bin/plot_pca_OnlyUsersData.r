@@ -57,3 +57,5 @@ fancy_plot <- plot_ly(
   colors = "Set1"
 )
 saveRDS(fancy_plot, "plink_3D_PCA_onlyUsersData.rds")
+
+export(fancy_plot, file = "plink_3D_PCA_onlyUsersData.png")
