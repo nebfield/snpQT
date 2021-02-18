@@ -503,6 +503,7 @@ process plot_pca_user_data {
     
     input:
     path(eigenvec)
+	path(fam)
 
     output:
     path "*.png", emit: figure
@@ -510,7 +511,10 @@ process plot_pca_user_data {
     
     shell:
     '''
-    plot_pca_OnlyUsersData.r !{eigenvec}
+	# Create case/control file
+    awk '{print $1, $2, $6}' !{fam}.fam > status
+ 
+    plot_pca_OnlyUsersData.r !{eigenvec} status
     '''    
 }
 
@@ -525,6 +529,7 @@ process pca_covariates {
     path "covar_pca", emit: covar
     path "C10_indep.log", emit: log 
 	path "C10_pca.eigenvec", emit: eigenvec_user 
+	path "C10_indep.fam", emit: fam
     
     shell:
     '''
