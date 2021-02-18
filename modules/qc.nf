@@ -512,7 +512,7 @@ process plot_pca_user_data {
     shell:
     '''
 	# Create case/control file
-    awk '{print $1, $2, $6}' !{fam}.fam > status
+    awk '{print $1, $2, $6}' !{fam} > status
  
     plot_pca_OnlyUsersData.r !{eigenvec} status
     '''    
