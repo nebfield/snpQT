@@ -11,15 +11,15 @@ library("htmlwidgets")
 args <- commandArgs(trailingOnly = TRUE)
 
 eigenvec<- read_delim(args[[1]], delim = " ")
-status<- read_delim(args[[2]], delim = " ")
-colnames(status) <- c("FID", "IID", "Status")
+status<- read_delim(args[[2]], delim = " ", col_names= FALSE)
+colnames(status) <- c("FID", "IID", "status")
 
 eigenvec %>%
     left_join(status, by = "IID") -> datafile
 
 datafile %>%
   select(IID, PC1, PC2) %>%
-  ggplot(., aes(x = PC1, y = PC2, colour = Status)) + 
+  ggplot(., aes(x = PC1, y = PC2, colour = status)) + 
   scale_color_manual(breaks = c("1", "2"), 
       values=c("blue","red")) +
     scale_x_discrete(breaks=c("1", "2"), 
@@ -30,7 +30,7 @@ ggsave(paste0("PC1vsPC2_onlyUsersData.png"))
 
 datafile %>%
   select(IID, PC1, PC3) %>%
-  ggplot(., aes(x = PC1, y = PC3, colour = Status)) + 
+  ggplot(., aes(x = PC1, y = PC3, colour = status)) + 
   scale_color_manual(breaks = c("1", "2"), 
       values=c("blue","red")) +
   scale_x_discrete(breaks=c("1", "2"), 
@@ -41,7 +41,7 @@ ggsave(paste0("PC1vsPC3_onlyUsersData.png"))
 
 datafile %>%
   select(IID, PC2, PC3) %>%
-  ggplot(., aes(x = PC2, y = PC3, colour = Status)) + 
+  ggplot(., aes(x = PC2, y = PC3, colour = status)) + 
   scale_color_manual(breaks = c("1", "2"), 
       values=c("blue","red")) +
   scale_x_discrete(breaks=c("1", "2"), 
@@ -61,7 +61,7 @@ fancy_plot <- plot_ly(
   size = 3,
   type = "scatter3d",
   mode = "markers",
-  color =  ~ Status,
+  color =  ~ status,
   colors = pal
 )
 saveRDS(fancy_plot, paste0("plink_3D_PCA_onlyUsersData.rds"))
