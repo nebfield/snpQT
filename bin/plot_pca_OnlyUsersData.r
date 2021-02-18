@@ -54,7 +54,6 @@ fancy_plot <- plot_ly(
   type = "scatter3d",
   mode = "markers",
   color = ~ status,
-  colors = "Set1",
-  reversescale = TRUE
+  colors = "Set1"
 )
 saveRDS(fancy_plot, "plink_3D_PCA_onlyUsersData.rds")
