@@ -22,7 +22,7 @@ statusfile %>%
   )) -> statusfile
   
 eigenvec %>%
-    left_join(status, by = "IID") -> datafile
+    left_join(statusfile, by = "IID") -> datafile
 
 datafile %>%
   ggplot(., aes(x = PC1, y = PC2, colour = status)) + 
