@@ -11,6 +11,16 @@ library(cowplot)
 
 args <- commandArgs(trailingOnly = TRUE)
 
+# A function factory for getting integer y-axis values.
+integer_breaks <- function(n = 5, ...) {
+    fxn <- function(x) {
+        breaks <- floor(pretty(x, n, ...))
+        names(breaks) <- attr(breaks, "labels")
+        breaks
+    }
+    return(fxn)
+}
+
 read_table(args[[1]]) %>%
   mutate(IID = as.factor(IID)) %>%
   mutate(plink = "plink") %>% # dummy column
@@ -34,7 +44,7 @@ ggplot(sample_missingness, aes(x = F_MISS)) +
   theme_cowplot() +
   background_grid()+
   panel_border() +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+  scale_y_continuous(breaks= integer_breaks())+
   facet_grid(~ type ) +
   xlab("Missing call rate") + 
   ylab("Sample count") +
