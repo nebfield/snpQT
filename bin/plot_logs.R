@@ -18,6 +18,7 @@ read_delim(args[[1]], delim = " ") %>%
 df %>% 
   ggplot(., aes(x = stage, y = variants, group = 1)) + 
   geom_point() + 
+  scale_y_continuous(breaks= pretty_breaks())+
   geom_line() + 
   theme_linedraw() +
   labs(x = "Stage", y = "Number of variants")
@@ -26,6 +27,7 @@ ggsave(paste0(args[[2]], "_variants.png"))
 df %>% 
   ggplot(., aes(x = stage, y = samples, group = 1)) + 
   geom_point() + 
+  scale_y_continuous(breaks= pretty_breaks())+
   geom_line() + 
   theme_linedraw() +
   labs(x = "Stage", y = "Number of samples")
