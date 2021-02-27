@@ -11,6 +11,16 @@ library('cowplot')
 
 args <- commandArgs(trailingOnly = TRUE)
 
+# A function factory for getting integer y-axis values.
+integer_breaks <- function(n = 5, ...) {
+    fxn <- function(x) {
+        breaks <- floor(pretty(x, n, ...))
+        names(breaks) <- attr(breaks, "labels")
+        breaks
+    }
+    return(fxn)
+}
+
 read_table(args[[1]]) %>%
     mutate(type = "before") -> before
 
@@ -30,7 +40,7 @@ ggplot(hwe, aes(x = P)) +
     theme_cowplot() +
 	background_grid()+
 	panel_border() +
-	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+	scale_y_continuous(breaks= integer_breaks())+
     xlab("P-value") +
     ylab("Variant count")+
     ggtitle(paste("Hardy-Weinberg Equilibrium (HWE) ", args[[4]]))
