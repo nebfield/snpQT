@@ -1,7 +1,7 @@
 // Step F1: Run logistic regression, adjusting for covariates
 
 process run_gwas {    
-    publishDir "${params.results}/gwas/figures", mode: 'copy'
+    publishDir "${params.results}/gwas/files/", mode: 'copy'
 
     input:
     path(bed)
@@ -17,14 +17,13 @@ process run_gwas {
     '''
     plink --bfile !{bed.baseName} \
       --covar !{covar} \
-	  --hide-covar\
       --ci 0.95 \
-      --logistic \
+      --logistic hide-covar\
       --allow-no-sex \
       --out logistic_results
     plink --bfile !{bed.baseName} \
       --ci 0.95 \
-      --logistic \
+      --logistic hide-covar\
       --allow-no-sex \
       --out logistic_results_nocovars
     '''
