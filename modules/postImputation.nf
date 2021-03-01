@@ -29,12 +29,12 @@ process filter_imp {
     '''
     plink2 --vcf !{imp} \
         --extract-if-info INFO '>'= !{params.info} \
-	--id-delim _ \
-	--maf !{params.impute_maf} \
-	--set-missing-var-ids @:#:\\$r:\\$a \
-	--new-id-max-allele-len 100 \
-	--make-bed \
-	--out E2
+        --id-delim _ \
+        --maf !{params.impute_maf} \
+        --set-missing-var-ids @:#:\\$r:\\$a \
+        --new-id-max-allele-len 100 \
+        --make-bed \
+        --out E2
     '''
 }
 
@@ -57,15 +57,15 @@ process duplicates_cat1 {
     # Annotate all variants to this format chr:pos:ref:alt and remove exact duplicates
     plink2 --bfile !{bed.baseName} \
         --set-all-var-ids @:#:\\$r:\\$a \
-	--new-id-max-allele-len 1000 \
-	--rm-dup force-first list \
-	--make-bed \
-	--out E3
+        --new-id-max-allele-len 1000 \
+        --rm-dup force-first list \
+        --make-bed \
+        --out E3
     # Recover the rs ids 
     plink2 --bfile E3 \
         --recover-var-ids !{bim} \
-	--make-bed \
-	--out E3_cat1
+        --make-bed \
+        --out E3_cat1
     '''
 }
 
@@ -87,8 +87,8 @@ process duplicates_cat2 {
     cut -f 1,4,6 !{bim} | sort | uniq -d | cut -f 2 | grep -w -F -f - !{bim} | cut -f 2 > multi_allelics.txt
     plink2 --bfile !{bed.baseName} \
         --exclude multi_allelics.txt \
-	--make-bed \
-	--out E3_cat2
+        --make-bed \
+        --out E3_cat2
     '''
 }
 
@@ -107,23 +107,31 @@ process duplicates_cat3 {
     shell:
     '''
     cut -f 2 !{bim} | sort | uniq -d > merged_variants.txt
-    plink2 --bfile !{bim.baseName} \
+
+    if [[ $(wc -l < merged_variants.txt) -gt 0 ]]
+    then
+      plink2 --bfile !{bim.baseName} \
         -extract merged_variants.txt \
-	--make-bed \
-	--out merged_snps
-    plink2 --bfile !{bim.baseName} \
+        --make-bed \
+        --out merged_snps
+      plink2 --bfile !{bim.baseName} \
         --exclude merged_variants.txt \
-	--make-bed \
-	--out excluded_snps
-    plink2 --bfile merged_snps \
+        --make-bed \
+        --out excluded_snps
+      plink2 --bfile merged_snps \
         --set-all-var-ids @:#:\\$r:\\$a \
-	--new-id-max-allele-len 1000 \
-	--make-bed \
-	--out annotated
-    plink --bfile excluded_snps \
+        --new-id-max-allele-len 1000 \
+        --make-bed \
+        --out annotated
+      plink --bfile excluded_snps \
         --bmerge annotated \
-	--make-bed \
-	--out E3_cat3
+        --make-bed \
+        --out E3_cat3      
+    else
+      plink -bfile !{bim.baseName} \
+        --make-bed \
+        --out E3_cat3
+    fi
     '''
 }
 
@@ -148,7 +156,7 @@ process update_phenotype {
     '''
     plink2 --bfile !{bed.baseName} \
         --fam !{user_fam} \
-	--make-bed \
-	--out post_annotation
+        --make-bed \
+        --out post_annotation
     '''
 }
