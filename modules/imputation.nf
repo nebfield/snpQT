@@ -122,20 +122,22 @@ process phasing {
         file('genetic_maps.b37.tar.gz')  
 
     output:
-    tuple val(chr), file('D14.vcf.gz'), emit: chrom
+    tuple val(chr), file('D14.vcf.gz'), emit: chrom, optional: true
 
     shell:
     '''
     gunzip genetic_maps.b37.tar.gz
     tar -xf genetic_maps.b37.tar
     gunzip chr!{chr}.b37.gmap.gz # decompress the chromosome we need 
-    
+
+    # || true allows optional output without an error
+    # people might not always be imputing every chromosome
     shapeit4 --input D12.vcf.gz \
         --map chr!{chr}.b37.gmap \
         --region !{chr} \
         --thread 1 \
         --output D14.vcf.gz \
-        --log log_chr.txt     
+        --log log_chr.txt || true     
     '''
 }
 
