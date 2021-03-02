@@ -42,7 +42,7 @@ ggplot(het, aes(x = IID, y = HET_RATE)) +
   ggtitle("Heterozygosity rate per sample")
 ggsave("heterozygosity_rate_scatter.png")
 
-ggplot(het, aes(x = IID, y = HET_RATE)) +
+ggplot(het, aes(x = HET_RATE)) +
     geom_histogram() +
     geom_vline(data = thresholds, aes(xintercept = thresh_max), colour = "red") +
     geom_vline(data = thresholds, aes(xintercept = thresh_min), colour = "red") +
@@ -50,9 +50,9 @@ ggplot(het, aes(x = IID, y = HET_RATE)) +
     theme_cowplot() +
 	background_grid()+
 	panel_border() +
-	scale_y_continuous(breaks= integer_breaks())+
-    xlab("Samples") +
-    ylab("Heterozygosity rate")+
+	scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+
+    xlab("Heterozygosity rate") +
+    ylab("Samples")+
     ggtitle("Heterozygosity rate per sample")
 ggsave("heterozygosity_rate_hist.png")
 

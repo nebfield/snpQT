@@ -33,7 +33,8 @@ knitr::include_graphics("sample_missingness_scatter.png")
 ## Heterozygosity rate
 
 ```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("heterozygosity_rate.png")
+knitr::include_graphics("heterozygosity_rate_scatter.png")
+knitr::include_graphics("heterozygosity_rate_hist.png")
 ```
 
 ## Log
