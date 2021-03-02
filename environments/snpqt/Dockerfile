@@ -23,4 +23,4 @@ RUN curl http://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20201019.zip \
 RUN unzip /opt/plink -d /opt/plink
 ENV PATH="/opt/plink:${PATH}"
 
-RUN apt-get update --fix-missing && apt-get -y install samtools tabix 
+RUN apt-get update --fix-missing && apt-get -y install samtools tabix pandoc
