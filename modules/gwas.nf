@@ -41,8 +41,10 @@ process plot {
  
     shell:
     '''
-    qqplot.R !{logistic}
-    manhattan.R !{logistic}
+    # NA p values sometimes happen
+    awk '!/'NA'/' !{logistic} > no_na.logistic
+    qqplot.R no_na.logistic
+    manhattan.R no_na.logistic
     cp qqplot.png !{id}_qqplot.png
     cp manhattan.png !{id}_manhattan.png
     '''
