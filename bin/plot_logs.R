@@ -26,7 +26,7 @@ read_delim(args[[1]], delim = " ") %>%
     mutate(stage = fct_reorder(stage, num)) -> df
 
 df %>% 
-  ggplot(., aes(x = stage, y = as.integer(variants), group = 1)) + 
+  ggplot(., aes(x = stage, y = variants, group = 1)) + 
   geom_point() + 
   scale_y_continuous(breaks= integer_breaks())+
   geom_line() + 
