@@ -38,7 +38,7 @@ process filter_imp {
     '''
 }
 
-// STEP E3: Handle all categories of duplicates
+// STEP E3: Identify and remove exact duplicated variants
 
 process duplicates_cat1 {
     input:
@@ -69,6 +69,8 @@ process duplicates_cat1 {
     '''
 }
 
+// STEP E4: Identify and remove multi-allelics
+
 process duplicates_cat2 {
     input:
     path(bed)
@@ -91,6 +93,8 @@ process duplicates_cat2 {
         --out E3_cat2
     '''
 }
+
+// STEP E5: Identify and remove merged variants
 
 process duplicates_cat3 {
     input:
@@ -135,7 +139,7 @@ process duplicates_cat3 {
     '''
 }
 
-// STEP E4: update phenotype information
+// STEP E6: update phenotype information
 
 process update_phenotype {
     publishDir "${params.results}/imputation/bfiles", mode: 'copy'
