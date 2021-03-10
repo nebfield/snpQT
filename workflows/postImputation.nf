@@ -18,13 +18,14 @@ workflow postImputation {
     
   main:
     merge_imp(ch_imp)
-    filter_imp(merge_imp.out.vcf)
+	annotate_missing(merge_imp.out.vcf)
+    filter_imp(annotate_missing.out.bed,annotate_missing.out.bim,annotate_missing.out.fam)
 	filter_maf(filter_imp.out.bed,filter_imp.out.bim,filter_imp.out.fam)
     duplicates_cat1(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam)
     duplicates_cat2(duplicates_cat1.out.bed, duplicates_cat1.out.bim, duplicates_cat1.out.fam)
     duplicates_cat3(duplicates_cat2.out.bed, duplicates_cat2.out.bim, duplicates_cat2.out.fam)
     update_phenotype(duplicates_cat3.out.bed, duplicates_cat3.out.bim, duplicates_cat3.out.fam, ch_fam)
-    logs = filter_imp.out.log.concat(filter_maf.out.log, duplicates_cat1.out.log, duplicates_cat2.out.log, duplicates_cat3.out.log, update_phenotype.out.log).collect()
+    logs = annotate_missing.out.log.concat(filter_imp.out.log,filter_maf.out.log, duplicates_cat1.out.log, duplicates_cat2.out.log, duplicates_cat3.out.log, update_phenotype.out.log).collect()
     parse_logs("imputation", logs, "postImpute_log.txt")
 
   emit:
