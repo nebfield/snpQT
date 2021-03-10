@@ -20,7 +20,7 @@ workflow postImputation {
   main:
     merge_imp(ch_imp)
     annotate_missing(merge_imp.out.vcf)
-    filter_imp(annotate_missing.out.bed,annotate_missing.out.bim,annotate_missing.out.fam)
+    filter_imp(annotate_missing.out.vcf)
     filter_maf(filter_imp.out.bed,filter_imp.out.bim,filter_imp.out.fam)
     duplicates_cat1(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam)
     duplicates_cat2(duplicates_cat1.out.bed, duplicates_cat1.out.bim, duplicates_cat1.out.fam)

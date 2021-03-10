@@ -10,7 +10,7 @@ BEGIN {
 
 /Working directory/ { loaded["wd"] = $3 }
 
-plink1 &&  /variants remaining after main filters/ { loaded["variants"] = $1 }
+plink1 &&  /loaded from .bim/ { loaded["variants"] = $1 }
 plink1 &&  /\) loaded from .fam/ { loaded["people"] = $1;
     loaded["males"] = substr($3, 2);
     loaded["females"] = $5;
@@ -19,7 +19,7 @@ plink1 &&  /remaining phenotypes/ { pheno["cases"] = $4;
     pheno["controls"] = $8 }
 plink1 && /are controls.[[:blank:]]*\(/ { pheno["missing"] = $NF }
 
-plink2 && /variants remaining after main filters/ { loaded["variants"] = $1 }
+plink2 && /variants loaded from/ { loaded["variants"] = $1 }
 plink2 && /samples \(/ { loaded["people"] = $1;
     loaded["males"] = $5;
     loaded["females"] = $3;

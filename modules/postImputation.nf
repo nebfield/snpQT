@@ -20,18 +20,16 @@ process annotate_missing {
     path(imp)
 
     output:
-    path "E2.bed", emit: bed
-    path "E2.bim", emit: bim
-    path "E2.fam", emit: fam
-    path "E2.log", emit: log
+    path 'E2.vcf.gz', emit: vcf
+	path 'E2.log', emit: log
     
     shell:
     '''
     plink2 --vcf !{imp} \
-        --id-delim _ \
+		--id-delim _ \
         --set-missing-var-ids @:#:\\$r:\\$a \
         --new-id-max-allele-len 100 \
-        --make-bed \
+        --export vcf bgz \
         --out E2
     '''
 }
@@ -40,9 +38,7 @@ process annotate_missing {
 
 process filter_imp {
     input:
-    path(bed)
-    path(bim)
-    path(fam)
+    path(imp)
 
     output:
     path "E3.bed", emit: bed
