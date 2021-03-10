@@ -1,4 +1,4 @@
-// STEP C3: filter minor allele frequency from user's dataset ------------------
+// STEP C3: filter minor allele frequency and pruning ------------------
 
 process filter_maf {
     input:

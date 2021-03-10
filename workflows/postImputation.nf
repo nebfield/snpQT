@@ -5,9 +5,9 @@ nextflow.preview.dsl = 2
 include {merge_imp} from '../modules/postImputation.nf' // E1
 include {filter_imp} from '../modules/postImputation.nf' // E2
 include {duplicates_cat1} from '../modules/postImputation.nf' // E3
-include {duplicates_cat2} from '../modules/postImputation.nf' // E3
-include {duplicates_cat3} from '../modules/postImputation.nf' // E3
-include {update_phenotype} from '../modules/postImputation.nf' // E4
+include {duplicates_cat2} from '../modules/postImputation.nf' // E4
+include {duplicates_cat3} from '../modules/postImputation.nf' // E5
+include {update_phenotype} from '../modules/postImputation.nf' // E6
 include {parse_logs} from '../modules/qc.nf'
 
 workflow postImputation {

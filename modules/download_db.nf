@@ -60,7 +60,7 @@ process qc_ref_data {
     --geno 0.02 \
     --make-pgen \
     --out all_phase3_8
-  # Remove variants based on MAF and prune
+  # Remove variants based on MAF
   plink2 --pfile all_phase3_8 \
     --maf 0.05 \
     --make-bed \

@@ -47,10 +47,10 @@ process duplicates_cat1 {
     path(fam)
 
     output:
-    path "E3_cat1.bed", emit: bed
-    path "E3_cat1.bim", emit: bim
-    path "E3_cat1.fam", emit: fam
-    path "E3_cat1.log", emit: log
+    path "E3.bed", emit: bed
+    path "E3.bim", emit: bim
+    path "E3.fam", emit: fam
+    path "E3.log", emit: log
     
     shell:
     '''
@@ -65,7 +65,7 @@ process duplicates_cat1 {
     plink2 --bfile E3 \
         --recover-var-ids !{bim} \
         --make-bed \
-        --out E3_cat1
+        --out E3
     '''
 }
 
@@ -78,10 +78,10 @@ process duplicates_cat2 {
     path(fam)
     
     output:
-    path "E3_cat2.bed", emit: bed
-    path "E3_cat2.bim", emit: bim 
-    path "E3_cat2.fam", emit: fam
-    path "E3_cat2.log", emit: log
+    path "E4.bed", emit: bed
+    path "E4.bim", emit: bim 
+    path "E4.fam", emit: fam
+    path "E4.log", emit: log
 
     shell:
     '''
@@ -90,7 +90,7 @@ process duplicates_cat2 {
     plink2 --bfile !{bed.baseName} \
         --exclude multi_allelics.txt \
         --make-bed \
-        --out E3_cat2
+        --out E4
     '''
 }
 
@@ -103,10 +103,10 @@ process duplicates_cat3 {
     path(fam)
 
     output:
-    path "E3_cat3.bed", emit: bed
-    path "E3_cat3.bim", emit: bim 
-    path "E3_cat3.fam", emit: fam
-    path "E3_cat3.log", emit: log
+    path "E5.bed", emit: bed
+    path "E5.bim", emit: bim 
+    path "E5.fam", emit: fam
+    path "E5.log", emit: log
     
     shell:
     '''
@@ -130,11 +130,11 @@ process duplicates_cat3 {
       plink --bfile excluded_snps \
         --bmerge annotated \
         --make-bed \
-        --out E3_cat3      
+        --out E5     
     else
       plink -bfile !{bim.baseName} \
         --make-bed \
-        --out E3_cat3
+        --out E5
     fi
     '''
 }
