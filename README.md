@@ -1,7 +1,10 @@
+[![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A520.10.0-brightgreen.svg)](http://nextflow.io)
+[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
+[![Documentation Status](https://readthedocs.org/projects/ansicolortags/badge/?version=latest)](https://tutorial-snpqt.readthedocs.io/en/latest/)
+
 # snpQT
 
-snpQT (pronounced snip-cutie) makes your single-nucleotide polymorphisms cute. Also, it provides support for processing humang enomic variants to do:
-
+snpQT (pronounced snip-cutie) makes your single-nucleotide polymorphisms cute. Also, it provides support for processing human genomic variants to do:
 * build conversion
 * sample quality control
 * population stratification
