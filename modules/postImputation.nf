@@ -48,7 +48,7 @@ process filter_imp {
     
     shell:
     '''
-    plink2 --bfile !{bed.baseName} \
+    plink2 --vcf !{imp} \
         --extract-if-info INFO '>'= !{params.info} \
         --make-bed \
         --out E3
