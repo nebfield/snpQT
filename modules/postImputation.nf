@@ -13,7 +13,7 @@ process merge_imp {
     '''
 }
 
-// STEP E2: Filter all poorly imputed variants based on info score (check impute5 output), filter based on MAF, annotate missing SNP ids, 
+// STEP E2: Filter all poorly imputed variants based on info score (check impute5 output), annotate missing SNP ids
 
 process filter_imp {
     input:
@@ -38,9 +38,9 @@ process filter_imp {
     '''
 }
 
-// STEP E3: Identify and remove exact duplicated variants
+// STEP E3: Filter based on MAF 
 
-process duplicates_cat1 {
+process filter_maf {
     input:
     path(bed)
     path(bim)
@@ -54,22 +54,45 @@ process duplicates_cat1 {
     
     shell:
     '''
+    plink2 --bfile !{bed.baseName}
+        --maf !{params.impute_maf} \
+        --make-bed \
+        --out E3
+    '''
+}
+
+// STEP E4: Identify and remove exact duplicated variants
+
+process duplicates_cat1 {
+    input:
+    path(bed)
+    path(bim)
+    path(fam)
+
+     output:
+    path "E4.bed", emit: bed
+    path "E4.bim", emit: bim 
+    path "E4.fam", emit: fam
+    path "E4.log", emit: log
+    
+    shell:
+    '''
     # Annotate all variants to this format chr:pos:ref:alt and remove exact duplicates
     plink2 --bfile !{bed.baseName} \
         --set-all-var-ids @:#:\\$r:\\$a \
         --new-id-max-allele-len 1000 \
         --rm-dup force-first list \
         --make-bed \
-        --out E3
+        --out E4
     # Recover the rs ids 
     plink2 --bfile E3 \
         --recover-var-ids !{bim} \
         --make-bed \
-        --out E3
+        --out E4
     '''
 }
 
-// STEP E4: Identify and remove multi-allelics
+// STEP E5: Identify and remove multi-allelics
 
 process duplicates_cat2 {
     input:
@@ -78,23 +101,23 @@ process duplicates_cat2 {
     path(fam)
     
     output:
-    path "E4.bed", emit: bed
-    path "E4.bim", emit: bim 
-    path "E4.fam", emit: fam
-    path "E4.log", emit: log
-
-    shell:
+    path "E5.bed", emit: bed
+    path "E5.bim", emit: bim 
+    path "E5.fam", emit: fam
+    path "E5.log", emit: log
+  
+	shell:
     '''
     # Identify the multi-allelics based on position and reference allele
     cut -f 1,4,6 !{bim} | sort | uniq -d | cut -f 2 | grep -w -F -f - !{bim} | cut -f 2 > multi_allelics.txt
     plink2 --bfile !{bed.baseName} \
         --exclude multi_allelics.txt \
         --make-bed \
-        --out E4
+        --out E5
     '''
 }
 
-// STEP E5: Identify and remove merged variants
+// STEP E6: Identify and remove merged variants
 
 process duplicates_cat3 {
     input:
@@ -103,10 +126,10 @@ process duplicates_cat3 {
     path(fam)
 
     output:
-    path "E5.bed", emit: bed
-    path "E5.bim", emit: bim 
-    path "E5.fam", emit: fam
-    path "E5.log", emit: log
+    path "E6.bed", emit: bed
+    path "E6.bim", emit: bim
+    path "E6.fam", emit: fam
+    path "E6.log", emit: log 
     
     shell:
     '''
@@ -130,16 +153,16 @@ process duplicates_cat3 {
       plink --bfile excluded_snps \
         --bmerge annotated \
         --make-bed \
-        --out E5     
+        --out E6     
     else
       plink -bfile !{bim.baseName} \
         --make-bed \
-        --out E5
+        --out E6
     fi
     '''
 }
 
-// STEP E6: update phenotype information
+// STEP E7: update phenotype information
 
 process update_phenotype {
     publishDir "${params.results}/imputation/bfiles", mode: 'copy'
@@ -151,16 +174,16 @@ process update_phenotype {
     path(user_fam)
 
     output:
-    path "post_annotation.bed", emit: bed
-    path "post_annotation.bim", emit: bim
-    path "post_annotation.fam", emit: fam
-    path "post_annotation.log", emit: log 
+    path "E7.bed", emit: bed
+    path "E7.bim", emit: bim
+    path "E7.fam", emit: fam
+    path "E7.log", emit: log 
     
     shell:
     '''
     plink2 --bfile !{bed.baseName} \
         --fam !{user_fam} \
         --make-bed \
-        --out post_annotation
+        --out E7
     '''
 }
