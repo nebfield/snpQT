@@ -3,6 +3,7 @@ nextflow.preview.dsl = 2
 
 // import modules
 include {merge_imp} from '../modules/postImputation.nf' // E1
+include {annotate_missing} from '../modules/postImputation.nf'
 include {filter_imp} from '../modules/postImputation.nf' // E2
 include {filter_maf} from '../modules/postImputation.nf' // E3
 include {duplicates_cat1} from '../modules/postImputation.nf' // E4
@@ -18,9 +19,9 @@ workflow postImputation {
     
   main:
     merge_imp(ch_imp)
-	annotate_missing(merge_imp.out.vcf)
+    annotate_missing(merge_imp.out.vcf)
     filter_imp(annotate_missing.out.bed,annotate_missing.out.bim,annotate_missing.out.fam)
-	filter_maf(filter_imp.out.bed,filter_imp.out.bim,filter_imp.out.fam)
+    filter_maf(filter_imp.out.bed,filter_imp.out.bim,filter_imp.out.fam)
     duplicates_cat1(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam)
     duplicates_cat2(duplicates_cat1.out.bed, duplicates_cat1.out.bim, duplicates_cat1.out.fam)
     duplicates_cat3(duplicates_cat2.out.bed, duplicates_cat2.out.bim, duplicates_cat2.out.fam)
