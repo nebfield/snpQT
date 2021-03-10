@@ -30,7 +30,6 @@ process filter_imp {
     plink2 --vcf !{imp} \
         --extract-if-info INFO '>'= !{params.info} \
         --id-delim _ \
-        --maf !{params.impute_maf} \
         --set-missing-var-ids @:#:\\$r:\\$a \
         --new-id-max-allele-len 100 \
         --make-bed \
