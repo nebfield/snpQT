@@ -53,7 +53,7 @@ process filter_maf {
     
     shell:
     '''
-    plink2 --bfile !{bed.baseName}
+    plink2 --bfile !{bed.baseName} \
         --maf !{params.impute_maf} \
         --make-bed \
         --out E3
