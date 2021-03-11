@@ -13,38 +13,32 @@ process merge_imp {
     '''
 }
 
-// STEP E2: Filter all poorly imputed variants based on info score (check impute5 output), annotate missing SNP ids
+// STEP E2: Convert vcf to binary plink files and annotate missing SNP ids
 
-process filter_imp {
+process annotate_missing {
     input:
     path(imp)
 
     output:
-    path "E2.bed", emit: bed
-    path "E2.bim", emit: bim
-    path "E2.fam", emit: fam
-    path "E2.log", emit: log
+    path 'E2.vcf.gz', emit: vcf
+	path 'E2.log', emit: log
     
     shell:
     '''
     plink2 --vcf !{imp} \
-        --extract-if-info INFO '>'= !{params.info} \
-        --id-delim _ \
-        --maf !{params.impute_maf} \
+		--id-delim _ \
         --set-missing-var-ids @:#:\\$r:\\$a \
         --new-id-max-allele-len 100 \
-        --make-bed \
+        --export vcf bgz \
         --out E2
     '''
 }
 
-// STEP E3: Filter based on MAF 
+// STEP E3: Filter all poorly imputed variants based on info score
 
-process filter_maf {
+process filter_imp {
     input:
-    path(bed)
-    path(bim)
-    path(fam)
+    path(imp)
 
     output:
     path "E3.bed", emit: bed
@@ -54,14 +48,37 @@ process filter_maf {
     
     shell:
     '''
-    plink2 --bfile !{bed.baseName}
-        --maf !{params.impute_maf} \
+    plink2 --vcf !{imp} \
+        --extract-if-info INFO '>'= !{params.info} \
         --make-bed \
         --out E3
     '''
 }
 
-// STEP E4: Identify and remove exact duplicated variants
+// STEP E4: Filter based on MAF 
+
+process filter_maf {
+    input:
+    path(bed)
+    path(bim)
+    path(fam)
+
+    output:
+    path "E4.bed", emit: bed
+    path "E4.bim", emit: bim
+    path "E4.fam", emit: fam
+    path "E4.log", emit: log
+    
+    shell:
+    '''
+    plink2 --bfile !{bed.baseName} \
+        --maf !{params.impute_maf} \
+        --make-bed \
+        --out E4
+    '''
+}
+
+// STEP E5: Identify and remove exact duplicated variants
 
 process duplicates_cat1 {
     input:
@@ -70,10 +87,10 @@ process duplicates_cat1 {
     path(fam)
 
      output:
-    path "E4.bed", emit: bed
-    path "E4.bim", emit: bim 
-    path "E4.fam", emit: fam
-    path "E4.log", emit: log
+    path "E5.bed", emit: bed
+    path "E5.bim", emit: bim 
+    path "E5.fam", emit: fam
+    path "E5.log", emit: log
     
     shell:
     '''
@@ -83,16 +100,16 @@ process duplicates_cat1 {
         --new-id-max-allele-len 1000 \
         --rm-dup force-first list \
         --make-bed \
-        --out E4
+        --out E5
     # Recover the rs ids 
-    plink2 --bfile E3 \
+    plink2 --bfile E4 \
         --recover-var-ids !{bim} \
         --make-bed \
-        --out E4
+        --out E5
     '''
 }
 
-// STEP E5: Identify and remove multi-allelics
+// STEP E6: Identify and remove multi-allelics
 
 process duplicates_cat2 {
     input:
@@ -101,10 +118,10 @@ process duplicates_cat2 {
     path(fam)
     
     output:
-    path "E5.bed", emit: bed
-    path "E5.bim", emit: bim 
-    path "E5.fam", emit: fam
-    path "E5.log", emit: log
+    path "E6.bed", emit: bed
+    path "E6.bim", emit: bim 
+    path "E6.fam", emit: fam
+    path "E6.log", emit: log
   
 	shell:
     '''
@@ -113,11 +130,11 @@ process duplicates_cat2 {
     plink2 --bfile !{bed.baseName} \
         --exclude multi_allelics.txt \
         --make-bed \
-        --out E5
+        --out E6
     '''
 }
 
-// STEP E6: Identify and remove merged variants
+// STEP E7: Identify and remove merged variants
 
 process duplicates_cat3 {
     input:
@@ -126,10 +143,10 @@ process duplicates_cat3 {
     path(fam)
 
     output:
-    path "E6.bed", emit: bed
-    path "E6.bim", emit: bim
-    path "E6.fam", emit: fam
-    path "E6.log", emit: log 
+    path "E7.bed", emit: bed
+    path "E7.bim", emit: bim
+    path "E7.fam", emit: fam
+    path "E7.log", emit: log 
     
     shell:
     '''
@@ -153,16 +170,16 @@ process duplicates_cat3 {
       plink --bfile excluded_snps \
         --bmerge annotated \
         --make-bed \
-        --out E6     
+        --out E7     
     else
       plink -bfile !{bim.baseName} \
         --make-bed \
-        --out E6
+        --out E7
     fi
     '''
 }
 
-// STEP E7: update phenotype information
+// STEP E8: update phenotype information
 
 process update_phenotype {
     publishDir "${params.results}/imputation/bfiles", mode: 'copy'
@@ -174,16 +191,16 @@ process update_phenotype {
     path(user_fam)
 
     output:
-    path "E7.bed", emit: bed
-    path "E7.bim", emit: bim
-    path "E7.fam", emit: fam
-    path "E7.log", emit: log 
+    path "E8.bed", emit: bed
+    path "E8.bim", emit: bim
+    path "E8.fam", emit: fam
+    path "E8.log", emit: log 
     
     shell:
     '''
     plink2 --bfile !{bed.baseName} \
         --fam !{user_fam} \
         --make-bed \
-        --out E7
+        --out E8
     '''
 }
