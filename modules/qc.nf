@@ -147,7 +147,7 @@ process extract_autosomal {
     '''
     # Extract only autosomal chromosomes 
     plink2 --bfile !{B3_bed.baseName} \
-      --autosome
+      --autosome \
       --make-bed \
       --out B4    
     ''' 
