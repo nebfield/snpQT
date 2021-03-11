@@ -145,12 +145,9 @@ process extract_autosomal {
     
     shell:
     '''
-    # Extract only autosomal chromosomes (for studies that don't want to 
-    # include sex chromosomes)
-    awk '{ if ($1 >= 1 && $1 <= 22) print $2 }' !{B3_bim} > \
-      autosomal_SNPs.txt 
-    plink --bfile !{B3_bed.baseName} \
-      --extract autosomal_SNPs.txt \
+    # Extract only autosomal chromosomes 
+    plink2 --bfile !{B3_bed.baseName} \
+      --autosome
       --make-bed \
       --out B4    
     ''' 
