@@ -28,52 +28,46 @@ process qc_ref_data {
   mv !{thousand_psam} all_phase3.psam # fix dropbox url ?dl=1
   mv !{thousand_pvar} all_phase3.pvar.zst
   plink2 --zst-decompress !{thousand_pgen} > all_phase3.pgen
-  plink2 --pfile 'vzs' all_phase3 --chr 1-22 --make-pfile --out all_phase3_1
-
-  plink2 --pfile all_phase3_1 \
-    --normalize 'list' \
-    --fa h37_squeezed.fasta \
-    --make-pgen \
-    --out all_phase3_3
+  
   # Remove duplicates
-  plink2 --pfile all_phase3_3 \
+  plink2 --pfile all_phase3 \
     --rm-dup force-first \
     --make-pgen \
-    --out all_phase3_4
+    --out all_phase3_1
   # Remove multi-allelic variants
-  plink2 --pfile all_phase3_4 \
+  plink2 --pfile all_phase3_1 \
     --max-alleles 2 \
     --make-pgen \
-    --out all_phase3_5
+    --out all_phase3_2
   # Remove variants based on missing genotype data
-  plink2 --pfile all_phase3_5 \
+  plink2 --pfile all_phase3_2 \
     --geno 0.1 \
     --make-pgen \
-    --out all_phase3_6
+    --out all_phase3_3
   # Remove individuals based on missing genotype data.
-  plink2 --pfile all_phase3_6 \
+  plink2 --pfile all_phase3_3 \
     --mind 0.02 \
     --make-pgen \
-    --out all_phase3_7
+    --out all_phase3_4
   # Remove variants based on missing genotype data.
-  plink2 --pfile all_phase3_7 \
+  plink2 --pfile all_phase3_4 \
     --geno 0.02 \
     --make-pgen \
-    --out all_phase3_8
+    --out all_phase3_5
   # Remove variants based on MAF
-  plink2 --pfile all_phase3_8 \
+  plink2 --pfile all_phase3_5 \
     --maf 0.05 \
     --make-bed \
-    --out all_phase3_9
+    --out all_phase3_6
   # Prune variants
-  plink --bfile all_phase3_9 \
+  plink --bfile all_phase3_6 \
     --exclude !{exclude_region} \
     --indep-pairwise 50 5 0.2 \
     --out indepSNPs_1k_allphase
-  plink --bfile all_phase3_9 \
+  plink --bfile all_phase3_7 \
     --extract indepSNPs_1k_allphase.prune.in \
     --make-bed \
-    --out all_phase3_10
+    --out all_phase3_8
   '''
 }
 
