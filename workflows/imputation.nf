@@ -23,10 +23,11 @@ workflow imputation {
     ch_fam
 
   main:
+	set_chrom_code(ch_bed, ch_bim, ch_fam)
     Channel
       .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
       .set { g37 }
-    run_snpflip(ch_bed, ch_bim, ch_fam, g37)
+    run_snpflip(set_chrom_code.out.bed, set_chrom_code.out.bim, set_chrom_code.out.fam, g37)
     flip_snps(ch_bed, ch_bim, ch_fam, run_snpflip.out.rev, run_snpflip.out.ambig)
     fix_duplicates(flip_snps.out.bed, flip_snps.out.bim, flip_snps.out.fam)
     to_bcf(fix_duplicates.out.bed, fix_duplicates.out.bim, fix_duplicates.out.fam)

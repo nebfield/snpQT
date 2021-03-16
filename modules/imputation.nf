@@ -1,6 +1,28 @@
 // Pre-imputation 
 // =============================================================================
 
+// STEP D1: Set chromosome codes ---------------------------------------------
+process set_chrom_code {
+    input:
+    path(bed)
+    path(bim)
+    path(fam)
+
+    output:
+    path "D1.bed", emit: bed
+    path "D1.bim", emit: bim
+    path "D1.fam", emit: fam
+    path "D1.log", emit: log
+    
+    shell:
+    '''
+    # D3: duplicates
+    plink2 --bfile !{bed.baseName} \
+		--output-chr MT
+		--make-bed
+		--out D1  
+    '''
+}
 // STEP D2: Remove ambiguous SNPs ---------------------------------------------
 // STEP D4: Flip reverse SNPs
 // note: taken care of by popstrat modules now
