@@ -541,8 +541,10 @@ process pca_covariates {
 
     # Perform a PCA on user's data without ethnic outliers.    
     plink --bfile C10_indep --pca header --out C10_pca
-    # Create covariate file including the first 3 PCs
-    awk '{print $1, $2, $3, $4, $5}' C10_pca.eigenvec > covar_pca
+   
+	# Create covariate file including the first X PCs that the user requested
+
+	awk -v var="!{params.pca_covars}" '{for(i=1;i<=var+2;i++) printf $i" "; print ""}' C10_pca.eigenvec > covar_pca
     '''
 }
 
