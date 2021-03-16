@@ -26,13 +26,13 @@ workflow popStrat {
 
   main:
     Channel
-      .fromPath("$baseDir/db/all_phase3_10.bed", checkIfExists: true)
+      .fromPath("$baseDir/db/all_phase3_8.bed", checkIfExists: true)
       .set{ ref_bed }
     Channel
-      .fromPath("$baseDir/db/all_phase3_10.bim", checkIfExists: true)
+      .fromPath("$baseDir/db/all_phase3_8.bim", checkIfExists: true)
       .set{ ref_bim }
     Channel
-      .fromPath("$baseDir/db/all_phase3_10.fam", checkIfExists: true)
+      .fromPath("$baseDir/db/all_phase3_8.fam", checkIfExists: true)
       .set{ ref_fam } 
     Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)

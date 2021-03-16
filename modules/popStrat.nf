@@ -35,7 +35,11 @@ process filter_maf {
     plink --bfile maf_filtered \
       --extract indepSNPs_1k.prune.in \
       --make-bed \
-      --out C3
+      --out maf_filtered_indep
+	  
+	# Change the chromosome codes
+	plink2 --bfile maf_filtered_indep --output-chr MT --make-bed --out C3
+ 
    '''
 }
 
@@ -54,9 +58,10 @@ process run_snpflip {
   
   shell:
   '''
+
   # Run snpflip to identify ambiguous SNPs and SNPs that are located on the 
   # reverse strand first on user's dataset
-  snpflip -b !{bim} \
+   snpflip -b !{bim} \
     -f !{g37} \
     -o flipped_snps
   '''
