@@ -23,7 +23,7 @@ workflow imputation {
     ch_fam
 
   main:
-     Channel
+    Channel
       .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
       .set { g37 }
     run_snpflip(ch_bed, ch_bim, ch_fam, g37)
@@ -53,16 +53,16 @@ workflow imputation {
     phased = bcftools_index_chr(phasing.out.chrom)
     // thousand genome reference data
     Channel
-      .fromPath("$baseDir/db/impute/[0-9]*vcf.gz", checkIfExists: true)
-      .map{ f -> [f.baseName.find(/\d+/).toInteger(), f] } // .toInteger() for join
+      .fromPath("$baseDir/db/impute/chr*.vcf.gz", checkIfExists: true)
+      .map{ f -> [f.baseName.find(/\d+/), f] }
       .set{ thousand_genomes }
     Channel
-      .fromPath("$baseDir/db/impute/[0-9]*vcf.gz.csi", checkIfExists: true)
-      .map{ f -> [f.baseName.find(/\d+/).toInteger(), f] } 
+      .fromPath("$baseDir/db/impute/chr*.vcf.gz.csi", checkIfExists: true)
+      .map{ f -> [f.baseName.find(/\d+/), f] }
       .join( thousand_genomes )
       .set{ thousand_genomes_with_idx }
-    convert_imp5(thousand_genomes_with_idx)
-    impute5(convert_imp5.out.chrom.join(phased).combine(ch_map))
+    // convert_imp5(thousand_genomes_with_idx)
+    // impute5(convert_imp5.out.chrom.join(phased).combine(ch_map))
     // logs = fix_duplicates.out.log.concat(to_bcf.out.log).collect()
     // parse_logs("imputation", logs, "imputation_log.txt")
 

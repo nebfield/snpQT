@@ -87,11 +87,13 @@ process bcf_to_vcf {
     output:
     path "D11.vcf.gz", emit: vcf
     path "D11.vcf.gz.csi", emit: idx
-    
+    path "chroms.txt", emit: chroms
+
     shell:
     '''
     bcftools sort !{bcf} | bcftools convert -Oz > D11.vcf.gz
-    bcftools index D11.vcf.gz     
+    bcftools index D11.vcf.gz
+    tabix -l D11.vcf.gz > chroms.txt
     '''
 }
 
