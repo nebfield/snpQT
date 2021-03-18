@@ -37,32 +37,32 @@ workflow sample_qc {
     if (params.sexcheck && params.keep_sex_chroms) {
       check_sex(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam)
       plot_sex(check_sex.out.sexcheck_before,check_sex.out.sexcheck_after)
-      heterozygosity_rate(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam, exclude)
+      heterozygosity_rate(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam)
       filter_het(heterozygosity_rate.out.het)
-      heterozygosity_prune(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam, filter_het.out.failed, heterozygosity_rate.out.ind_snps)
+      heterozygosity_prune(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam, filter_het.out.failed)
       plot_heterozygosity(heterozygosity_rate.out.het, heterozygosity_prune.out.het)
     } else if (params.sexcheck == false && params.keep_sex_chroms){
-      heterozygosity_rate(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, exclude)
+      heterozygosity_rate(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam)
       filter_het(heterozygosity_rate.out.het)
-      heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, filter_het.out.failed, heterozygosity_rate.out.ind_snps)
+      heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, filter_het.out.failed)
       plot_heterozygosity(heterozygosity_rate.out.het, heterozygosity_prune.out.het)
     } else if (params.sexcheck == false && params.keep_sex_chroms == false){
       extract_autosomal(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam)
-	  heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, exclude)
+	  heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam)
       filter_het(heterozygosity_rate.out.het)
-      heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, filter_het.out.failed, heterozygosity_rate.out.ind_snps)
+      heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, filter_het.out.failed)
       plot_heterozygosity(heterozygosity_rate.out.het, heterozygosity_prune.out.het)
     } else if (params.sexcheck && params.keep_sex_chroms == false){
       check_sex(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam)
 	  extract_autosomal(check_sex.out.bed, check_sex.out.bim, check_sex.out.fam)
-	  heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam, exclude)
+	  heterozygosity_rate(extract_autosomal.out.bed, extract_autosomal.out.bim, extract_autosomal.out.fam)
       filter_het(heterozygosity_rate.out.het)
-      heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, filter_het.out.failed, heterozygosity_rate.out.ind_snps)
+      heterozygosity_prune(individual_missingness.out.bed, individual_missingness.out.bim, individual_missingness.out.fam, filter_het.out.failed)
       plot_heterozygosity(heterozygosity_rate.out.het, heterozygosity_prune.out.het)
     }
 	
     
-    relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam, heterozygosity_rate.out.ind_snps, individual_missingness.out.imiss_after)
+    relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam, exclude, individual_missingness.out.imiss_after)
     missing_phenotype(relatedness.out.bed, relatedness.out.bim, relatedness.out.fam)
     
     if (params.sexcheck && params.keep_sex_chroms) {

@@ -160,24 +160,16 @@ process heterozygosity_rate {
     input:
     path(B4_bed)
     path(B4_bim)
-    path(B4_fam) 
-    path(exclude_regions)
+    path(B4_fam)
     
     output:
-    path "only_indep_snps.het", emit: het
-    path "independent_SNPs.prune.in", emit: ind_snps // into ind_SNPs, ind_SNPs_popstrat
-
+    path "B5_het.het", emit: het
+	
     shell:
     '''    
     plink --bfile !{B4_bed.baseName} \
-      --exclude !{exclude_regions} \
-      --indep-pairwise !{params.indep_pairwise} \
-      --out independent_SNPs \
-      --range
-    plink --bfile !{B4_bed.baseName} \
-      --extract independent_SNPs.prune.in \
       --het \
-      --out only_indep_snps
+      --out B5_het
     '''
 }
 
@@ -216,7 +208,6 @@ process heterozygosity_prune {
     path(B4_bim)
     path(B4_fam)
     path(het_failed)
-    path(ind_SNPs)
 
     output:
     path "B5.bed", emit: bed
@@ -233,7 +224,6 @@ process heterozygosity_prune {
       --remove het_failed_plink.txt \
       --out B5
 	plink --bfile B5 \
-      --extract !{ind_SNPs} \
       --het \
       --out B5_after
     '''
@@ -245,7 +235,7 @@ process relatedness {
     path(B5_bed)
     path(B5_bim)
     path(B5_fam)
-    path(ind_SNPs)
+    path(exclude_regions)
     path(imiss)
 
     output:
@@ -256,8 +246,13 @@ process relatedness {
     
     shell:
     '''
+	
+	plink --bfile !{B5_bed.baseName} \
+      --exclude !{exclude_regions} \
+      --indep-pairwise !{params.indep_pairwise} \
+      --out independent_SNPs 
     plink --bfile !{B5_bed.baseName} \
-      --extract !{ind_SNPs} \
+      --extract independent_SNPs.prune.in \
       --genome \
       --min !{params.pihat} \
       --out pihat_0.125
