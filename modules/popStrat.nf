@@ -161,8 +161,8 @@ process merge {
 
     # The datasets now contain the exact same variants.
 
-    # Find differences between the two files that still appeat after flipping 
-    # an removing ambiguous SNPs
+    # Find differences between the two files that still appear after flipping 
+    # and removing ambiguous SNPs
     awk '{print $2,$5,$6}' C5_subset.bim > user_data_corrected_tmp
     awk '{print $2,$5,$6}' 1kG_subset.bim > 1k_corrected_tmp
     sort user_data_corrected_tmp 1k_corrected_tmp | uniq -u > uncorresponding_SNPs.txt

@@ -9,9 +9,9 @@ process qc_ref_data {
   path(exclude_region)
 
   output:
-  path "all_phase3_10.bed", emit: bed
-  path "all_phase3_10.bim", emit: bim
-  path "all_phase3_10.fam", emit: fam
+  path "all_phase3_1.bed", emit: bed
+  path "all_phase3_1.bim", emit: bim
+  path "all_phase3_1.fam", emit: fam
   path "h37_squeezed.fasta", emit: h37
   path "h37_squeezed.fasta.fai", emit: h37_idx
   
@@ -28,47 +28,35 @@ process qc_ref_data {
   mv !{thousand_psam} all_phase3.psam # fix dropbox url ?dl=1
   mv !{thousand_pvar} all_phase3.pvar.zst
   plink2 --zst-decompress !{thousand_pgen} > all_phase3.pgen
-  plink2 --pfile 'vzs' all_phase3 --chr 1-22 XY --make-pfile --out all_phase3_3
+  plink2 --pfile 'vzs' all_phase3 --chr 1-22 XY --make-pfile 'vzs' --out all_phase3_1
+
+  
 
   # Remove duplicates
-  plink2 --pfile all_phase3_3 \
+  plink2 --pfile 'vzs' all_phase3_1 \
     --rm-dup force-first \
-    --make-pgen \
-    --out all_phase3_4
+    --make-pgen 'vzs'\
+    --out all_phase3_2
   # Remove multi-allelic variants
-  plink2 --pfile all_phase3_4 \
+  plink2 --pfile 'vzs' all_phase3_2 \
     --max-alleles 2 \
-    --make-pgen \
-    --out all_phase3_5
-  # Remove variants based on missing genotype data
-  plink2 --pfile all_phase3_5 \
-    --geno 0.1 \
-    --make-pgen \
-    --out all_phase3_6
-  # Remove individuals based on missing genotype data.
-  plink2 --pfile all_phase3_6 \
-    --mind 0.02 \
-    --make-pgen \
-    --out all_phase3_7
-  # Remove variants based on missing genotype data.
-  plink2 --pfile all_phase3_7 \
-    --geno 0.02 \
-    --make-pgen \
-    --out all_phase3_8
+    --make-pgen 'vzs'\
+    --out all_phase3_1
   # Remove variants based on MAF
-  plink2 --pfile all_phase3_8 \
+  plink2 --pfile 'vzs' all_phase3_1 \
     --maf 0.05 \
+	--set-missing-var-ids @:#:\\$r:\\$a \
     --make-bed \
-    --out all_phase3_9
+    --out all_phase3_2
   # Prune variants
-  plink --bfile all_phase3_9 \
+  plink2 --bfile all_phase3_2 \
     --exclude !{exclude_region} \
     --indep-pairwise 50 5 0.2 \
     --out indepSNPs_1k_allphase
-  plink --bfile all_phase3_9 \
+  plink2 --bfile all_phase3_2 \
     --extract indepSNPs_1k_allphase.prune.in \
     --make-bed \
-    --out all_phase3_10
+    --out all_phase3_1
   '''
 }
 
