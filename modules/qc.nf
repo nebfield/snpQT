@@ -499,7 +499,7 @@ process plot_pca_user_data {
     publishDir "${params.results}/qc/figures", mode: 'copy'
     
     input:
-    path(eigenvec)
+    path(eigenvec_user)
 	path(fam)
 
     output:
@@ -511,11 +511,11 @@ process plot_pca_user_data {
 	# Create case/control file
     awk '{print $1, $2, $6}' !{fam} > status
  
-    plot_pca_OnlyUsersData.r !{eigenvec} status
+    plot_pca_OnlyUsersData.r !{eigenvec_user} status
     '''    
 }
 
-process pca_covariates {
+process pca {
     input:
     path(bed)
     path(bim)
@@ -523,7 +523,6 @@ process pca_covariates {
     path(exclude_regions)
 
     output:
-    path "covar_pca", emit: covar
     path "C10_indep.log", emit: log 
 	path "C10_pca.eigenvec", emit: eigenvec_user 
 	path "C10_indep.fam", emit: fam
@@ -539,9 +538,20 @@ process pca_covariates {
       --make-bed \
       --out C10_indep
 
-    # Perform a PCA on user's data without ethnic outliers.    
+    # Perform a PCA on user's data   
     plink --bfile C10_indep --pca header --out C10_pca
-   
+    '''
+}
+
+process pca_covariates {
+    input:
+    path(eigenvec_user)
+
+    output:
+    path "covar_pca", emit: covar
+    
+    shell:
+    '''
 	# Create covariate file including the first X PCs that the user requested
 	awk -v var="!{params.pca_covars}" '{for(i=1;i<=var+2;i++) printf $i" "; print ""}' C10_pca.eigenvec > covar_pca
     '''

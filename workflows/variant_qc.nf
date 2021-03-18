@@ -13,9 +13,9 @@ include {plot_maf} from '../modules/qc.nf' // B10
 include {test_missing} from '../modules/qc.nf' // B11
 include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
 include {parse_logs} from '../modules/qc.nf'
-include {pca_covariates} from '../modules/qc.nf' // B12
-include {plot_pca_user_data} from '../modules/qc.nf' // B13
-
+include {pca} from '../modules/qc.nf' // B12
+include {pca_covariates} from '../modules/qc.nf' // B13
+include {plot_pca_user_data} from '../modules/qc.nf' // B14
 include {report} from '../modules/qc.nf'
 
 // workflow component for snpqt pipeline
@@ -37,8 +37,16 @@ workflow variant_qc {
     Channel
       .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
-    pca_covariates(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
-    plot_pca_user_data(pca_covariates.out.eigenvec_user, pca_covariates.out.fam)
+    pca(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
+    plot_pca_user_data(pca.out.eigenvec_user, pca.out.fam)
+	if (params.covar_file == false) {
+	  pca_covariates(pca.out.eigenvec_user)
+	  covar = pca_covariates.out.covar
+    }else{
+	  Channel
+        .fromPath(params.covar_file, checkIfExists: true)
+        .set{ covar }
+    }
 	logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
     parse_logs("qc", logs, "variant_qc_log.txt")
     figures = plot_mpv.out.figure
@@ -53,5 +61,5 @@ workflow variant_qc {
     bed = test_missing.out.bed
     bim = test_missing.out.bim
     fam = test_missing.out.fam
-    covar = pca_covariates.out.covar
+    covar
 } 
