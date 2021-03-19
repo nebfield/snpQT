@@ -1,22 +1,6 @@
 // Note: Steps A1 - A3 taken care of by download_db.sh 
 
-// Step A3: Prepare fasta file ------------------------------------------
-process prepare_fasta {
-  input:
-  path(hg)
 
-  output:
-  path "*.fa", emit: fa
-  
-  shell:
-  '''
-  # Decompress
-  bgzip -d !{hg}
-
-  # Index the fasta file
-  samtools faidx !{hg.baseName}
-  '''
-}
 // Step A4: Create a dictionary file ------------------------------------------
 process dictionary {
   input:
