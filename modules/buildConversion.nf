@@ -1,19 +1,37 @@
 // Note: Steps A1 - A3 taken care of by download_db.sh 
+
+// Step A3: Prepare fasta file ------------------------------------------
+process prepare_fasta {
+  input:
+  path(hg)
+
+  output:
+  path "*.fa", emit: fa
+  
+  shell:
+  '''
+  # Decompress
+  bgzip -d !{hg}
+
+  # Index the fasta file
+  samtools faidx !{hg.baseName}
+  '''
+}
 // Step A4: Create a dictionary file ------------------------------------------
 process dictionary {
   input:
-  path(hg19)
+  path(fa)
 
   output:
-  path "hg19.fa.gz.dict", emit: dict
+  path "*.dict", emit: dict
   
   shell:
   '''
   # make it so!
   picard \
     CreateSequenceDictionary \
-    -R !{hg19} \
-    -O hg19.fa.gz.dict
+    -R !{fa} \
+    -O !{fa.baseName}.fa.dict
   '''
 }
 
@@ -36,9 +54,12 @@ process num_to_chr {
 
 // STEP A7: Run liftOver to map genome build -----------------------------------
 process liftover {
+  
+  publishDir "${params.results}/convertBuild/files/", mode: 'copy'
+  
   input:
   path(vcf)
-  path(hg19)
+  path(hg)
   path(chain)
   path(dict)
   
@@ -53,13 +74,16 @@ process liftover {
     -O out.vcf \
     -CHAIN !{chain} \
     -REJECT rejected_variants.vcf \
-    -R !{hg19}
+    -R !{hg}
   '''
 }
 
 // Note: A8 is combined here
 // STEP A9: Reverse Chr1To1 ---------------------------------------------------
 process chr_to_num {
+  
+  publishDir "${params.results}/convertBuild/files/", mode: 'copy'
+  
   input:
   path(vcf)
   path(chr_map)
@@ -78,6 +102,9 @@ process chr_to_num {
 
 // STEP A10: Convert VCF to PLINK format ---------------------------------------
 process vcf_to_plink {
+
+  publishDir "${params.results}/convertBuild/files/", mode: 'copy'
+  
   input:
   path(vcf)
 
@@ -89,10 +116,9 @@ process vcf_to_plink {
   shell:
   '''
   # Convert VCF to PLINK format
-  plink --vcf !{vcf} \
-    --keep-allele-order \
-    --allow-extra-chr \
-    --chr 1-22 X Y XY MT \
+  plink2 --vcf !{vcf} \
+    --max-alleles 2 \
+    --chr 1-22 XY \
     --make-bed \
     --out converted 
   '''

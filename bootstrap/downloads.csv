@@ -2,7 +2,7 @@ id,url,type,module,note
 picard,https://github.com/broadinstitute/picard/releases/download/2.22.4/picard.jar,core,buildConversion,
 chain_hg38to19,https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz,core,buildConversion,
 chain_hg19to38,https://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz,
-hg19,https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz,core,buildConversion,
+hg19,https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz,
 hg38,https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/hg38.fa.gz,
 human,ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz,core,popStrat,
 human_fai,http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai,core,popStrat,
