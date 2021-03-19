@@ -2,6 +2,7 @@
 nextflow.preview.dsl = 2
 
 // import modules
+include {set_chrom_code} from '../modules/imputation.nf'
 include {run_snpflip} from '../modules/popStrat.nf' // D1, reuse C4
 include {flip_snps} from '../modules/popStrat.nf' // D2, D4, reuse C4
 include {fix_duplicates} from '../modules/imputation.nf' // D3
@@ -23,7 +24,7 @@ workflow imputation {
     ch_fam
 
   main:
-	set_chrom_code(ch_bed, ch_bim, ch_fam)
+    set_chrom_code(ch_bed, ch_bim, ch_fam)
     Channel
       .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
       .set { g37 }
@@ -62,8 +63,8 @@ workflow imputation {
       .map{ f -> [f.baseName.find(/\d+/), f] }
       .join( thousand_genomes )
       .set{ thousand_genomes_with_idx }
-    // convert_imp5(thousand_genomes_with_idx)
-    // impute5(convert_imp5.out.chrom.join(phased).combine(ch_map))
+    convert_imp5(thousand_genomes_with_idx)
+    impute5(convert_imp5.out.chrom.join(phased).combine(ch_map))
     // logs = fix_duplicates.out.log.concat(to_bcf.out.log).collect()
     // parse_logs("imputation", logs, "imputation_log.txt")
 
