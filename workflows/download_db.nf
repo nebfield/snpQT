@@ -5,7 +5,7 @@ nextflow.preview.dsl = 2
 
 // import modules
 include {qc_ref_data} from '../modules/download_db.nf' 
-include {decompress} from '../modules/download_db.nf'
+include {decompress; decompress as decompress_otherBuild} from '../modules/download_db.nf'
 include {index} from '../modules/download_db.nf'
 include {qc} from '../modules/download_db.nf'
 include {unzip_shapeit4} from '../modules/download_db.nf'
@@ -36,6 +36,7 @@ workflow download_core {
 
     // misc files
     // build conversion
+	// from b38 to h19
     Channel
       .fromPath("https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz", checkIfExists: true)
       .set{hg19}
@@ -44,8 +45,16 @@ workflow download_core {
       .set{chr}
     Channel
       .fromPath("https://hgdownload.soe.ucsc.edu/goldenPath/hg38/liftOver/hg38ToHg19.over.chain.gz", checkIfExists: true)
-      .set{chain}
-    decompress(chain)
+      .set{chain_hg38to19}
+    decompress(chain_hg38to19)
+	// from h19 to b38
+	Channel
+      .fromPath("https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/hg38.fa.gz", checkIfExists: true)
+      .set{hg38}
+	Channel
+      .fromPath("https://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz", checkIfExists: true)
+      .set{chain_hg19to38}
+    decompress_otherBuild(chain_hg19to38)
     // population stratification
     Channel
       .fromPath("ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
@@ -54,7 +63,7 @@ workflow download_core {
     // publish to db directory    
     println "Downloading core database files..."
     qc_ref_data.out.bed
-      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, chr, decompress.out.file, panel)
+      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, hg38, chr, decompress.out.file, decompress_otherBuild.out.file, panel)
       .collectFile(storeDir: "$baseDir/db/")
 }
 
