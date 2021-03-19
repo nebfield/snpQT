@@ -56,11 +56,11 @@ workflow imputation {
     // thousand genome reference data
     Channel
       .fromPath("$baseDir/db/impute/chr*.vcf.gz", checkIfExists: true)
-      .map{ f -> [f.baseName.find(/\d+/), f] }
+      .map{ f -> [f.baseName.find(/(?<=chr)[A-Z0-9]+/), f] } // regex: chrX, chr11 -> X, 11 
       .set{ thousand_genomes }
     Channel
       .fromPath("$baseDir/db/impute/chr*.vcf.gz.csi", checkIfExists: true)
-      .map{ f -> [f.baseName.find(/\d+/), f] }
+      .map{ f -> [f.baseName.find(/(?<=chr)[A-Z0-9]+/), f] } // regex: chrX, chr11 -> X, 11 
       .join( thousand_genomes )
       .set{ thousand_genomes_with_idx }
     convert_imp5(thousand_genomes_with_idx)
