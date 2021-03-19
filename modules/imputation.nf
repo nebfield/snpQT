@@ -16,10 +16,9 @@ process set_chrom_code {
     
     shell:
     '''
-    # D3: duplicates
     plink2 --bfile !{bed.baseName} \
-		--output-chr MT
-		--make-bed
+		--output-chr MT \
+		--make-bed \
 		--out D1  
     '''
 }
@@ -42,12 +41,9 @@ process fix_duplicates {
     
     shell:
     '''
-    # D3: duplicates
+    # D3: Deduplicate variants
     plink --bfile !{bed.baseName} \
-      --list-duplicate-vars ids-only suppress-first
-    
-    plink --bfile !{bed.baseName} \
-      --exclude plink.dupvar \
+      --rm-dup force-first \
       --make-bed \
       --out D3
     '''
