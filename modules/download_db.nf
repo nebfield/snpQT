@@ -78,11 +78,11 @@ process index {
   path(x)
 
   output:
-  path("*.csi"), emit: idx
+  path("*.tbi"), emit: idx
 
   shell:
   '''
-  bcftools index !{x}
+  tabix !{x}
   '''
 }
 
