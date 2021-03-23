@@ -22,7 +22,7 @@ if (params.help) {
   System.exit(0)
 }
 
-if (!params.convertBuild && !params.qc && !params.popStrat && !params.impute && !params.gwas && !params.download_db) {
+if (!params.convertBuild && !params.qc && !params.popStrat && !params.impute && !params.gwas && !params.download_db && !params.preImpute && !params.postImpute) {
   println("${params}")
   println("Please specify some workflow options")
   println("------------------------------------")
@@ -43,13 +43,15 @@ ${params}
 if (!params.download_db ==~ "core" || !params.download_db ==~ "impute") {
   println("Please use --download_db core or --download_db impute")
   System.exit(1)
-  if (params.convertBuild) {
+}
+
+if (params.convertBuild) {
     if (!params.vcf) {
       println("Please supply a vcf.gz file for build conversion with --vcf")
       println("Use --help to print help")
       System.exit(1)
       }
-  if (!params.fam) {
+  else if (!params.fam) {
     println("Please supply a .fam file for build conversion with --fam")
     println("Use --help to print help")
     System.exit(1)
@@ -67,8 +69,7 @@ if (!params.download_db ==~ "core" || !params.download_db ==~ "impute") {
       System.exit(1)
       }
   }
-}
-
+  
 if (params.qc) {
  if (params.bed && !params.bim || !params.bed && params.bim ) {
     println("--bed and --bim must be supplied together")
