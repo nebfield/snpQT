@@ -13,6 +13,7 @@ include {vcf_to_plink} from '../modules/buildConversion.nf' // A10
 workflow buildConversion {
   take:
     ch_vcf
+	ch_fam
 
   main:
   
@@ -49,7 +50,7 @@ workflow buildConversion {
 	}
 	
 	
-    vcf_to_plink(chr_to_num.out.vcf)
+    vcf_to_plink(chr_to_num.out.vcf, ch_fam)
 
   emit:
     bed = vcf_to_plink.out.bed

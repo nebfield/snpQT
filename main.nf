@@ -115,6 +115,9 @@ workflow {
     Channel
       .fromPath(params.vcf, checkIfExists: true)
       .set{ ch_vcf }
+	Channel
+      .fromPath(params.fam, checkIfExists: true)
+      .set{ ch_fam }
   }
   
   if ( !params.convertBuild && params.qc ) {
@@ -143,7 +146,7 @@ workflow {
     // very messy, but it works!
     // workflow with build conversion
     if ( params.convertBuild) {
-      buildConversion(ch_vcf)
+      buildConversion(ch_vcf, ch_fam)
       if ( params.qc && ! params.popStrat) {
         sample_qc(buildConversion.out.bed, buildConversion.out.bim, ch_fam)
         variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)

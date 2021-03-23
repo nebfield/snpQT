@@ -39,8 +39,6 @@ process num_to_chr {
 // STEP A7: Run liftOver to map genome build -----------------------------------
 process liftover {
   
-  publishDir "${params.results}/convertBuild/files/", mode: 'copy'
-  
   input:
   path(vcf)
   path(hg)
@@ -49,6 +47,7 @@ process liftover {
   
   output:
   path "out.vcf", emit: vcf
+  path "rejected_variants.vcf", emit: rejected_vcf
 
   shell:
   '''
@@ -73,14 +72,14 @@ process chr_to_num {
   path(chr_map)
   
   output:
-  path "out.vcf.gz", emit: vcf
+  path "converted.vcf.gz", emit: vcf
 
   shell:
   '''
   awk '{print $2 "\t" $1}' !{chr_map} > Chr1To1.txt
 
   # Change the chromosome ids again
-  bcftools annotate --rename-chr Chr1To1.txt !{vcf} -Oz -o out.vcf.gz
+  bcftools annotate --rename-chr Chr1To1.txt !{vcf} -Oz -o converted.vcf.gz
   '''
 }
 
@@ -91,6 +90,7 @@ process vcf_to_plink {
   
   input:
   path(vcf)
+  path(in_fam)
 
   output:
   path "converted.bed", emit: bed
@@ -101,9 +101,16 @@ process vcf_to_plink {
   '''
   # Convert VCF to PLINK format
   plink2 --vcf !{vcf} \
+	--id-delim _ \
     --max-alleles 2 \
     --chr 1-22 XY \
     --make-bed \
+    --out converted
+	
+  # Update phenotypes
+  plink2 --bfile converted \
+    --fam !{in_fam} \
+	--make-bed \
     --out converted 
   '''
 }
