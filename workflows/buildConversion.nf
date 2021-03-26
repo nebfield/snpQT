@@ -2,12 +2,12 @@
 nextflow.preview.dsl = 2
 
 // import modules
-include {decompress; decompress as decompress_otherBuild} from '../modules/download_db.nf'
-include {dictionary} from '../modules/buildConversion.nf' // A4
-include {num_to_chr} from '../modules/buildConversion.nf' // A6
-include {liftover} from '../modules/buildConversion.nf' // A7
-include {chr_to_num} from '../modules/buildConversion.nf' // A8 & A9
-include {vcf_to_plink} from '../modules/buildConversion.nf' // A10
+include {decompress; decompress as decompress_otherBuild} from '../modules/download_db.nf' // A1
+include {dictionary} from '../modules/buildConversion.nf' // A2
+include {num_to_chr} from '../modules/buildConversion.nf' // A3
+include {liftover} from '../modules/buildConversion.nf' // A4
+include {chr_to_num} from '../modules/buildConversion.nf' // A4
+include {vcf_to_plink} from '../modules/buildConversion.nf' // A5
 
 // workflow component for snpqt pipeline
 workflow buildConversion {

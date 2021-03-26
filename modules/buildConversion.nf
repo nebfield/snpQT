@@ -1,7 +1,5 @@
-// Note: Steps A1 - A3 taken care of by download_db.sh 
-
-
-// Step A4: Create a dictionary file ------------------------------------------
+// Step A1: Decompressing fasta file (workflow download_db.nf)-----------------
+// Step A2: Create a dictionary file ------------------------------------------
 process dictionary {
   input:
   path(fa)
@@ -19,8 +17,7 @@ process dictionary {
   '''
 }
 
-// Note: Step A5 is taken care of by install_db.sh
-// STEP A6: Change the chr ids ------------------------------------------------
+// STEP A3: Change the chr ids ------------------------------------------------
 process num_to_chr {
   input:
   path(in_vcf)
@@ -36,7 +33,7 @@ process num_to_chr {
   '''
 }
 
-// STEP A7: Run liftOver to map genome build -----------------------------------
+// STEP A4: Run liftOver to map genome build -----------------------------------
 process liftover {
   
   input:
@@ -61,8 +58,7 @@ process liftover {
   '''
 }
 
-// Note: A8 is combined here
-// STEP A9: Reverse Chr1To1 ---------------------------------------------------
+// STEP A5: Reverse Chr1To1 ---------------------------------------------------
 process chr_to_num {
   
   publishDir "${params.results}/convertBuild/files/", mode: 'copy'
@@ -83,7 +79,7 @@ process chr_to_num {
   '''
 }
 
-// STEP A10: Convert VCF to PLINK format ---------------------------------------
+// STEP A6: Convert VCF to PLINK format ---------------------------------------
 process vcf_to_plink {
 
   publishDir "${params.results}/convertBuild/files/", mode: 'copy'
