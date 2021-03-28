@@ -55,12 +55,12 @@ if (params.convert_build) {
 		println("Please supply a .fam file for build conversion with --fam")
 		println("Use --help to print help")
 		System.exit(1)
-	} else if (params.input_build != 37 && params.output_build != 38) {
+	} else if (params.input_build != 37 && params.input_build != 38) {
 		println("Build conversion workflow supports only build 37 and 38")
 		println("Please use --input_build 37 or --input_build 38 and --output_build 38 or --output_build 37 for build conversion")
 		println("Use --help to print help")
 		System.exit(1)
-	} else if (params.output_build != 37 && params.input_build != 38) {
+	} else if (params.output_build != 37 && params.output_build != 38) {
 		println("Build conversion workflow supports only build 37 and 38")
 		println("Please use --input_build 37 and --output_build 38 or --input_build 38 and --output_build 37 for build conversion")
 		println("Use --help to print help")
