@@ -159,8 +159,6 @@ process merge {
       --make-bed \
       --out C5_subset
 
-    # The datasets now contain the exact same variants.
-
     # Find differences between the two files that still appear after flipping 
     # and removing ambiguous SNPs
     awk '{print $2,$5,$6}' C5_subset.bim > user_data_corrected_tmp
@@ -241,8 +239,6 @@ process racefile {
 
 // STEP C8: Eigensoft ----------------------------------------------------------------
 process eigensoft {
-    publishDir "${params.results}/popStrat/", mode: 'copy', pattern: "eigenvec"
-
     input:
     path bed
     path bim
