@@ -1,18 +1,3 @@
-// STEP E1: Merge all imputed chromosomes with bcftools, so that multi-allelics can be merged, -n is used since files are already sorted after imputation
-process merge_imp {
-    input:
-    path(imp)
-    
-    output:
-    path 'merged_imputed.vcf.gz', emit: vcf
-    
-    shell:
-    '''
-    # file order is important so use command substition
-    bcftools concat -n $(ls *.vcf.gz | sort -V) -Oz -o merged_imputed.vcf.gz
-    '''
-}
-
 // STEP E2: Convert vcf to binary plink files and annotate missing SNP ids
 
 process annotate_missing {
@@ -182,7 +167,7 @@ process duplicates_cat3 {
 // STEP E8: update phenotype information
 
 process update_phenotype {
-    publishDir "${params.results}/Post_imputation/bfiles", mode: 'copy'
+    publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
     
     input:
     path(bed)

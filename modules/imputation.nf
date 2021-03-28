@@ -226,5 +226,19 @@ process impute5 {
     '''
 }
 
+// STEP D19: Merge all imputed chromosomes with bcftools, so that multi-allelics can be merged, -n is used since files are already sorted after imputation
+process merge_imp {
+    input:
+    path(imp)
+    
+    output:
+    path 'merged_imputed.vcf.gz', emit: vcf
+    
+    shell:
+    '''
+    # file order is important so use command substition
+    bcftools concat -n $(ls *.vcf.gz | sort -V) -Oz -o merged_imputed.vcf.gz
+    '''
+}
 // Finished!
 

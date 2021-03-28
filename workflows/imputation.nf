@@ -14,6 +14,7 @@ include {phasing} from '../modules/imputation.nf' // D14
 include {bcftools_index_chr} from '../modules/imputation.nf' // D15
 include {convert_imp5} from '../modules/imputation.nf' // D17 (D16 in container)
 include {impute5} from '../modules/imputation.nf' // D18
+include {merge_imp} from '../modules/imputation.nf' // D19
 include {parse_logs} from '../modules/qc.nf'
 
 // workflow component for snpqt pipeline
@@ -65,10 +66,11 @@ workflow imputation {
       .set{ thousand_genomes_with_idx }
     convert_imp5(thousand_genomes_with_idx)
     impute5(convert_imp5.out.chrom.join(phased).combine(ch_map))
+	merge_imp(impute5.out.imputed.collect())
     // logs = fix_duplicates.out.log.concat(to_bcf.out.log).collect()
     // parse_logs("imputation", logs, "imputation_log.txt")
 
   emit:
-    imputed = impute5.out.imputed.collect()
+    imputed_vcf = merge_imp.out.vcf
 
 } 
