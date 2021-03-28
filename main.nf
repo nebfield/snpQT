@@ -106,10 +106,40 @@ if (params.qc) {
 	  System.exit(1)
 	}
 
+if (params.convert_build || params.qc ) {
+  if (file(params.fam).getExtension() != "fam") {
+    println("Your fam file doesn't have a .fam extension. Are you sure about that?")
+    println("Please rename your fam file")
+    System.exit(1)
+  }
+}
+
+if (params.popstrat) {
+  println("I think you mean --popStrat not --popstrat. Please try again with --popStrat")
+  System.exit(1)
+}
+
+//Pre-Imputation, Imputation and Post-Imputation compatibility errors
+
 if (params.impute && params.pre_impute) {
     println("--pre_impute is not combined with --impute")
     println("--impute supports Pre-Imputation and Post-Imputation automatically")
-    println("Please rerun without --pre_impute")
+    println("Please rerun keeping only --pre_impute or --impute workflow parameters")
+	println("Use --help to print help")
+    System.exit(1)
+  }
+  
+if (params.impute && params.post_impute) {
+    println("--post_impute is not combined with --impute")
+    println("--impute supports Pre-Imputation and Post-Imputation automatically")
+    println("Please rerun keeping only --post_impute or --impute workflow parameters")
+	println("Use --help to print help")
+    System.exit(1)
+  }
+  
+if (params.pre_impute && params.post_impute) {
+    println("--post_impute is not combined with --pre_impute")
+    println("Please rerun keeping only --post_impute or --pre_impute workflow parameters")
 	println("Use --help to print help")
     System.exit(1)
   }
@@ -124,18 +154,6 @@ if (params.gwas && params.pre_impute) {
   }
 
 
-if (params.convert_build || params.qc ) {
-  if (file(params.fam).getExtension() != "fam") {
-    println("Your fam file doesn't have a .fam extension. Are you sure about that?")
-    println("Please rename your fam file")
-    System.exit(1)
-  }
-}
-
-if (params.popstrat) {
-  println("I think you mean --popStrat not --popstrat. Please try again with --popStrat")
-  System.exit(1)
-}
 
 // main workflow ----------------------------------------------------------
 workflow {
@@ -163,6 +181,15 @@ workflow {
       Channel
         .fromPath(params.fam, checkIfExists: true)
         .set{ ch_fam }
+  }
+  
+  if (params.post_impute) {
+	Channel
+	  .fromPath(params.fam, checkIfExists: true)
+	  .set{ ch_fam }
+	Channel
+	  .fromPath(params.vcf, checkIfExists: true)
+	  .set{ ch_imp }
   }
 
   main:
@@ -211,14 +238,15 @@ workflow {
         popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
         variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)  
       }
-	  // pre-imputation
+	  // pre-imputation without imputation
 	  if ( params.pre_impute ) {
         preImputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
 		println("Go ahead and upload your VCF to an external Imputation server.")
       }
-      // imputation 
+      // local imputation 
       if ( params.impute ) {
-        imputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
+	    preImputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
+        imputation(preImputation.out.vcf, preImputation.out.idx)
         postImputation(imputation.out.imputed, variant_qc.out.fam)
         if (params.gwas) {
           gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, variant_qc.out.covar)
@@ -227,4 +255,12 @@ workflow {
         gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, variant_qc.out.covar)
       }
     }
+	
+	// post-imputation workflow
+	if ( params.post_impute ) {
+        postImputation(ch_imp, ch_fam)
+		if (params.gwas) {
+			  gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, variant_qc.out.covar)
+		} 
+	}
 }
