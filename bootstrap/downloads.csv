@@ -6,9 +6,9 @@ hg19,https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz,
 hg38,https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/hg38.fa.gz,
 human,ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz,core,popStrat,
 human_fai,http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.fai,core,popStrat,
-psam,https://www.dropbox.com/s/yozrzsdrwqej63q/phase3_corrected.psam?dl=1,core,popStrat,plink2 dropbox
-pgen,https://www.dropbox.com/s/afvvf1e15gqzsqo/all_phase3.pgen.zst?dl=1,core,popStrat,plink2 dropbox
-pvar,https://www.dropbox.com/s/op9osq6luy3pjg8/all_phase3.pvar.zst?dl=1,core,popStrat,plink2 dropbox
+psam,ftp://parrot.genomics.cn/gigadb/pub/10.5524/100001_101000/100516/phase3_corrected.psam,core,popStrat,plink2,
+pgen,ftp://parrot.genomics.cn/gigadb/pub/10.5524/100001_101000/100516/all_phase3.pgen.zst,core,popStrat,plink2,
+pvar,ftp://parrot.genomics.cn/gigadb/pub/10.5524/100001_101000/100516/all_phase3.pvar.zst,core,popStrat,plink2,
 dbsnp,ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz,full,imputation,
 dbsnp_idx,ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz.tbi,full,imputation,
 shapeit4_maps,https://github.com/odelaneau/shapeit4/blob/master/maps/genetic_maps.b37.tar.gz?raw=true,full,imputation,

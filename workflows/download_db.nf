@@ -16,13 +16,13 @@ workflow download_core {
     // nextflow paths can use https & ftp?! neat!
     // https paths require ? to be escaped with \\
     Channel
-      .fromPath("https://www.dropbox.com/s/yozrzsdrwqej63q/phase3_corrected.psam\\?dl=1", checkIfExists: true)
+      .fromPath("ftp://parrot.genomics.cn/gigadb/pub/10.5524/100001_101000/100516/phase3_corrected.psam", checkIfExists: true)
       .set{thousand_psam}
     Channel
-      .fromPath("https://www.dropbox.com/s/afvvf1e15gqzsqo/all_phase3.pgen.zst\\?dl=1", checkIfExists: true)
+      .fromPath("ftp://parrot.genomics.cn/gigadb/pub/10.5524/100001_101000/100516/all_phase3.pgen.zst", checkIfExists: true)
       .set{thousand_pgen}
     Channel
-      .fromPath("https://www.dropbox.com/s/op9osq6luy3pjg8/all_phase3.pvar.zst\\?dl=1", checkIfExists: true)
+      .fromPath("ftp://parrot.genomics.cn/gigadb/pub/10.5524/100001_101000/100516/all_phase3.pvar.zst", checkIfExists: true)
       .set{thousand_pvar}
     Channel
       .fromPath("ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/human_g1k_v37.fasta.gz", checkIfExists: true)

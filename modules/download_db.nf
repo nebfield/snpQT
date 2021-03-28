@@ -25,9 +25,8 @@ process qc_ref_data {
   tr -s ':' < human_g1k_v37.fasta | tr -s '\n' > h37_squeezed.fasta
   samtools faidx h37_squeezed.fasta
   
-  mv !{thousand_psam} all_phase3.psam # fix dropbox url ?dl=1
-  mv !{thousand_pvar} all_phase3.pvar.zst
-  plink2 --zst-decompress !{thousand_pgen} > all_phase3.pgen
+  mv !{thousand_psam} all_phase3.psam # fix psam name
+  plink2 --zst-decompress all_phase3.pgen.zst > all_phase3.pgen
   plink2 --pfile 'vzs' all_phase3 --chr 1-22 XY --make-pfile 'vzs' --out all_phase3_1
 
   
