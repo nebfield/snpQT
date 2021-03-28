@@ -47,16 +47,25 @@ if (!params.download_db ==~ "core" || !params.download_db ==~ "impute") {
 }
 
 if (params.convert_build) {
-    if (!params.vcf) {
-      println("Please supply a vcf.gz file for build conversion with --vcf")
-      println("Use --help to print help")
-      System.exit(1)
-      }
-  else if (!params.fam) {
-    println("Please supply a .fam file for build conversion with --fam")
-    println("Use --help to print help")
-    System.exit(1)
-    }
+	if (!params.vcf) {
+	  println("Please supply a vcf.gz file for build conversion with --vcf")
+	  println("Use --help to print help")
+	  System.exit(1)
+	} else if (!params.fam) {
+		println("Please supply a .fam file for build conversion with --fam")
+		println("Use --help to print help")
+		System.exit(1)
+	} else if (params.input_build != 37 && params.output_build != 38) {
+		println("Build conversion workflow supports only build 37 and 38")
+		println("Please use --input_build 37 or --input_build 38 and --output_build 38 or --output_build 37 for build conversion")
+		println("Use --help to print help")
+		System.exit(1)
+	} else if (params.output_build != 37 && params.input_build != 38) {
+		println("Build conversion workflow supports only build 37 and 38")
+		println("Please use --input_build 37 and --output_build 38 or --input_build 38 and --output_build 37 for build conversion")
+		println("Use --help to print help")
+		System.exit(1)
+	}
   } else if (!params.convert_build) {
     if (params.vcf) {
       println("--vcf only compatible with --convert_build")
