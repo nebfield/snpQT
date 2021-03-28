@@ -59,11 +59,17 @@ workflow download_core {
     Channel
       .fromPath("ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
       .set{panel}
-      
+	// pre-imputation
+	Channel
+      .fromPath("ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz", checkIfExists: true)
+      .set{dbsnp}
+    Channel
+      .fromPath("ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz.tbi", checkIfExists: true)
+      .set{dbsnp_idx} 
     // publish to db directory    
     println "Downloading core database files..."
     qc_ref_data.out.bed
-      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, hg38, chr, decompress.out.file, decompress_otherBuild.out.file, panel)
+      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, hg38, chr, decompress.out.file, decompress_otherBuild.out.file, panel, dbsnp, dbsnp_idx)
       .collectFile(storeDir: "$baseDir/db/")
 }
 
@@ -74,12 +80,6 @@ workflow download_impute {
       .fromPath("https://github.com/odelaneau/shapeit4/archive/v4.2.0.zip", checkIfExists: true)
       .set{shapeit4_maps}
     unzip_shapeit4(shapeit4_maps)
-    Channel
-      .fromPath("ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz", checkIfExists: true)
-      .set{dbsnp}
-    Channel
-      .fromPath("ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b151_GRCh37p13/VCF/All_20180423.vcf.gz.tbi", checkIfExists: true)
-      .set{dbsnp_idx}
 
     // TODO: figure out a way to nicely download these files & idxs
     // make a Channel.fromPath from a list of URLs?
@@ -107,6 +107,6 @@ workflow download_impute {
     // publish to db directory
     println "Downloading database files for imputation, this might take a while! Go and have a cup of tea :)"
     unzip_shapeit4.out.maps
-      .concat(dbsnp, dbsnp_idx, qc.out.vcf, idx_urls)
+      .concat(qc.out.vcf, idx_urls)
       .collectFile(storeDir: "$baseDir/db/impute")
 }
