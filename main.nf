@@ -76,15 +76,17 @@ if (params.convert_build) {
   }
   
 if (params.qc) {
-	 if (params.bed && !params.bim || !params.bed && params.bim ) {
-		println("--bed and --bim must be supplied together")
-		println("Use --help to print help")
-		System.exit(1)
-	  } else if (!params.bed || !params.bim || !params.bed ) {
-		println("Missing --fam, --bed and --bim parameters")
-		println("Use --help to print help")
-		System.exit(1)
-	  }
+		if (!params.convert_build){
+		 if (params.bed && !params.bim || !params.bed && params.bim ) {
+			println("--bed and --bim must be supplied together")
+			println("Use --help to print help")
+			System.exit(1)
+		  } else if (!params.bed || !params.bim || !params.bed ) {
+			println("Missing --fam, --bed and --bim parameters")
+			println("Use --help to print help")
+			System.exit(1)
+		  }
+		}
 	} else if (!params.qc && params.popStrat) {
 	  println("--popStrat requires --qc")
 	  println("Use --help to print help")
