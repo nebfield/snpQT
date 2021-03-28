@@ -42,8 +42,8 @@ process fix_duplicates {
     shell:
     '''
     # D3: Deduplicate variants
-    plink --bfile !{bed.baseName} \
-      --rm-dup force-first \
+    plink2 --bfile !{bed.baseName} \
+      --rm-dup 'force-first' \
       --make-bed \
       --out D3
     '''
@@ -99,19 +99,19 @@ process check_ref_allele {
 // STEP D11: Index the vcf.gz -------------------------------------------------
 
 process bcf_to_vcf {
+	publishDir "${params.results}/preImputation/files", mode: 'copy'
+
     input:
     path(bcf)
     
     output:
     path "D11.vcf.gz", emit: vcf
     path "D11.vcf.gz.csi", emit: idx
-    path "chroms.txt", emit: chroms
-
+	
     shell:
     '''
     bcftools sort !{bcf} | bcftools convert -Oz > D11.vcf.gz
     bcftools index D11.vcf.gz
-    tabix -l D11.vcf.gz > chroms.txt
     '''
 }
 
