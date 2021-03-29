@@ -66,7 +66,7 @@ if (params.convert_build) {
 		println("Use --help to print help")
 		System.exit(1)
 	}
-  } else if (!params.convert_build) {
+  } else if (!params.convert_build && !params.post_impute) {
     if (params.vcf) {
       println("--vcf only compatible with --convert_build")
       println("Please supply plink input files with --bed --bim --fam")
@@ -99,9 +99,8 @@ if (params.qc) {
 	  println("--pre_impute requires --qc")
 	  println("Use --help to print help")
 	  System.exit(1)
-	} else if (!params.qc && params.gwas) {
-	  println("--gwas requires --qc")
-	  println("Please rerun with --qc")
+	} else if (!params.qc && params.gwas && !params.post_impute) {
+	  println("--gwas requires --qc or --post_impute")
 	  println("Use --help to print help")
 	  System.exit(1)
 	}
@@ -121,7 +120,7 @@ if (params.popstrat) {
 
 //Pre-Imputation, Imputation and Post-Imputation compatibility errors
 
-if (params.impute && params.pre_impute) {
+if ( params.impute && params.pre_impute ) {
     println("--pre_impute is not combined with --impute")
     println("--impute supports Pre-Imputation and Post-Imputation automatically")
     println("Please rerun keeping only --pre_impute or --impute workflow parameters")
@@ -129,7 +128,7 @@ if (params.impute && params.pre_impute) {
     System.exit(1)
   }
   
-if (params.impute && params.post_impute) {
+if ( params.impute && params.post_impute ) {
     println("--post_impute is not combined with --impute")
     println("--impute supports Pre-Imputation and Post-Imputation automatically")
     println("Please rerun keeping only --post_impute or --impute workflow parameters")
@@ -137,14 +136,14 @@ if (params.impute && params.post_impute) {
     System.exit(1)
   }
   
-if (params.pre_impute && params.post_impute) {
+if ( params.pre_impute && params.post_impute ) {
     println("--post_impute is not combined with --pre_impute")
     println("Please rerun keeping only --post_impute or --pre_impute workflow parameters")
 	println("Use --help to print help")
     System.exit(1)
   }
   
-if (params.gwas && params.pre_impute) {
+if ( params.gwas && params.pre_impute ) {
     println("--pre_impute is not combined with --gwas")
     println("--pre_impute is designed to prepare your VCF for imputation in an external server")
     println("If you wish to run local imputation use --impute")
@@ -153,7 +152,21 @@ if (params.gwas && params.pre_impute) {
     System.exit(1)
   }
 
+if ( params.post_impute && params.qc){
+	println("--post_impute is not combined with --qc")
+    println("--post_impute expects a VCF file and a .fam file whereas --qc expects binary plink files")
+    println("Please rerun --post_impute without --qc")
+	println("Use --help to print help")
+    System.exit(1)	
+}
 
+if ( params.post_impute && params.gwas){
+	println("--post_impute is not combined with --gwas")
+    println("If you wish to run --qc please first run --post-impute alone, and then use the output binary plink files to run other snpQT workflows like --qc, --pop_strat and --gwas")
+    println("Please rerun --post_impute providing only a --vcf and a --fam file ")
+	println("Use --help to print help")
+    System.exit(1)	
+}
 
 // main workflow ----------------------------------------------------------
 workflow {
@@ -248,19 +261,16 @@ workflow {
 	    preImputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
         imputation(preImputation.out.vcf, preImputation.out.idx)
         postImputation(imputation.out.imputed, variant_qc.out.fam)
-        if (params.gwas) {
+        if ( params.gwas ) {
           gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, variant_qc.out.covar)
         } 
-      } else if ( !params.impute && params.gwas ) {
+      } else if ( !params.impute && params.gwas && params.qc ) {
         gwas(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam, variant_qc.out.covar)
       }
     }
 	
 	// post-imputation workflow
 	if ( params.post_impute ) {
-        postImputation(ch_imp, ch_fam)
-		if (params.gwas) {
-			  gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, variant_qc.out.covar)
-		} 
+        postImputation(ch_imp, ch_fam) 
 	}
 }
