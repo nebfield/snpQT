@@ -94,7 +94,7 @@ process qc {
   
   shell:
   '''
-  bcftools norm -m-any --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup both -o !{chr}.vcf.gz
+  bcftools norm --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup both -o !{chr}.vcf.gz
   '''
 }
 
