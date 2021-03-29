@@ -227,7 +227,7 @@ workflow {
       if ( params.impute ) {
 	    preImputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
         imputation(preImputation.out.vcf, preImputation.out.idx)
-		postImputation(imputation.out.imputed, variant_qc.out.fam)
+		postImputation(imputation.out.imputed_vcf, variant_qc.out.fam)
 		if ( params.gwas ) {
 			gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, variant_qc.out.covar)
 		}
@@ -254,7 +254,7 @@ workflow {
       if ( params.impute ) {
 	    preImputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
         imputation(preImputation.out.vcf, preImputation.out.idx)
-        postImputation(imputation.out.imputed, variant_qc.out.fam)
+        postImputation(imputation.out.imputed_vcf, variant_qc.out.fam)
         if ( params.gwas ) {
           gwas(postImputation.out.bed, postImputation.out.bim, postImputation.out.fam, variant_qc.out.covar)
         } 

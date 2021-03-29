@@ -174,17 +174,27 @@ process bcftools_index_chr {
     '''
 }
 
+process tabix_chr {
+    input:
+    tuple val(chr), path('chr.vcf.gz')
+
+    output:
+    tuple val(chr), path('chr.vcf.gz'), path('chr.vcf.gz.tbi'), emit: chrom_idx
+
+    shell:
+    '''
+    tabix -p vcf chr.vcf.gz
+    '''
+}
+
 // Imputation 
 // =============================================================================
 // Note: STEP D16 is taken care of by Dockerfile 
 // STEP D17: Convert vcf reference genome into a .imp5 format for each chromosome
 
-// extract chromosome digit from file name
-// toInteger important for join()
-
-process convert_imp5 {   
+process convert_imp5 {
     input:
-    tuple val(chr), file('ref_chr.vcf.gz.csi'), file('ref_chr.vcf.gz') 
+    tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.tbi')
 
     output:
     tuple val(chr), file('1k_b37_reference_chr.imp5'), \
