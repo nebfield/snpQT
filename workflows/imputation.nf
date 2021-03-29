@@ -22,7 +22,7 @@ workflow imputation {
     // because we're working with individual chromosomes it's easiest to work with
     // tuples like [chr_num, chr.fa.gz, chr.fa.gz.tbi, etc...]
     // that way we can join and combine files by chr_num as needed
-    Channel.from(1..22).set{ chrom }
+    Channel.from(1..22).concat(Channel.from('X')).set{ chrom }
     split_user_chrom(ch_vcf, ch_idx, chrom)
     // maps for shapeit4
     Channel
@@ -38,7 +38,12 @@ workflow imputation {
       .set{ thousand_genomes }
     thousand_genomes_with_idx = tabix_chr(thousand_genomes)
     convert_imp5(thousand_genomes_with_idx)
-    impute5(convert_imp5.out.chrom.join(phased).combine(ch_map))
+    // joining requires same type, thousand genomes is a string (chrX)
+    phased
+      .map{ input -> tuple(input[0].toString(), input[1], input[2])}
+      .set{phased_str_idx}
+    impute_input = convert_imp5.out.chrom.join(phased_str_idx).combine(ch_map)
+    impute5(impute_input)
     merge_imp(impute5.out.imputed.collect())
     // logs = fix_duplicates.out.log.concat(to_bcf.out.log).collect()
     // parse_logs("imputation", logs, "imputation_log.txt")
