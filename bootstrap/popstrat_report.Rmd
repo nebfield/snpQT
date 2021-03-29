@@ -74,6 +74,6 @@ pca_after
 ## Log
 
 ```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("popStrat_log_samples.png")
-knitr::include_graphics("popStrat_log_variants.png")
+knitr::include_graphics("pop_strat_log_samples.png")
+knitr::include_graphics("pop_strat_log_variants.png")
 ```

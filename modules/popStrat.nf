@@ -282,7 +282,7 @@ process eigensoft {
 }
 
 process plot_pca {
-  publishDir "${params.results}/popStrat/figures", mode: 'copy'
+  publishDir "${params.results}/pop_strat/figures", mode: 'copy'
     
   input:
   path eigenvec
@@ -326,7 +326,7 @@ process pca_plink {
 }
 
 process plot_plink_pca {
-    publishDir "${params.results}/popStrat/figures", mode: 'copy'
+    publishDir "${params.results}/pop_strat/figures", mode: 'copy'
     
     input:
     tuple val(id), path(eigenvec), path(racefile)
@@ -344,7 +344,7 @@ process plot_plink_pca {
 // STEP C9: Extract homogenous ethnic group ------------------------------------------------------
 
 process extract_homogenous {
-    publishDir "${params.results}/popStrat/bfiles", mode: 'copy'
+    publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
     
     input:
     path(bed)

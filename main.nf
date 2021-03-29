@@ -10,7 +10,7 @@ include {printHelp} from './modules/help.nf'
 include {buildConversion} from './workflows/buildConversion.nf'
 include {sample_qc} from './workflows/sample_qc.nf'
 include {variant_qc} from './workflows/variant_qc.nf'
-include {popStrat} from './workflows/popStrat.nf'
+include {pop_strat} from './workflows/popStrat.nf'
 include {imputation} from './workflows/imputation.nf'
 include {postImputation} from './workflows/postImputation.nf'
 include {preImputation} from './workflows/preImputation.nf'
@@ -23,7 +23,7 @@ if (params.help) {
   System.exit(0)
 }
 
-if (!params.convert_build && !params.qc && !params.popStrat && !params.impute && !params.gwas && !params.download_db && !params.pre_impute && !params.post_impute) {
+if (!params.convert_build && !params.qc && !params.pop_strat && !params.impute && !params.gwas && !params.download_db && !params.pre_impute && !params.post_impute) {
   println("${params}")
   println("Please specify some workflow options")
   println("------------------------------------")
@@ -87,8 +87,8 @@ if (params.qc) {
 			System.exit(1)
 		  }
 		}
-	} else if (!params.qc && params.popStrat) {
-	  println("--popStrat requires --qc")
+	} else if (!params.qc && params.pop_strat) {
+	  println("--pop_strat requires --qc")
 	  println("Use --help to print help")
 	  System.exit(1)
 	} else if (!params.qc && params.impute) {
@@ -111,11 +111,6 @@ if (params.convert_build || params.qc ) {
     println("Please rename your fam file")
     System.exit(1)
   }
-}
-
-if (params.popstrat) {
-  println("I think you mean --popStrat not --popstrat. Please try again with --popStrat")
-  System.exit(1)
 }
 
 //Pre-Imputation, Imputation and Post-Imputation compatibility errors
@@ -215,13 +210,13 @@ workflow {
     // workflow with build conversion
     if ( params.convert_build) {
       buildConversion(ch_vcf, ch_fam)
-      if ( params.qc && ! params.popStrat) {
+      if ( params.qc && ! params.pop_strat) {
         sample_qc(buildConversion.out.bed, buildConversion.out.bim, buildConversion.out.fam)
         variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-      } else if ( params.qc && params.popStrat) {
+      } else if ( params.qc && params.pop_strat) {
         sample_qc(buildConversion.out.bed, buildConversion.out.bim, buildConversion.out.fam)
-        popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)
+        pop_strat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
+        variant_qc(pop_strat.out.bed, pop_strat.out.bim, pop_strat.out.fam)
       }
 	  // pre-imputation
 	  if ( params.pre_impute ) {
@@ -243,18 +238,17 @@ workflow {
 
     // workflow without build conversion
     if ( !params.convert_build ) {
-      if ( params.qc && !params.popStrat ) {
+      if ( params.qc && !params.pop_strat ) {
         sample_qc(ch_bed, ch_bim, ch_fam)	
         variant_qc(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-      } else if ( params.qc && params.popStrat ) {
+      } else if ( params.qc && params.pop_strat ) {
         sample_qc(ch_bed, ch_bim, ch_fam)
-        popStrat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
-        variant_qc(popStrat.out.bed, popStrat.out.bim, popStrat.out.fam)  
+        pop_strat(sample_qc.out.bed, sample_qc.out.bim, sample_qc.out.fam)
+        variant_qc(pop_strat.out.bed, pop_strat.out.bim, pop_strat.out.fam)  
       }
 	  // pre-imputation without imputation
 	  if ( params.pre_impute ) {
         preImputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
-		println("Go ahead and upload your VCF to an external Imputation server.")
       }
       // local imputation 
       if ( params.impute ) {

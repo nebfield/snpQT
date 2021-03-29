@@ -18,7 +18,7 @@ include {parse_logs} from '../modules/qc.nf'
 include {report} from '../modules/qc.nf'
 
 // workflow component for snpqt pipeline
-workflow popStrat {
+workflow pop_strat {
   take:
     ch_bed
     ch_bim
@@ -75,7 +75,7 @@ workflow popStrat {
     // stupidity over
     extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)
     logs = filter_maf.out.log.concat(flip_snps.out.log, align.out.log, merge.out.log, pca_prep.out.log, extract_homogenous.out.log).collect()
-    parse_logs("popStrat", logs, "popStrat_log.txt")
+    parse_logs("pop_strat", logs, "pop_strat_log.txt")
 
     figures = plot_pca.out.figure
       .concat(plot_plink_pca.out.figure, plot_plink_pca.out.rds, parse_logs.out.figure)
@@ -83,7 +83,7 @@ workflow popStrat {
     Channel
       .fromPath("$baseDir/bootstrap/popstrat_report.Rmd", checkIfExists: true)
       .set{ rmd }
-    report("popStrat", figures, rmd)   
+    report("pop_strat", figures, rmd)   
 
   emit:
     bed = extract_homogenous.out.bed
