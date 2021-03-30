@@ -103,10 +103,17 @@ process duplicates_cat2 {
     '''
     # Identify the multi-allelics based on position and reference allele
     cut -f 1,4,6 !{bim} | sort | uniq -d | cut -f 2 | grep -w -F -f - !{bim} | cut -f 2 > multi_allelics.txt
-    plink2 --bfile !{bed.baseName} \
+    if [[ $(wc -l < multi_allelics.txt) -gt 0 ]]
+    then
+	plink2 --bfile !{bed.baseName} \
         --exclude multi_allelics.txt \
         --make-bed \
         --out E6
+	else
+      plink -bfile !{bim.baseName} \
+        --make-bed \
+        --out E6
+    fi
     '''
 }
 
