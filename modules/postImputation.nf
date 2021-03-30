@@ -12,8 +12,6 @@ process annotate_missing {
     '''
     plink2 --vcf !{imp} \
 		--id-delim _ \
-        --set-missing-var-ids @:#:\\$r:\\$a \
-        --new-id-max-allele-len 100 \
         --export vcf bgz \
         --out E2
     '''
@@ -81,14 +79,7 @@ process duplicates_cat1 {
     '''
     # Annotate all variants to this format chr:pos:ref:alt and remove exact duplicates
     plink2 --bfile !{bed.baseName} \
-        --set-all-var-ids @:#:\\$r:\\$a \
-        --new-id-max-allele-len 1000 \
         --rm-dup force-first list \
-        --make-bed \
-        --out E5
-    # Recover the rs ids 
-    plink2 --bfile E4 \
-        --recover-var-ids !{bim} \
         --make-bed \
         --out E5
     '''
@@ -149,7 +140,7 @@ process duplicates_cat3 {
         --out excluded_snps
       plink2 --bfile merged_snps \
         --set-all-var-ids @:#:\\$r:\\$a \
-        --new-id-max-allele-len 1000 \
+        --new-id-max-allele-len 300 missing\
         --make-bed \
         --out annotated
       plink --bfile excluded_snps \
