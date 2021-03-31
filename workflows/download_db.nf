@@ -106,7 +106,7 @@ workflow download_impute {
       .set{g37}
 
     qc(urls)
-	annotate_ids(qc.out.vcf)
+    annotate_ids(qc.out.vcf)
 	
     // publish to db directory
     println "Downloading database files for imputation, this might take a while! Go and have a cup of tea :)"
