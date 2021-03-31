@@ -104,10 +104,12 @@ process annotate_ids {
 
   output:
   path "*.vcf.gz", emit: vcf
-  
+  path "*.tbi", emit: idx
+ 
   shell:
   '''
   bcftools annotate --set-id +'%CHROM\\_%POS\\_%REF\\_%FIRST_ALT'  !{vcf} -Oz -o !{chr}.vcf.gz
+  tabix !{chr}.vcf.gz
   '''
 }
 
