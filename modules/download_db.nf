@@ -87,16 +87,30 @@ process index {
 
 process qc {
   input:
-  tuple val(chr), path(vcf), path(g37)
+  tuple val(chr), path(vcf)
 
   output:
   path "*.vcf.gz", emit: vcf
   
   shell:
   '''
-  bcftools norm --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup both -o !{chr}.vcf.gz
+  bcftools norm --rm-dup both  !{vcf} -Oz -o !{chr}.vcf.gz
   '''
 }
+
+process annotate_ids {
+  input:
+  path(vcf)
+
+  output:
+  path "*.vcf.gz", emit: vcf
+  
+  shell:
+  '''
+  bcftools annotate --set-id +'%CHROM\_%POS\_%REF\_%FIRST_ALT'  !{vcf} -Oz -o !{chr}.vcf.gz
+  '''
+}
+
 
 process unzip_shapeit4 {
   input:
