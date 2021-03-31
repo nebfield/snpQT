@@ -5,7 +5,7 @@ nextflow.preview.dsl = 2
 include {split_user_chrom} from '../modules/imputation.nf' // D12 - D13
 include {phasing} from '../modules/imputation.nf' // D14 
 include {bcftools_index_chr} from '../modules/imputation.nf' // D15
-include {tabix_chr as tabix_user; tabix_chr} from '../modules/imputation.nf'
+include {tabix_chr} from '../modules/imputation.nf'
 include {convert_imp5} from '../modules/imputation.nf' // D17 (D16 in container)
 include {impute5} from '../modules/imputation.nf' // D18
 include {merge_imp} from '../modules/imputation.nf' // D19
