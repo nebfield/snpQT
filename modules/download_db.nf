@@ -94,7 +94,7 @@ process qc {
   
   shell:
   '''
-  bcftools norm --rm-dup both  !{vcf} -Oz -o !{chr}.vcf.gz
+  bcftools norm --rm-dup both  !{vcf} -Oz -o !{chr}_norm.vcf.gz
   '''
 }
 
@@ -103,11 +103,11 @@ process annotate_ids {
   tuple val(chr), path(vcf)
 
   output:
-  tuple val(chr), "*.vcf.gz", emit: vcf
+  path "*.vcf.gz", emit: vcf
   
   shell:
   '''
-  bcftools annotate --set-id +'%CHROM\\_%POS\\_%REF\\_%FIRST_ALT'  !{vcf} -Oz -o !{chr}_annotated.vcf.gz
+  bcftools annotate --set-id +'%CHROM\\_%POS\\_%REF\\_%FIRST_ALT'  !{vcf} -Oz -o !{chr}.vcf.gz
   '''
 }
 
