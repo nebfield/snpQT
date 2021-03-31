@@ -281,22 +281,6 @@ process eigensoft {
     '''
 }
 
-process plot_pca {
-  publishDir "${params.results}/pop_strat/figures", mode: 'copy'
-    
-  input:
-  path eigenvec
-  path racefile
-    
-  output:
-  path "*", emit: figure
-    
-  shell:
-  '''
-  pop_strat.R !{eigenvec} !{racefile}
-  '''
-}
-
 process pca_plink {
     input:
     path bed

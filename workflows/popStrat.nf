@@ -10,7 +10,6 @@ include {merge} from '../modules/popStrat.nf' // C6
 include {pca_prep} from '../modules/popStrat.nf' // C7
 include {racefile} from '../modules/popStrat.nf' // C7
 include {eigensoft} from '../modules/popStrat.nf' // C8
-include {plot_pca} from '../modules/popStrat.nf' // C8
 include {pca_plink} from '../modules/popStrat.nf' // C8
 include {plot_plink_pca} from '../modules/popStrat.nf' // C8
 include {extract_homogenous} from '../modules/popStrat.nf' // C9
@@ -65,7 +64,6 @@ workflow pop_strat {
         .set{ parfile_ch }
     }    
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam, parfile_ch)
-    plot_pca(eigensoft.out.eigenvec, eigensoft.out.merged_racefile)
     pca_plink(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, eigensoft.out.eigenvec)
     // prepare plink pca files for plotting
     // this seems like a really dumb way to do things, but I can't think of a better way
@@ -77,8 +75,8 @@ workflow pop_strat {
     logs = filter_maf.out.log.concat(flip_snps.out.log, align.out.log, merge.out.log, pca_prep.out.log, extract_homogenous.out.log).collect()
     parse_logs("pop_strat", logs, "pop_strat_log.txt")
 
-    figures = plot_pca.out.figure
-      .concat(plot_plink_pca.out.figure, plot_plink_pca.out.rds, parse_logs.out.figure)
+    figures = plot_plink_pca.out.figure
+      .concat(plot_plink_pca.out.rds, parse_logs.out.figure)
       .collect()
     Channel
       .fromPath("$baseDir/bootstrap/popstrat_report.Rmd", checkIfExists: true)
