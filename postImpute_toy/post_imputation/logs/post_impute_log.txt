@@ -1,8 +1,0 @@
-stage variants samples pheno pheno_case pheno_control pheno_miss wd
-E2.log 1666204 48 0 0 0 0 /data2/users/christina_data/bin/snpQT/work/98/a8f40acc38a6dcc01f62b185470d5f
-E3.log 428024 48 0 0 0 0 /data2/users/christina_data/bin/snpQT/work/30/493567a56fd83ce3c2b8601f865f9a
-E4.log 428024 48 0 0 0 0 /data2/users/christina_data/bin/snpQT/work/75/59f0da655b1004dff85b6337f3f484
-E5.log 33575 48 0 0 0 0 /data2/users/christina_data/bin/snpQT/work/c6/ff123cebe8edc5894a067f6267c88b
-E6.log 33575 48 0 0 0 0 /data2/users/christina_data/bin/snpQT/work/d4/ae213add74817faa6f7083c7e0559c
-E7.log 33565 48 0 0 0 0 /data2/users/christina_data/bin/snpQT/work/44/42af1dc497fd978897b730dc36f018
-E8.log 33565 48 0 0 0 0 /data2/users/christina_data/bin/snpQT/work/21/f7fdda0551dc72f263ae15d5dd79d0
