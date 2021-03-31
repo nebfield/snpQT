@@ -11,7 +11,6 @@ include {qc} from '../modules/download_db.nf'
 include {unzip_shapeit4} from '../modules/download_db.nf'
 include {annotate_ids} from '../modules/download_db.nf'
 
-
 // workflow component for snpqt pipeline
 workflow download_core {
   main:
