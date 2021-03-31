@@ -65,9 +65,8 @@ process to_bcf {
 
     shell:
     '''
-    plink --bfile !{bed.baseName} \
-        --recode vcf bgz \
-        --keep-allele-order \
+    plink2 --bfile !{bed.baseName} \
+        --export vcf bgz \
         --out D6
     bcftools convert -Ou D6.vcf.gz > D7.bcf
     '''
