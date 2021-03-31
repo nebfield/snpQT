@@ -1,0 +1,22 @@
+PLINK v2.00a2.3LM 64-bit Intel (24 Jan 2020)
+Options in effect:
+  --bfile E7
+  --make-bed
+  --out E8
+  --psam B11.fam
+
+Hostname: stratmed0.host.ulster.ac.uk
+Working directory: /data2/users/christina_data/bin/snpQT/work/21/f7fdda0551dc72f263ae15d5dd79d0
+Start time: Mon Mar 29 11:34:43 2021
+
+Random number seed: 1617014083
+321625 MiB RAM detected; reserving 160812 MiB for main workspace.
+Using up to 64 threads (change this with --threads).
+48 samples (48 females, 0 males; 48 founders) loaded from B11.fam.
+33565 variants loaded from E7.bim.
+1 binary phenotype loaded (22 cases, 26 controls).
+Writing E8.fam ... done.
+Writing E8.bim ... done.
+Writing E8.bed ... done.
+
+End time: Mon Mar 29 11:34:43 2021

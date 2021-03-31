@@ -2,14 +2,13 @@
 nextflow.preview.dsl = 2
 
 // import modules
-include {annotate_missing} from '../modules/postImputation.nf' // E1
-include {filter_imp} from '../modules/postImputation.nf' // E2
-include {filter_maf} from '../modules/postImputation.nf' // E3
-include {duplicates_cat1} from '../modules/postImputation.nf' // E4
-include {duplicates_cat2} from '../modules/postImputation.nf' // E5
-include {duplicates_cat3} from '../modules/postImputation.nf' // E6
-include {update_phenotype} from '../modules/postImputation.nf' // E7
-include {parse_logs} from '../modules/qc.nf'
+include {filter_imp} from '../modules/postImputation.nf' // E1
+include {filter_maf} from '../modules/postImputation.nf' // E2
+include {duplicates_cat1} from '../modules/postImputation.nf' // E3
+include {duplicates_cat2} from '../modules/postImputation.nf' // E4
+include {duplicates_cat3} from '../modules/postImputation.nf' // E5
+include {update_phenotype} from '../modules/postImputation.nf' // E6
+include {parse_logs} from '../modules/qc.nf' // E7
 
 workflow postImputation {
   take:
@@ -17,14 +16,13 @@ workflow postImputation {
     ch_fam
     
   main:
-    annotate_missing(ch_imp)
-    filter_imp(annotate_missing.out.vcf)
+    filter_imp(ch_imp)
     filter_maf(filter_imp.out.bed,filter_imp.out.bim,filter_imp.out.fam)
     duplicates_cat1(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam)
     duplicates_cat2(duplicates_cat1.out.bed, duplicates_cat1.out.bim, duplicates_cat1.out.fam)
     duplicates_cat3(duplicates_cat2.out.bed, duplicates_cat2.out.bim, duplicates_cat2.out.fam)
     update_phenotype(duplicates_cat3.out.bed, duplicates_cat3.out.bim, duplicates_cat3.out.fam, ch_fam)
-    logs = annotate_missing.out.log.concat(filter_imp.out.log,filter_maf.out.log, duplicates_cat1.out.log, duplicates_cat2.out.log, duplicates_cat3.out.log, update_phenotype.out.log).collect()
+    logs = filter_imp.out.log.concat(filter_maf.out.log, duplicates_cat1.out.log, duplicates_cat2.out.log, duplicates_cat3.out.log, update_phenotype.out.log).collect()
     parse_logs("post_imputation", logs, "post_impute_log.txt")
 
   emit:

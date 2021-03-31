@@ -1,23 +1,4 @@
-// STEP E2: Convert vcf to binary plink files and annotate missing SNP ids
-
-process annotate_missing {
-    input:
-    path(imp)
-
-    output:
-    path 'E2.vcf.gz', emit: vcf
-	path 'E2.log', emit: log
-    
-    shell:
-    '''
-    plink2 --vcf !{imp} \
-		--id-delim _ \
-        --export vcf bgz \
-        --out E2
-    '''
-}
-
-// STEP E3: Filter all poorly imputed variants based on info score
+// STEP E1: Convert vcf to binary plink files and filter all poorly imputed variants based on info score
 
 process filter_imp {
     input:
@@ -32,13 +13,14 @@ process filter_imp {
     shell:
     '''
     plink2 --vcf !{imp} \
+		--id-delim _ \
         --extract-if-info INFO '>'= !{params.info} \
         --make-bed \
         --out E3
     '''
 }
 
-// STEP E4: Filter based on MAF 
+// STEP E2: Filter based on MAF 
 
 process filter_maf {
     input:
@@ -61,7 +43,7 @@ process filter_maf {
     '''
 }
 
-// STEP E5: Identify and remove exact duplicated variants
+// STEP E3: Identify and remove exact duplicated variants
 
 process duplicates_cat1 {
     input:
@@ -85,7 +67,7 @@ process duplicates_cat1 {
     '''
 }
 
-// STEP E6: Identify and remove multi-allelics
+// STEP E4: Identify and remove multi-allelics
 
 process duplicates_cat2 {
     input:
@@ -117,7 +99,7 @@ process duplicates_cat2 {
     '''
 }
 
-// STEP E7: Identify and remove merged variants
+// STEP E5: Identify and remove merged variants
 
 process duplicates_cat3 {
     input:
@@ -162,7 +144,7 @@ process duplicates_cat3 {
     '''
 }
 
-// STEP E8: update phenotype information
+// STEP E6: update phenotype information
 
 process update_phenotype {
     publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
