@@ -5,7 +5,7 @@ nextflow.preview.dsl = 2
 include {split_user_chrom} from '../modules/imputation.nf' // D12 - D13
 include {phasing} from '../modules/imputation.nf' // D14 
 include {bcftools_index_chr} from '../modules/imputation.nf' // D15
-include {tabix_chr} from '../modules/imputation.nf'
+include {tabix_chr as tabix_user; tabix_chr} from '../modules/imputation.nf'
 include {convert_imp5} from '../modules/imputation.nf' // D17 (D16 in container)
 include {impute5} from '../modules/imputation.nf' // D18
 include {merge_imp} from '../modules/imputation.nf' // D19
@@ -16,17 +16,17 @@ include {annotate_ids} from '../modules/download_db.nf'
 workflow imputation {
   take:
     ch_vcf
-    ch_idx
 
   main:
-	
-	annotate_ids(ch_vcf)
+    // annotate id needs a tuple of [id, path], so use a dummy value
+    in_vcf = Channel.from('user').combine(ch_vcf)
+    annotate_ids(in_vcf)
     // OK, things start to get a bit complicated here
     // because we're working with individual chromosomes it's easiest to work with
     // tuples like [chr_num, chr.fa.gz, chr.fa.gz.tbi, etc...]
     // that way we can join and combine files by chr_num as needed
     Channel.from(1..22).concat(Channel.from('X')).set{ chrom }
-    split_user_chrom(annotate_ids.out.vcf, ch_idx, chrom)
+    split_user_chrom(annotate_ids.out.vcf, annotate_ids.out.idx, chrom)
     // maps for shapeit4
     Channel
       .fromPath("$baseDir/db/impute/genetic_maps.b37.tar.gz", checkIfExists: true)

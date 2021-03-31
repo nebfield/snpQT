@@ -40,6 +40,4 @@ workflow preImputation {
 
   emit:
     vcf = bcf_to_vcf.out.vcf
-	idx = bcf_to_vcf.out.idx
-
 }  
