@@ -7,10 +7,10 @@ process filter_maf {
     path(exclude_region)
     
     output:
-    path "C3.bed", emit: bed
-    path "C3.bim", emit: bim
-    path "C3.fam", emit: fam
-    path "C3.log", emit: log
+    path "D3.bed", emit: bed
+    path "D3.bim", emit: bim
+    path "D3.fam", emit: fam
+    path "D3.log", emit: log
     
     shell:
     '''
@@ -40,7 +40,7 @@ process filter_maf {
 	plink2 --bfile maf_filtered_indep \
 	  --output-chr MT \
 	  --make-bed \
-	  --out C3
+	  --out D3
  
    '''
 }
@@ -77,10 +77,10 @@ process flip_snps {
   path(snpflip_ambig)
   
   output:
-  path "C4.bed", emit: bed
-  path "C4.bim", emit: bim
-  path "C4.fam", emit: fam
-  path "C4.log", emit: log
+  path "D4.bed", emit: bed
+  path "D4.bim", emit: bim
+  path "D4.fam", emit: fam
+  path "D4.log", emit: log
   
   shell:
   '''
@@ -94,7 +94,7 @@ process flip_snps {
   plink --bfile flipped \
     --exclude !{snpflip_ambig} \
     --make-bed \
-    --out C4
+    --out D4
   '''
 }
 
@@ -109,10 +109,10 @@ process align {
   path(ref_fam)
 
   output:
-  path "C5.bed", emit: bed
-  path "C5.bim", emit: bim
-  path "C5.fam", emit: fam
-  path "C5.log", emit: log
+  path "D5.bed", emit: bed
+  path "D5.bim", emit: bim
+  path "D5.fam", emit: fam
+  path "D5.log", emit: log
   
   shell:
   '''
@@ -122,7 +122,7 @@ process align {
   plink --bfile !{bed.baseName} \
     --reference-allele 1kg_ref-list.txt \
     --make-bed \
-    --out C5
+    --out D5
   '''
 }
 
@@ -137,10 +137,10 @@ process merge {
     path(ref_fam)
     
     output:
-    path "C6.bed", emit: bed
-    path "C6.bim", emit: bim
-    path "C6.fam", emit: fam
-    path "C6.log", emit: log
+    path "D6.bed", emit: bed
+    path "D6.bim", emit: bim
+    path "D6.fam", emit: fam
+    path "D6.log", emit: log
     
     shell:
     '''
@@ -156,11 +156,11 @@ process merge {
     plink --bfile !{bim.baseName} \
       --extract 1kG_PCA6_SNPs.txt \
       --make-bed \
-      --out C5_subset
+      --out D6_subset
 
     # Find differences between the two files that still appear after flipping 
     # and removing ambiguous SNPs
-    awk '{print $2,$5,$6}' C5_subset.bim > user_data_corrected_tmp
+    awk '{print $2,$5,$6}' D6_subset.bim > user_data_corrected_tmp
     awk '{print $2,$5,$6}' 1kG_subset.bim > 1k_corrected_tmp
     sort user_data_corrected_tmp 1k_corrected_tmp | uniq -u > uncorresponding_SNPs.txt
 
@@ -168,10 +168,10 @@ process merge {
     awk '{print $1}' uncorresponding_SNPs.txt | sort -u > SNPs_for_exclusion.txt
 
     # Remove the problematic SNPs from both datasets
-    plink --bfile C5_subset \
+    plink --bfile D6_subset \
       --exclude SNPs_for_exclusion.txt \
       --make-bed \
-      --out C5_subset_exclude
+      --out D6_subset_exclude
 	  
     plink --bfile 1kG_subset \
       --exclude SNPs_for_exclusion.txt \
@@ -179,11 +179,11 @@ process merge {
       --out 1kG_subset_exclude
 
     # Merge user's dataset with 1000 Genomes Data
-    plink --bfile C5_subset_exclude \
+    plink --bfile D6_subset_exclude \
       --bmerge 1kG_subset_exclude.bed 1kG_subset_exclude.bim 1kG_subset_exclude.fam \
       --allow-no-sex \
       --make-bed \
-      --out C6 
+      --out D6 
     '''
 }
 
@@ -195,10 +195,10 @@ process pca_prep {
     path(exclude_region)
     
     output:
-    path("C6_indep.bed"), emit: bed 
-    path("C6_indep.bim"), emit: bim
-    path("C6_indep.fam"), emit: fam
-    path("C6_indep.log"), emit: log
+    path("D6_indep.bed"), emit: bed 
+    path("D6_indep.bim"), emit: bim
+    path("D6_indep.fam"), emit: fam
+    path("D6_indep.log"), emit: log
     
     shell:
     '''
@@ -212,7 +212,7 @@ process pca_prep {
     plink --bfile !{bed.baseName} \
       --extract independent_SNPs.prune.in \
       --make-bed \
-      --out C6_indep 
+      --out D6_indep 
     '''
 }
 
@@ -258,7 +258,7 @@ process eigensoft {
     cat !{racefile} racefile_toy_own.txt | sed -e '1i\\FID IID race' >  merged_racefile.txt
 
     # Assign populations to FID and IIDs, make .pedind
-    awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_racefile.txt !{fam} > C6_indep.pedind
+    awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_racefile.txt !{fam} > D8_indep.pedind
 
     # make poplist.txt
     echo "OWN" > poplist.txt
@@ -266,7 +266,7 @@ process eigensoft {
     
     echo "genotypename: !{bed}" > parfile
     echo "snpname:      !{bim}" >> parfile
-    echo "indivname:    C6_indep.pedind" >> parfile
+    echo "indivname:    D8_indep.pedind" >> parfile
     echo "evecoutname:  eigenvec" >> parfile
     echo "evaloutname:  eigenval" >> parfile
     echo "outlieroutname: excluded_outliers.txt" >> parfile
@@ -335,17 +335,17 @@ process extract_homogenous {
     path(keep)
     
     output:
-    path "C9.bed", emit: bed
-    path "C9.bim", emit: bim
-    path "C9.fam", emit: fam
-    path "C9.log", emit: log
+    path "D9.bed", emit: bed
+    path "D9.bim", emit: bim
+    path "D9.fam", emit: fam
+    path "D9.log", emit: log
     
     shell:
     '''
     plink --bfile !{bed.baseName} \
 	 --keep !{keep} \
 	 --make-bed \
-	 --out C9
+	 --out D9
     '''
 }
 
