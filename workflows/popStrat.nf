@@ -13,8 +13,8 @@ include {eigensoft} from '../modules/popStrat.nf' // D8
 include {pca_plink} from '../modules/popStrat.nf' // D8
 include {plot_plink_pca} from '../modules/popStrat.nf' // D8
 include {extract_homogenous} from '../modules/popStrat.nf' // D9
-include {parse_logs} from '../modules/qc.nf' // B13
-include {report} from '../modules/qc.nf' // B14
+include {parse_logs} from '../modules/qc.nf' // E13
+include {report} from '../modules/qc.nf' // E14
 
 // workflow component for snpqt pipeline
 workflow pop_strat {
