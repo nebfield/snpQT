@@ -16,7 +16,6 @@ process variant_missingness {
 
   shell:
   '''
-  # fam won't match if convertBuild is true
   plink --bfile !{in_bed.baseName} \
       --fam !{in_fam} \
       --make-bed \
@@ -46,7 +45,7 @@ process individual_missingness {
   
   shell:
   '''
-  plink --bfile B1 \
+  plink --bfile !{B1_bed.baseName} \
     --missing \
     --out before
   plink --bfile !{B1_bed.baseName} \
@@ -77,9 +76,8 @@ process plot_missingness {
 }
 
 // STEP B3: Remove samples with sex mismatch -----------------------------------
-// --check-sex requires at least one X chromosome so it has to be completed 
-// before excluding non-automosomal SNPs 
-
+// --check-sex requires at least one X chromosome so it has to be completed
+// before excluding non-automosomal SNPs
 process check_sex {
     input:
     path(B2_bed)
@@ -95,12 +93,12 @@ process check_sex {
     path "after.sexcheck", emit: sexcheck_after
  
     
-    // vcf to bed + fam https://www.biostars.org/p/313943/
     shell:
     '''
     plink --bfile !{B2_bed.baseName} \
-      --check-sex --out before
-    # Identify the samples with sex discrepancy 
+      --check-sex \
+	  --out before
+    # Identify the samples with sex discrepancies 
     grep "PROBLEM" before.sexcheck | awk '{print $1,$2}'> \
       problematic_samples.txt
     # Delete all problematic samples
@@ -109,7 +107,8 @@ process check_sex {
       --make-bed \
       --out B3
 	plink --bfile B3 \
-      --check-sex --out after 
+      --check-sex \
+	  --out after 
     '''
 }
 
@@ -130,7 +129,6 @@ process plot_sex {
 }
 
 // STEP B4: Remove sex chromosomes ---------------------------------------------
-
 process extract_autosomal {
     input:
     path(B3_bed)   
@@ -154,8 +152,6 @@ process extract_autosomal {
 }
 
 // STEP B5: Remove SNPs with extreme heterozygosity ----------------------------
-// Extract highly independent SNPs based on LD and remove MHC region 
-
 process heterozygosity_rate {
     input:
     path(B4_bed)
@@ -229,7 +225,7 @@ process heterozygosity_prune {
     '''
 }
 
-// STEP B6: Remove relatives ---------------------------------------------------
+// STEP B6: Check for cryptic relatedness -----------------------------------
 process relatedness {
     input:
     path(B5_bed)
@@ -246,7 +242,6 @@ process relatedness {
     
     shell:
     '''
-	
 	plink --bfile !{B5_bed.baseName} \
       --exclude !{exclude_regions} \
       --indep-pairwise !{params.indep_pairwise} \
@@ -258,7 +253,7 @@ process relatedness {
       --out pihat_0.125
       
     # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
-    # relatives of each pair, having the most missingness. Output those failing
+    # relatives of each pair, having the highest missingness. Output those failing
     # samples to pihat_failed_samples.txt
     run_IBD_QC.pl !{imiss} pihat_0.125.genome !{params.pihat}
 
@@ -291,8 +286,7 @@ process missing_phenotype {
     '''
 }
 
-// STEP B8: Missingness per variant --------------------------------------------
-
+// STEP B8: Check missingness per variant --------------------------------------------
 process mpv {
     input:
     path(B7_bed)
@@ -309,12 +303,16 @@ process mpv {
 	
     shell:
     '''
-    plink --bfile !{B7_bed.baseName} --missing --out B8_before
+    plink --bfile !{B7_bed.baseName} \
+	  --missing \
+	  --out B8_before
     plink --bfile !{B7_bed.baseName} \
       --geno !{params.variant_geno} \
       --make-bed \
       --out B8 
-    plink --bfile B8 --missing --out B8_after
+    plink --bfile B8 \
+	  --missing \
+	  --out B8_after
     '''
 }
 
@@ -335,8 +333,7 @@ process plot_mpv {
   '''
 }
 
-// STEP B9: Hardy_Weinberg equilibrium (HWE) -----------------------------------
-
+// STEP B9: Check deviation from Hardy_Weinberg equilibrium (HWE) ----------------------------
 process hardy {
   input:
   path(B8_bed)
@@ -356,7 +353,9 @@ process hardy {
   
   shell: 
   '''
-  plink --bfile !{B8_bed.baseName} --hardy --out plink_before
+  plink --bfile !{B8_bed.baseName} \
+    --hardy \
+    --out plink_before
   # sample 1% of SNPs
   head -n1 plink_before.hwe > plink_sub_before.hwe
   perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_before.hwe) >> plink_sub_before.hwe
@@ -366,7 +365,9 @@ process hardy {
     --hwe !{params.hwe} \
     --make-bed \
     --out B9 
-  plink --bfile B9 --hardy --out plink_after
+  plink --bfile B9 \
+    --hardy \
+	--out plink_after
   # sample 1% of SNPs
   head -n1 plink_after.hwe > plink_sub_after.hwe
   perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_after.hwe) >> plink_sub_after.hwe
@@ -396,7 +397,6 @@ process plot_hardy {
 }
 
 // STEP B10: Remove low minor allele frequency (MAF) ---------------------------
-
 process maf {  
   input:
   path(B9_bed)
@@ -443,10 +443,9 @@ process plot_maf {
   '''
 }
 
-// STEP B11: Test missingness in case / control status -------------------------
-
+// STEP B11: Check missingness in case / control status -------------------------
 process test_missing {
-  publishDir "${params.results}/qc/bfiles", mode: 'copy'
+  publishDir "${params.results}/qc/bfiles/", pattern: "*.bed|*.bim|*.fam|*.log",  mode: 'copy'
   
   input:
   path(B10_bed)
@@ -463,13 +462,17 @@ process test_missing {
   
   shell:
   '''
-  plink --bfile !{B10_bed.baseName} --test-missing --out before
+  plink --bfile !{B10_bed.baseName} \
+    --test-missing \
+	--out before
   awk '{ if ($5 < !{params.missingness}) print $2 }' before.missing > fail_missingness.txt
   plink --bfile !{B10_bed.baseName} \
     --exclude fail_missingness.txt \
     --make-bed \
     --out B11
-  plink --bfile B11 --test-missing --out after
+  plink --bfile B11 \
+    --test-missing \
+	--out after
   '''
 }
 
@@ -490,26 +493,7 @@ process plot_missing_by_cohort {
   ''' 
 }
 
-process plot_pca_user_data {
-    publishDir "${params.results}/qc/figures", mode: 'copy'
-    
-    input:
-    path(eigenvec_user)
-	path(fam)
-
-    output:
-    path "*.png", emit: figure
-    path "*.rds", emit: rds
-    
-    shell:
-    '''
-	# Create case/control file
-    awk '{print $1, $2, $6}' !{fam} > status
- 
-    plot_pca_OnlyUsersData.r !{eigenvec_user} status
-    '''    
-}
-
+// STEP B12: Create covariates and plot PCA -------------------------
 process pca {
     input:
     path(bed)
@@ -534,7 +518,9 @@ process pca {
       --out C10_indep
 
     # Perform a PCA on user's data   
-    plink --bfile C10_indep --pca header --out C10_pca
+    plink --bfile C10_indep \
+	  --pca header \
+	  --out C10_pca
     '''
 }
 
@@ -552,6 +538,27 @@ process pca_covariates {
     '''
 }
 
+process plot_pca_user_data {
+    publishDir "${params.results}/qc/figures", mode: 'copy'
+    
+    input:
+    path(eigenvec_user)
+	path(fam)
+
+    output:
+    path "*.png", emit: figure
+    path "*.rds", emit: rds
+    
+    shell:
+    '''
+	# Create case/control file
+    awk '{print $1, $2, $6}' !{fam} > status
+ 
+    plot_pca_OnlyUsersData.r !{eigenvec_user} status
+    '''    
+}
+
+// STEP B13: Parse all log files and combine them into a .txt file -----------------
 process parse_logs {
   publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
   publishDir "${params.results}/${dir}/logs", mode: 'copy', pattern: "*.txt"
@@ -573,6 +580,7 @@ process parse_logs {
   '''
 }
 
+// STEP B14: Make an .html report ---------------------------------------------------
 process report {
   publishDir "${params.results}/${dir}/", mode: 'copy'
   // rmarkdown doesn't respect symlinks

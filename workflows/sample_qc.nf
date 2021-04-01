@@ -16,8 +16,8 @@ include {filter_het} from '../modules/qc.nf' // B5
 include {heterozygosity_prune} from '../modules/qc.nf' // B5
 include {relatedness} from '../modules/qc.nf' // B6
 include {missing_phenotype} from '../modules/qc.nf' // B7
-include {parse_logs} from '../modules/qc.nf'
-include {report} from '../modules/qc.nf'
+include {parse_logs} from '../modules/qc.nf'  // B13
+include {report} from '../modules/qc.nf' // B14
 
 // workflow component for snpqt pipeline
 workflow sample_qc {
