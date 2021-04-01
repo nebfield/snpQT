@@ -1,7 +1,10 @@
 FROM ubuntu:18.04
 
 RUN apt-get update && apt-get -y install unzip 
-ADD impute_v5.1.zip /opt/
+ADD impute5_v1.1.4.zip /opt/
 RUN ls /opt/ 
-RUN unzip /opt/impute_v5.1.zip -d /opt/
-ENV PATH="/opt/impute_v5.1:${PATH}"
+RUN unzip /opt/impute5_v1.1.4.zip -d /opt/
+RUN mkdir -p /opt/impute5
+RUN mv /opt/impute5_v1.1.4/impute5_1.1.4_static /opt/impute5/impute5
+RUN mv /opt/impute5_v1.1.4/imp5Converter_1.1.4_static /opt/impute5/imp5Converter
+ENV PATH="/opt/impute5/:${PATH}"
