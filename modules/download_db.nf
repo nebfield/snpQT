@@ -1,5 +1,6 @@
-// Note: step C2 from population stratification module
+// Note: step C2 from population stratification workflow
 
+// STEP A1: QC and preparation of the reference data -------------------------
 process qc_ref_data {
   input:
   path(thousand_pgen)
@@ -21,32 +22,35 @@ process qc_ref_data {
   # readlink to fix symlink gzip problem
   # || true to force exit code 0 
   gunzip --quiet -dc $(readlink !{h37}) > human_g1k_v37.fasta || true
-  # fix formatting in the file or plink explodes
+  
+  # Fix formatting in the file or plink explodes
   tr -s ':' < human_g1k_v37.fasta | tr -s '\n' > h37_squeezed.fasta
   samtools faidx h37_squeezed.fasta
   
-  mv !{thousand_psam} all_phase3.psam # fix psam name
+  # Fix psam name
+  mv !{thousand_psam} all_phase3.psam 
   plink2 --zst-decompress all_phase3.pgen.zst > all_phase3.pgen
   plink2 --pfile 'vzs' all_phase3 --chr 1-22 XY --make-pfile 'vzs' --out all_phase3_1
-
-  
 
   # Remove duplicates
   plink2 --pfile 'vzs' all_phase3_1 \
     --rm-dup force-first \
     --make-pgen 'vzs'\
     --out all_phase3_2
+	
   # Remove multi-allelic variants
   plink2 --pfile 'vzs' all_phase3_2 \
     --max-alleles 2 \
     --make-pgen 'vzs'\
     --out all_phase3_1
+	
   # Remove variants based on MAF
   plink2 --pfile 'vzs' all_phase3_1 \
     --maf 0.05 \
 	--set-missing-var-ids @:#:\\$r:\\$a \
     --make-bed \
     --out all_phase3_2
+	
   # Prune variants
   plink2 --bfile all_phase3_2 \
     --exclude !{exclude_region} \
@@ -59,6 +63,7 @@ process qc_ref_data {
   '''
 }
 
+// STEP A2: Decompress chain files -------------------------
 process decompress {
   input:
   path(x)
@@ -72,6 +77,7 @@ process decompress {
   '''
 }
 
+// STEP A3: Index files -------------------------
 process index {
   input:
   path(x)
@@ -85,6 +91,7 @@ process index {
   '''
 }
 
+// STEP A4: Remove duplicate records in reference file -------------------------
 process qc {
   input:
   tuple val(chr), path(vcf)
@@ -98,6 +105,22 @@ process qc {
   '''
 }
 
+// STEP A5: Unzip genetic maps for phasing -----------------------------------------
+process unzip_shapeit4 {
+  input:
+  path(x)
+
+  output:
+  path "genetic_maps.b37.tar.gz", emit: maps
+
+  shell:
+  '''
+  unzip !{x}
+  mv shapeit4-4.2.0/maps/genetic_maps.b37.tar.gz .
+  '''
+}
+
+// STEP A6: Annotate the variant ids of the reference file -------------------------
 process annotate_ids {
   input:
   tuple val(chr), path(vcf)
@@ -114,16 +137,3 @@ process annotate_ids {
 }
 
 
-process unzip_shapeit4 {
-  input:
-  path(x)
-
-  output:
-  path "genetic_maps.b37.tar.gz", emit: maps
-
-  shell:
-  '''
-  unzip !{x}
-  mv shapeit4-4.2.0/maps/genetic_maps.b37.tar.gz .
-  '''
-}
