@@ -2,14 +2,14 @@
 nextflow.preview.dsl = 2
 
 // import modules
-include {set_chrom_code} from '../modules/imputation.nf'
+include {set_chrom_code} from '../modules/imputation.nf' // F1
 include {run_snpflip} from '../modules/popStrat.nf' // D1, reuse C4
 include {flip_snps} from '../modules/popStrat.nf' // D2, D4, reuse C4
-include {fix_duplicates} from '../modules/imputation.nf' // D3
-include {to_bcf} from '../modules/imputation.nf' // D5 - D7
-include {check_ref_allele} from '../modules/imputation.nf' // D8
-include {bcf_to_vcf} from '../modules/imputation.nf' // D9 - D11
-include {parse_logs} from '../modules/qc.nf'
+include {fix_duplicates} from '../modules/imputation.nf' // F3
+include {to_bcf} from '../modules/imputation.nf' // F4
+include {check_ref_allele} from '../modules/imputation.nf' // F5
+include {bcf_to_vcf} from '../modules/imputation.nf' // F6
+include {parse_logs} from '../modules/qc.nf' // E13
 
 // workflow component for snpqt pipeline
 workflow preImputation {
