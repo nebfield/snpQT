@@ -2,14 +2,14 @@
 nextflow.preview.dsl = 2
 
 // import modules
-include {filter_imp} from '../modules/postImputation.nf' // E1
-include {filter_maf} from '../modules/postImputation.nf' // E2
-include {duplicates_cat1} from '../modules/postImputation.nf' // E3
-include {duplicates_cat2} from '../modules/postImputation.nf' // E4
-include {duplicates_cat3} from '../modules/postImputation.nf' // E5
-include {update_ids} from '../modules/postImputation.nf' // E6
-include {update_phenotype} from '../modules/postImputation.nf' // E7
-include {parse_logs} from '../modules/qc.nf' // E7
+include {filter_imp} from '../modules/postImputation.nf' // H1
+include {filter_maf} from '../modules/postImputation.nf' // H2
+include {duplicates_cat1} from '../modules/postImputation.nf' // H3
+include {duplicates_cat2} from '../modules/postImputation.nf' // H4
+include {duplicates_cat3} from '../modules/postImputation.nf' // H5
+include {update_ids} from '../modules/postImputation.nf' // H6
+include {update_phenotype} from '../modules/postImputation.nf' // H7
+include {parse_logs} from '../modules/qc.nf' // E13
 
 workflow postImputation {
   take:
