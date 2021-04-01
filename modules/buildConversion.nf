@@ -1,5 +1,5 @@
-// Step A1: Decompressing fasta file (workflow download_db.nf)-----------------
-// Step A2: Create a dictionary file ------------------------------------------
+// Step B1: Decompressing fasta file (workflow download_db.nf)-----------------
+// Step B2: Create a dictionary file ------------------------------------------
 process dictionary {
   input:
   path(fa)
@@ -17,7 +17,7 @@ process dictionary {
   '''
 }
 
-// STEP A3: Change the chr ids ------------------------------------------------
+// STEP B3: Change the chr ids ------------------------------------------------
 process num_to_chr {
   input:
   path(in_vcf)
@@ -33,7 +33,7 @@ process num_to_chr {
   '''
 }
 
-// STEP A4: Run liftOver to map genome build -----------------------------------
+// STEP B4: Run liftOver to map genome build -----------------------------------
 process liftover {
   
   input:
@@ -58,7 +58,7 @@ process liftover {
   '''
 }
 
-// STEP A5: Reverse Chr1To1 ---------------------------------------------------
+// STEP B5: Reverse Chr1To1 ---------------------------------------------------
 process chr_to_num {
   
   publishDir "${params.results}/convertBuild/files/", mode: 'copy'
@@ -79,7 +79,7 @@ process chr_to_num {
   '''
 }
 
-// STEP A6: Convert VCF to PLINK format ---------------------------------------
+// STEP B6: Convert VCF to PLINK format ---------------------------------------
 process vcf_to_plink {
 
   publishDir "${params.results}/convertBuild/files/", mode: 'copy'
