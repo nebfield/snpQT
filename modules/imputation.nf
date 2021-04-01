@@ -89,7 +89,7 @@ process check_ref_allele {
     bcftools +fixref !{bcf} \
         -Ob -o D8.bcf -- \
         -d -f !{g37} \
-        -i !{dbsnp}
+        -i !{dbsnp} 
     '''
 }
 
@@ -98,7 +98,7 @@ process check_ref_allele {
 // STEP D11: Index the vcf.gz -------------------------------------------------
 
 process bcf_to_vcf {
-    publishDir "${params.results}/preImputation/files", mode: 'copy'
+	publishDir "${params.results}/preImputation/files", mode: 'copy'
 
     input:
     path(bcf)
@@ -119,22 +119,16 @@ process bcf_to_vcf {
 process split_user_chrom {
     input:
     path(vcf)
-    path(idx) 
+    path(idx)
     each chr
     
     output:
-    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi'), optional: true, emit: chrom 
+    tuple val(chr), file('D12.vcf.gz'), file('D12.vcf.gz.csi'), emit: chrom 
 
     shell:
     '''
-    bcftools view -r !{chr} !{vcf} -Oz -o user_chrom.vcf.gz
-    chrom=$(bcftools query -f '%CHROM\\n' user_chrom.vcf.gz | head -n 1)
-
-    # we only want to phase chromosomes that exist in the user's dataset
-    if [[ "$chrom" = !{chr} ]]; then
-      bcftools view -r !{chr} !{vcf} -Oz -o D12.vcf.gz
-      bcftools index D12.vcf.gz
-    fi 
+    bcftools view -r !{chr} !{vcf} -Oz -o D12.vcf.gz
+    bcftools index D12.vcf.gz
     '''
 }
 
@@ -147,7 +141,7 @@ process phasing {
         file('genetic_maps.b37.tar.gz')  
 
     output:
-    tuple val(chr), file('D14.vcf.gz'), emit: chrom
+    tuple val(chr), file('D14.vcf.gz'), emit: chrom, optional: true
 
     shell:
     '''
@@ -155,12 +149,14 @@ process phasing {
     tar -xf genetic_maps.b37.tar
     gunzip chr!{chr}.b37.gmap.gz # decompress the chromosome we need 
 
+    # || true allows optional output without an error
+    # people might not always be imputing every chromosome
     shapeit4 --input D12.vcf.gz \
-      --map chr!{chr}.b37.gmap \
-      --region !{chr} \
-      --thread 1 \
-      --output D14.vcf.gz \
-      --log log_chr.txt 
+        --map chr!{chr}.b37.gmap \
+        --region !{chr} \
+        --thread 1 \
+        --output D14.vcf.gz \
+        --log log_chr.txt || true     
     '''
 }
 

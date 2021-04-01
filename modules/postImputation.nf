@@ -5,18 +5,17 @@ process filter_imp {
     path(imp)
 
     output:
-    path "E3.bed", emit: bed
-    path "E3.bim", emit: bim
-    path "E3.fam", emit: fam
-    path "E3.log", emit: log
+    path "E1.bed", emit: bed
+    path "E1.bim", emit: bim
+    path "E1.fam", emit: fam
+    path "E1.log", emit: log
     
     shell:
     '''
     plink2 --vcf !{imp} \
-		--id-delim _ \
         --extract-if-info INFO '>'= !{params.info} \
         --make-bed \
-        --out E3
+        --out E1
     '''
 }
 
@@ -29,17 +28,17 @@ process filter_maf {
     path(fam)
 
     output:
-    path "E4.bed", emit: bed
-    path "E4.bim", emit: bim
-    path "E4.fam", emit: fam
-    path "E4.log", emit: log
+    path "E2.bed", emit: bed
+    path "E2.bim", emit: bim
+    path "E2.fam", emit: fam
+    path "E2.log", emit: log
     
     shell:
     '''
     plink2 --bfile !{bed.baseName} \
         --maf !{params.impute_maf} \
         --make-bed \
-        --out E4
+        --out E2
     '''
 }
 
@@ -52,10 +51,10 @@ process duplicates_cat1 {
     path(fam)
 
      output:
-    path "E5.bed", emit: bed
-    path "E5.bim", emit: bim 
-    path "E5.fam", emit: fam
-    path "E5.log", emit: log
+    path "E3.bed", emit: bed
+    path "E3.bim", emit: bim 
+    path "E3.fam", emit: fam
+    path "E3.log", emit: log
     
     shell:
     '''
@@ -63,7 +62,7 @@ process duplicates_cat1 {
     plink2 --bfile !{bed.baseName} \
         --rm-dup force-first list \
         --make-bed \
-        --out E5
+        --out E3
     '''
 }
 
@@ -76,10 +75,10 @@ process duplicates_cat2 {
     path(fam)
     
     output:
-    path "E6.bed", emit: bed
-    path "E6.bim", emit: bim 
-    path "E6.fam", emit: fam
-    path "E6.log", emit: log
+    path "E4.bed", emit: bed
+    path "E4.bim", emit: bim 
+    path "E4.fam", emit: fam
+    path "E4.log", emit: log
   
 	shell:
     '''
@@ -90,11 +89,11 @@ process duplicates_cat2 {
 	plink2 --bfile !{bed.baseName} \
         --exclude multi_allelics.txt \
         --make-bed \
-        --out E6
+        --out E4
 	else
       plink -bfile !{bim.baseName} \
         --make-bed \
-        --out E6
+        --out E4
     fi
     '''
 }
@@ -108,10 +107,10 @@ process duplicates_cat3 {
     path(fam)
 
     output:
-    path "E7.bed", emit: bed
-    path "E7.bim", emit: bim
-    path "E7.fam", emit: fam
-    path "E7.log", emit: log 
+    path "E5.bed", emit: bed
+    path "E5.bim", emit: bim
+    path "E5.fam", emit: fam
+    path "E5.log", emit: log 
     
     shell:
     '''
@@ -135,16 +134,46 @@ process duplicates_cat3 {
       plink --bfile excluded_snps \
         --bmerge annotated \
         --make-bed \
-        --out E7     
+        --out E5   
     else
       plink -bfile !{bim.baseName} \
         --make-bed \
-        --out E7
+        --out E5
     fi
     '''
 }
 
-// STEP E6: update phenotype information
+// STEP E6: update ids information
+
+process update_ids {
+    publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
+    
+    input:
+    path(bed)
+    path(bim)
+    path(fam)
+    path(user_fam)
+
+    output:
+    path "E6.bed", emit: bed
+    path "E6.bim", emit: bim
+    path "E6.fam", emit: fam
+    path "E6.log", emit: log 
+    
+    shell:
+    '''
+	awk '{print $1, $2}' !{fam} > old_pids.txt
+	awk '{print $1, $2}' !{user_fam} > new_pids.txt
+	paste old_pids.txt new_pids.txt > update_ids.txt
+	
+    plink2 --bfile !{bed.baseName} \
+        --update-ids update_ids.txt \
+        --make-bed \
+        --out E6
+    '''
+}
+
+// STEP E7: update phenotype information
 
 process update_phenotype {
     publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
@@ -156,16 +185,16 @@ process update_phenotype {
     path(user_fam)
 
     output:
-    path "E8.bed", emit: bed
-    path "E8.bim", emit: bim
-    path "E8.fam", emit: fam
-    path "E8.log", emit: log 
+    path "E7.bed", emit: bed
+    path "E7.bim", emit: bim
+    path "E7.fam", emit: fam
+    path "E7.log", emit: log 
     
     shell:
     '''
     plink2 --bfile !{bed.baseName} \
         --fam !{user_fam} \
         --make-bed \
-        --out E8
+        --out E7
     '''
 }
