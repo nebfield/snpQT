@@ -1,4 +1,4 @@
-// STEP C3: filter minor allele frequency and pruning ------------------
+// STEP D3: filter minor allele frequency and pruning ------------------
 process filter_maf {
     input:
     path(bed)
@@ -45,7 +45,7 @@ process filter_maf {
    '''
 }
 
-// STEP C4: Fix strand errors and remove ambiguous SNPs ------------------------
+// STEP D4: Fix strand errors and remove ambiguous SNPs ------------------------
 process run_snpflip {
   input: 
   path(bed)
@@ -98,7 +98,7 @@ process flip_snps {
   '''
 }
 
-// STEP C5: Align the reference allele according to 1k reference genome --------
+// STEP D5: Align the reference allele according to 1k reference genome --------
 process align {
   input:
   path(bed)
@@ -126,7 +126,7 @@ process align {
   '''
 }
 
-// STEP C6: Merge user's dataset with reference genome and preparation for PCA----------------------
+// STEP D6: Merge user's dataset with reference genome and preparation for PCA----------------------
 process merge {
     input:
     path(bed)
@@ -216,7 +216,7 @@ process pca_prep {
     '''
 }
 
-// STEP C7: Create a racefile ----------------------------------
+// STEP D7: Create a racefile ----------------------------------
 process racefile {
     input:
     path(panel)
@@ -236,7 +236,7 @@ process racefile {
     '''
 }
 
-// STEP C8: Eigensoft ----------------------------------------------------------------
+// STEP D8: Eigensoft ----------------------------------------------------------------
 process eigensoft {
     input:
     path bed
@@ -324,7 +324,7 @@ process plot_plink_pca {
     '''    
 }
 
-// STEP C9: Extract a homogenous ethnic group ------------------------------------------------------
+// STEP D9: Extract a homogenous ethnic group ------------------------------------------------------
 process extract_homogenous {
     publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
     
