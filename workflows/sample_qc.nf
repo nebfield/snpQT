@@ -4,20 +4,20 @@
 nextflow.preview.dsl = 2
 
 // import modules
-include {variant_missingness} from '../modules/qc.nf' // B1
-include {individual_missingness} from '../modules/qc.nf' // B2
-include {plot_missingness} from '../modules/qc.nf' // B2
-include {check_sex} from '../modules/qc.nf' // B3
-include {plot_sex} from '../modules/qc.nf' // B3
-include {extract_autosomal} from '../modules/qc.nf' // B4
-include {heterozygosity_rate} from '../modules/qc.nf' // B5
-include {plot_heterozygosity} from '../modules/qc.nf' // B5
-include {filter_het} from '../modules/qc.nf' // B5
-include {heterozygosity_prune} from '../modules/qc.nf' // B5
-include {relatedness} from '../modules/qc.nf' // B6
-include {missing_phenotype} from '../modules/qc.nf' // B7
-include {parse_logs} from '../modules/qc.nf'  // B13
-include {report} from '../modules/qc.nf' // B14
+include {variant_missingness} from '../modules/qc.nf' // C1
+include {individual_missingness} from '../modules/qc.nf' // C2
+include {plot_missingness} from '../modules/qc.nf' // C2
+include {check_sex} from '../modules/qc.nf' // C3
+include {plot_sex} from '../modules/qc.nf' // C3
+include {extract_autosomal} from '../modules/qc.nf' // C4
+include {heterozygosity_rate} from '../modules/qc.nf' // C5
+include {plot_heterozygosity} from '../modules/qc.nf' // C5
+include {filter_het} from '../modules/qc.nf' // C5
+include {heterozygosity_prune} from '../modules/qc.nf' // C5
+include {relatedness} from '../modules/qc.nf' // C6
+include {missing_phenotype} from '../modules/qc.nf' // C7
+include {parse_logs} from '../modules/qc.nf'  // E13
+include {report} from '../modules/qc.nf' // E14
 
 // workflow component for snpqt pipeline
 workflow sample_qc {

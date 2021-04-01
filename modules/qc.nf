@@ -1,6 +1,6 @@
 // qc processes
 
-// STEP B1: Remove SNPs < 90% missingness --------------------------------------
+// STEP C1: Remove SNPs < 90% missingness --------------------------------------
 process variant_missingness {
 
   input:
@@ -9,10 +9,10 @@ process variant_missingness {
   path(in_fam)
 
   output:
-  path "B1.bed", emit: bed
-  path "B1.bim", emit: bim
-  path "B1.fam", emit: fam
-  path "B1.log", emit: log
+  path "C1.bed", emit: bed
+  path "C1.bim", emit: bim
+  path "C1.fam", emit: fam
+  path "C1.log", emit: log
 
   shell:
   '''
@@ -23,36 +23,36 @@ process variant_missingness {
   plink --bfile data \
       --geno 0.1 \
       --make-bed  \
-      --out B1 
+      --out C1 
   '''
 }
 
-// STEP B2: Check missingness rate ---------------------------------------------
+// STEP C2: Check missingness rate ---------------------------------------------
 process individual_missingness {
   input:
-  path(B1_bed)
-  path(B1_bim)
-  path(B1_fam)
+  path(C1_bed)
+  path(C1_bim)
+  path(C1_fam)
 
   output:
-  path "B2.bed", emit: bed
-  path "B2.bim", emit: bim
-  path "B2.fam", emit: fam
-  path "B2.log", emit: log
+  path "C2.bed", emit: bed
+  path "C2.bim", emit: bim
+  path "C2.fam", emit: fam
+  path "C2.log", emit: log
   path "before.imiss", emit: imiss_before
   path "after.imiss", emit: imiss_after
   
   
   shell:
   '''
-  plink --bfile !{B1_bed.baseName} \
+  plink --bfile !{C1_bed.baseName} \
     --missing \
     --out before
-  plink --bfile !{B1_bed.baseName} \
+  plink --bfile !{C1_bed.baseName} \
     --make-bed \
     --mind !{params.mind} \
-    --out B2 
-  plink --bfile B2 \
+    --out C2 
+  plink --bfile C2 \
     --missing \
     --out after
   '''
@@ -75,38 +75,38 @@ process plot_missingness {
   '''
 }
 
-// STEP B3: Remove samples with sex mismatch -----------------------------------
+// STEP C3: Remove samples with sex mismatch -----------------------------------
 // --check-sex requires at least one X chromosome so it has to be completed
 // before excluding non-automosomal SNPs
 process check_sex {
     input:
-    path(B2_bed)
-    path(B2_bim)
-    path(B2_fam)
+    path(C2_bed)
+    path(C2_bim)
+    path(C2_fam)
     
     output:
-    path "B3.bed", emit: bed 
-    path "B3.bim", emit: bim
-    path "B3.fam", emit: fam
-    path "B3.log", emit: log
+    path "C3.bed", emit: bed 
+    path "C3.bim", emit: bim
+    path "C3.fam", emit: fam
+    path "C3.log", emit: log
 	path "before.sexcheck", emit: sexcheck_before
     path "after.sexcheck", emit: sexcheck_after
  
     
     shell:
     '''
-    plink --bfile !{B2_bed.baseName} \
+    plink --bfile !{C2_bed.baseName} \
       --check-sex \
 	  --out before
     # Identify the samples with sex discrepancies 
     grep "PROBLEM" before.sexcheck | awk '{print $1,$2}'> \
       problematic_samples.txt
     # Delete all problematic samples
-    plink --bfile !{B2_bed.baseName} \
+    plink --bfile !{C2_bed.baseName} \
       --remove problematic_samples.txt \
       --make-bed \
-      --out B3
-	plink --bfile B3 \
+      --out C3
+	plink --bfile C3 \
       --check-sex \
 	  --out after 
     '''
@@ -128,44 +128,44 @@ process plot_sex {
     '''
 }
 
-// STEP B4: Remove sex chromosomes ---------------------------------------------
+// STEP C4: Remove sex chromosomes ---------------------------------------------
 process extract_autosomal {
     input:
-    path(B3_bed)   
-    path(B3_bim)
-    path(B3_fam)
+    path(C3_bed)   
+    path(C3_bim)
+    path(C3_fam)
     
     output:
-    path "B4.bed", emit: bed
-    path "B4.bim", emit: bim 
-    path "B4.fam", emit: fam
-    path "B4.log", emit: log
+    path "C4.bed", emit: bed
+    path "C4.bim", emit: bim 
+    path "C4.fam", emit: fam
+    path "C4.log", emit: log
     
     shell:
     '''
     # Extract only autosomal chromosomes 
-    plink2 --bfile !{B3_bed.baseName} \
+    plink2 --bfile !{C3_bed.baseName} \
       --autosome \
       --make-bed \
-      --out B4    
+      --out C4    
     ''' 
 }
 
-// STEP B5: Remove SNPs with extreme heterozygosity ----------------------------
+// STEP C5: Remove SNPs with extreme heterozygosity ----------------------------
 process heterozygosity_rate {
     input:
-    path(B4_bed)
-    path(B4_bim)
-    path(B4_fam)
+    path(C4_bed)
+    path(C4_bim)
+    path(C4_fam)
     
     output:
-    path "B5_het.het", emit: het
+    path "C5_het.het", emit: het
 	
     shell:
     '''    
-    plink --bfile !{B4_bed.baseName} \
+    plink --bfile !{C4_bed.baseName} \
       --het \
-      --out B5_het
+      --out C5_het
     '''
 }
 
@@ -200,53 +200,53 @@ process plot_heterozygosity {
 
 process heterozygosity_prune {
     input:
-    path(B4_bed)
-    path(B4_bim)
-    path(B4_fam)
+    path(C4_bed)
+    path(C4_bim)
+    path(C4_fam)
     path(het_failed)
 
     output:
-    path "B5.bed", emit: bed
-    path "B5.bim", emit: bim
-    path "B5.fam", emit: fam
-    path "B5.log", emit: log
-    path "B5_after.het", emit: het
+    path "C5.bed", emit: bed
+    path "C5.bim", emit: bim
+    path "C5.fam", emit: fam
+    path "C5.log", emit: log
+    path "C5_after.het", emit: het
 
     shell:
     '''
     cut -f 1,2 !{het_failed} > het_failed_plink.txt
-    plink --bfile !{B4_bim.baseName} \
+    plink --bfile !{C4_bim.baseName} \
       --make-bed \
       --remove het_failed_plink.txt \
-      --out B5
-	plink --bfile B5 \
+      --out C5
+	plink --bfile C5 \
       --het \
-      --out B5_after
+      --out C5_after
     '''
 }
 
 // STEP B6: Check for cryptic relatedness -----------------------------------
 process relatedness {
     input:
-    path(B5_bed)
-    path(B5_bim)
-    path(B5_fam)
+    path(C5_bed)
+    path(C5_bim)
+    path(C5_fam)
     path(exclude_regions)
     path(imiss)
 
     output:
-    path "B6.bed", emit: bed
-    path "B6.bim", emit: bim
-    path "B6.fam", emit: fam
-    path "B6.log", emit: log
+    path "C6.bed", emit: bed
+    path "C6.bim", emit: bim
+    path "C6.fam", emit: fam
+    path "C6.log", emit: log
     
     shell:
     '''
-	plink --bfile !{B5_bed.baseName} \
+	plink --bfile !{C5_bed.baseName} \
       --exclude !{exclude_regions} \
       --indep-pairwise !{params.indep_pairwise} \
       --out independent_SNPs 
-    plink --bfile !{B5_bed.baseName} \
+    plink --bfile !{C5_bed.baseName} \
       --extract independent_SNPs.prune.in \
       --genome \
       --min !{params.pihat} \
@@ -257,62 +257,62 @@ process relatedness {
     # samples to pihat_failed_samples.txt
     run_IBD_QC.pl !{imiss} pihat_0.125.genome !{params.pihat}
 
-    plink --bfile !{B5_bed.baseName} \
+    plink --bfile !{C5_bed.baseName} \
       --remove pihat_failed_samples.txt \
       --make-bed \
-      --out B6
+      --out C6
     '''
 }
 
-// STEP B7: Remove samples with missing phenotypes -----------------------------
+// STEP C7: Remove samples with missing phenotypes -----------------------------
 process missing_phenotype {
     input:
-    path(B6_bed)
-    path(B6_bim)
-    path(B6_fam)
+    path(C6_bed)
+    path(C6_bim)
+    path(C6_fam)
 
     output:
-    path "B7.bed", emit: bed
-    path "B7.bim", emit: bim
-    path "B7.fam", emit: fam
-    path "B7.log", emit: log
+    path "C7.bed", emit: bed
+    path "C7.bim", emit: bim
+    path "C7.fam", emit: fam
+    path "C7.log", emit: log
 
     shell:
     '''
-    plink --bfile !{B6_bed.baseName} \
+    plink --bfile !{C6_bed.baseName} \
       --prune \
       --make-bed \
-      --out B7
+      --out C7
     '''
 }
 
-// STEP B8: Check missingness per variant --------------------------------------------
+// STEP E8: Check missingness per variant --------------------------------------------
 process mpv {
     input:
-    path(B7_bed)
-    path(B7_bim)
-    path(B7_fam)
+    path(E7_bed)
+    path(E7_bim)
+    path(E7_fam)
 
     output:
-    path "B8.bed", emit: bed
-    path "B8.bim", emit: bim
-    path "B8.fam", emit: fam
-    path "B8.log", emit: log
-    path "B8_before.lmiss", emit: lmiss_before
-    path "B8_after.lmiss", emit: lmiss_after
+    path "E8.bed", emit: bed
+    path "E8.bim", emit: bim
+    path "E8.fam", emit: fam
+    path "E8.log", emit: log
+    path "E8_before.lmiss", emit: lmiss_before
+    path "E8_after.lmiss", emit: lmiss_after
 	
     shell:
     '''
-    plink --bfile !{B7_bed.baseName} \
+    plink --bfile !{E7_bed.baseName} \
 	  --missing \
-	  --out B8_before
-    plink --bfile !{B7_bed.baseName} \
+	  --out E8_before
+    plink --bfile !{E7_bed.baseName} \
       --geno !{params.variant_geno} \
       --make-bed \
-      --out B8 
-    plink --bfile B8 \
+      --out E8 
+    plink --bfile E8 \
 	  --missing \
-	  --out B8_after
+	  --out E8_after
     '''
 }
 
@@ -333,18 +333,18 @@ process plot_mpv {
   '''
 }
 
-// STEP B9: Check deviation from Hardy_Weinberg equilibrium (HWE) ----------------------------
+// STEP E9: Check deviation from Hardy_Weinberg equilibrium (HWE) ----------------------------
 process hardy {
   input:
-  path(B8_bed)
-  path(B8_bim)
-  path(B8_fam)
+  path(E8_bed)
+  path(E8_bim)
+  path(E8_fam)
   
   output:
-  path "B9.bed", emit: bed
-  path "B9.bim", emit: bim
-  path "B9.fam", emit: fam
-  path "B9.log", emit: log
+  path "E9.bed", emit: bed
+  path "E9.bim", emit: bim
+  path "E9.fam", emit: fam
+  path "E9.log", emit: log
   path "plink_sub_before.hwe", emit: sub_before
   path "plinkzoomhwe_before.hwe", emit: zoom_before
   path "plink_sub_after.hwe", emit: sub_after
@@ -353,7 +353,7 @@ process hardy {
   
   shell: 
   '''
-  plink --bfile !{B8_bed.baseName} \
+  plink --bfile !{E8_bed.baseName} \
     --hardy \
     --out plink_before
   # sample 1% of SNPs
@@ -361,11 +361,11 @@ process hardy {
   perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_before.hwe) >> plink_sub_before.hwe
   awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
 	  plink_before.hwe > plinkzoomhwe_before.hwe
-  plink --bfile !{B8_bed.baseName} \
+  plink --bfile !{E8_bed.baseName} \
     --hwe !{params.hwe} \
     --make-bed \
-    --out B9 
-  plink --bfile B9 \
+    --out E9 
+  plink --bfile E9 \
     --hardy \
 	--out plink_after
   # sample 1% of SNPs
@@ -396,31 +396,31 @@ process plot_hardy {
   '''
 }
 
-// STEP B10: Remove low minor allele frequency (MAF) ---------------------------
+// STEP E10: Remove low minor allele frequency (MAF) ---------------------------
 process maf {  
   input:
-  path(B9_bed)
-  path(B9_bim)
-  path(B9_fam)
+  path(E9_bed)
+  path(E9_bim)
+  path(E9_fam)
 
   output:
-  path "B10.bed", emit: bed
-  path "B10.bim", emit: bim
-  path "B10.fam", emit: fam
+  path "E10.bed", emit: bed
+  path "E10.bim", emit: bim
+  path "E10.fam", emit: fam
   path "MAF_check_before.frq", emit: before
   path "MAF_check_after.frq", emit: after
-  path "B10.log", emit: log
+  path "E10.log", emit: log
   
   shell:
   '''
-  plink --bfile !{B9_bed.baseName} \
+  plink --bfile !{E9_bed.baseName} \
     --freq \
     --out MAF_check_before
-  plink --bfile !{B9_bed.baseName} \
+  plink --bfile !{E9_bed.baseName} \
     --maf !{params.maf} \
     --make-bed \
-    --out B10
-  plink --bfile B10 \
+    --out E10
+  plink --bfile E10 \
     --freq \
     --out MAF_check_after
   '''
@@ -443,34 +443,34 @@ process plot_maf {
   '''
 }
 
-// STEP B11: Check missingness in case / control status -------------------------
+// STEP E11: Check missingness in case / control status -------------------------
 process test_missing {
   publishDir "${params.results}/qc/bfiles/", pattern: "*.bed|*.bim|*.fam|*.log",  mode: 'copy'
   
   input:
-  path(B10_bed)
-  path(B10_bim)
-  path(B10_fam)
+  path(E10_bed)
+  path(E10_bim)
+  path(E10_fam)
   
   output:
-  path "B11.bed", emit: bed
-  path "B11.bim", emit: bim
-  path "B11.fam", emit: fam
+  path "E11.bed", emit: bed
+  path "E11.bim", emit: bim
+  path "E11.fam", emit: fam
   path "before.missing", emit: before
   path "after.missing", emit: after
-  path "B11.log", emit: log
+  path "E11.log", emit: log
   
   shell:
   '''
-  plink --bfile !{B10_bed.baseName} \
+  plink --bfile !{E10_bed.baseName} \
     --test-missing \
 	--out before
   awk '{ if ($5 < !{params.missingness}) print $2 }' before.missing > fail_missingness.txt
-  plink --bfile !{B10_bed.baseName} \
+  plink --bfile !{E10_bed.baseName} \
     --exclude fail_missingness.txt \
     --make-bed \
-    --out B11
-  plink --bfile B11 \
+    --out E11
+  plink --bfile E11 \
     --test-missing \
 	--out after
   '''
@@ -493,7 +493,7 @@ process plot_missing_by_cohort {
   ''' 
 }
 
-// STEP B12: Create covariates and plot PCA -------------------------
+// STEP E12: Create covariates and plot PCA -------------------------
 process pca {
     input:
     path(bed)
@@ -502,9 +502,9 @@ process pca {
     path(exclude_regions)
 
     output:
-    path "C10_indep.log", emit: log 
-	path "C10_pca.eigenvec", emit: eigenvec_user 
-	path "C10_indep.fam", emit: fam
+    path "E12_indep.log", emit: log 
+	path "E12_pca.eigenvec", emit: eigenvec_user 
+	path "E12_indep.fam", emit: fam
     
     shell:
     '''
@@ -515,12 +515,12 @@ process pca {
     plink --bfile !{bed.baseName} \
       --extract indepSNPs_1k_1.prune.in \
       --make-bed \
-      --out C10_indep
+      --out E12_indep
 
     # Perform a PCA on user's data   
-    plink --bfile C10_indep \
+    plink --bfile E12_indep \
 	  --pca header \
-	  --out C10_pca
+	  --out E12_pca
     '''
 }
 
@@ -534,7 +534,7 @@ process pca_covariates {
     shell:
     '''
 	# Create covariate file including the first X PCs that the user requested
-	awk -v var="!{params.pca_covars}" '{for(i=1;i<=var+2;i++) printf $i" "; print ""}' C10_pca.eigenvec > covar_pca
+	awk -v var="!{params.pca_covars}" '{for(i=1;i<=var+2;i++) printf $i" "; print ""}' E12_pca.eigenvec > covar_pca
     '''
 }
 
@@ -558,7 +558,7 @@ process plot_pca_user_data {
     '''    
 }
 
-// STEP B13: Parse all log files and combine them into a .txt file -----------------
+// STEP E13: Parse all log files and combine them into a .txt file -----------------
 process parse_logs {
   publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
   publishDir "${params.results}/${dir}/logs", mode: 'copy', pattern: "*.txt"
@@ -580,7 +580,7 @@ process parse_logs {
   '''
 }
 
-// STEP B14: Make an .html report ---------------------------------------------------
+// STEP E14: Make an .html report ---------------------------------------------------
 process report {
   publishDir "${params.results}/${dir}/", mode: 'copy'
   // rmarkdown doesn't respect symlinks

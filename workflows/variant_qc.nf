@@ -4,19 +4,19 @@
 nextflow.preview.dsl = 2
 
 // import modules
-include {mpv} from '../modules/qc.nf' // B8
-include {plot_mpv} from '../modules/qc.nf' // B8
-include {hardy} from '../modules/qc.nf' // B9
-include {plot_hardy} from '../modules/qc.nf' // B9
-include {maf} from '../modules/qc.nf' // B10
-include {plot_maf} from '../modules/qc.nf' // B10
-include {test_missing} from '../modules/qc.nf' // B11
-include {plot_missing_by_cohort} from '../modules/qc.nf' // B11
-include {pca} from '../modules/qc.nf' // B12
-include {pca_covariates} from '../modules/qc.nf' // B12
-include {plot_pca_user_data} from '../modules/qc.nf' // B12
-include {parse_logs} from '../modules/qc.nf' // B13
-include {report} from '../modules/qc.nf' // B14
+include {mpv} from '../modules/qc.nf' // E8
+include {plot_mpv} from '../modules/qc.nf' // E8
+include {hardy} from '../modules/qc.nf' // E9
+include {plot_hardy} from '../modules/qc.nf' // E9
+include {maf} from '../modules/qc.nf' // E10
+include {plot_maf} from '../modules/qc.nf' // E10
+include {test_missing} from '../modules/qc.nf' // E11
+include {plot_missing_by_cohort} from '../modules/qc.nf' // E11
+include {pca} from '../modules/qc.nf' // E12
+include {pca_covariates} from '../modules/qc.nf' // E12
+include {plot_pca_user_data} from '../modules/qc.nf' // E12
+include {parse_logs} from '../modules/qc.nf' // E13
+include {report} from '../modules/qc.nf' // E14
 
 // workflow component for snpqt pipeline
 workflow variant_qc {
