@@ -7,14 +7,14 @@ include {run_snpflip} from '../modules/popStrat.nf' // C4
 include {flip_snps} from '../modules/popStrat.nf' // C4
 include {align} from '../modules/popStrat.nf' // C5
 include {merge} from '../modules/popStrat.nf' // C6
-include {pca_prep} from '../modules/popStrat.nf' // C7
+include {pca_prep} from '../modules/popStrat.nf' // C6
 include {racefile} from '../modules/popStrat.nf' // C7
 include {eigensoft} from '../modules/popStrat.nf' // C8
 include {pca_plink} from '../modules/popStrat.nf' // C8
 include {plot_plink_pca} from '../modules/popStrat.nf' // C8
 include {extract_homogenous} from '../modules/popStrat.nf' // C9
-include {parse_logs} from '../modules/qc.nf'
-include {report} from '../modules/qc.nf'
+include {parse_logs} from '../modules/qc.nf' // B13
+include {report} from '../modules/qc.nf' // B14
 
 // workflow component for snpqt pipeline
 workflow pop_strat {

@@ -1,5 +1,4 @@
 // STEP C3: filter minor allele frequency and pruning ------------------
-
 process filter_maf {
     input:
     path(bed)
@@ -26,7 +25,7 @@ process filter_maf {
       --make-bed \
       --out maf_filtered
     
-    # Pruning in user's dataset
+    # Pruning user's dataset
     plink --bfile maf_filtered \
       --exclude !{exclude_region} \
       --indep-pairwise !{params.indep_pairwise} \
@@ -38,13 +37,15 @@ process filter_maf {
       --out maf_filtered_indep
 	  
 	# Change the chromosome codes
-	plink2 --bfile maf_filtered_indep --output-chr MT --make-bed --out C3
+	plink2 --bfile maf_filtered_indep \
+	  --output-chr MT \
+	  --make-bed \
+	  --out C3
  
    '''
 }
 
 // STEP C4: Fix strand errors and remove ambiguous SNPs ------------------------
-
 process run_snpflip {
   input: 
   path(bed)
@@ -60,7 +61,7 @@ process run_snpflip {
   '''
 
   # Run snpflip to identify ambiguous SNPs and SNPs that are located on the 
-  # reverse strand first on user's dataset
+  # reverse strand
    snpflip -b !{bim} \
     -f !{g37} \
     -o flipped_snps
@@ -98,7 +99,6 @@ process flip_snps {
 }
 
 // STEP C5: Align the reference allele according to 1k reference genome --------
-
 process align {
   input:
   path(bed)
@@ -126,8 +126,7 @@ process align {
   '''
 }
 
-// STEP C6: Merge user's dataset with 1k reference genome ----------------------
-
+// STEP C6: Merge user's dataset with reference genome and preparation for PCA----------------------
 process merge {
     input:
     path(bed)
@@ -145,14 +144,14 @@ process merge {
     
     shell:
     '''
-    # Extract the variants present in dataset from the 1000 genomes dataset
+    # Extract the variants present in user's dataset from the 1000 genomes dataset
     awk '{print $2}' !{bim} > user_snps.txt
     plink --bfile !{ref_bed.baseName} \
       --extract user_snps.txt \
       --make-bed \
       --out 1kG_subset
 
-    # Extract the variants present in 1000 Genomes dataset from the dataset
+    # Extract the variants present in 1000 Genomes dataset from the user's dataset
     awk '{print $2}' 1kG_subset.bim > 1kG_PCA6_SNPs.txt
     plink --bfile !{bim.baseName} \
       --extract 1kG_PCA6_SNPs.txt \
@@ -168,11 +167,12 @@ process merge {
     # Keep only the unique SNP ids 
     awk '{print $1}' uncorresponding_SNPs.txt | sort -u > SNPs_for_exclusion.txt
 
-    # Remove the problematic SNPs from both datasets.
+    # Remove the problematic SNPs from both datasets
     plink --bfile C5_subset \
       --exclude SNPs_for_exclusion.txt \
       --make-bed \
       --out C5_subset_exclude
+	  
     plink --bfile 1kG_subset \
       --exclude SNPs_for_exclusion.txt \
       --make-bed \
@@ -186,8 +186,6 @@ process merge {
       --out C6 
     '''
 }
-
-// STEP C7: PCA ----------------------------------------------------------------
 
 process pca_prep {    
     input:
@@ -218,6 +216,7 @@ process pca_prep {
     '''
 }
 
+// STEP C7: Create a racefile ----------------------------------
 process racefile {
     input:
     path(panel)
@@ -304,8 +303,8 @@ process pca_plink {
         --make-bed \
         --out keep
     plink --bfile keep \
-        --pca header \
-	--out after
+      --pca header \
+	  --out after
     '''
 }
 
@@ -325,8 +324,7 @@ process plot_plink_pca {
     '''    
 }
 
-// STEP C9: Extract homogenous ethnic group ------------------------------------------------------
-
+// STEP C9: Extract a homogenous ethnic group ------------------------------------------------------
 process extract_homogenous {
     publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
     
@@ -344,7 +342,10 @@ process extract_homogenous {
     
     shell:
     '''
-    plink -bfile !{bed.baseName} --keep !{keep} --make-bed --out C9
+    plink --bfile !{bed.baseName} \
+	 --keep !{keep} \
+	 --make-bed \
+	 --out C9
     '''
 }
 
