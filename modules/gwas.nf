@@ -1,5 +1,4 @@
-// Step F1: Run logistic regression, adjusting for covariates
-
+// Step I1: Run logistic regression, adjusting for covariates
 process run_gwas {    
     publishDir "${params.results}/gwas/files/", mode: 'copy'
 

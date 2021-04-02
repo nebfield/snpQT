@@ -2,10 +2,10 @@
 nextflow.preview.dsl = 2
 
 // import modules
-include {run_gwas} from '../modules/gwas.nf' // E1
-include {plot} from '../modules/gwas.nf' // E2
-include {parse_logs} from '../modules/qc.nf'
-include {report} from '../modules/qc.nf'
+include {run_gwas} from '../modules/gwas.nf' // I1
+include {plot} from '../modules/gwas.nf' // I1
+include {parse_logs} from '../modules/qc.nf' // E13
+include {report} from '../modules/qc.nf' // E14
 
 workflow gwas {
   take:

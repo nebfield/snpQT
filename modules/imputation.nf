@@ -22,9 +22,8 @@ process set_chrom_code {
 		--out F1  
     '''
 }
-// STEP D2: Remove ambiguous SNPs ---------------------------------------------
-// STEP D4: Flip reverse SNPs
-// note: taken care of by popstrat modules now
+// STEP F2: D2: Remove ambiguous SNPs and flip reverse SNPs -------------------------
+// note: taken care of by popstrat modules D4 now
 
 // STEP F3: Remove one of each pair of duplicated SNPs 
 process fix_duplicates {

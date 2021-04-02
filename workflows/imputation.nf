@@ -2,15 +2,15 @@
 nextflow.preview.dsl = 2
 
 // import modules
+include {annotate_ids} from '../modules/download_db.nf' // A6
 include {split_user_chrom} from '../modules/imputation.nf' // G1
 include {phasing} from '../modules/imputation.nf' // G2 
 include {bcftools_index_chr} from '../modules/imputation.nf' // G3
 include {tabix_chr} from '../modules/imputation.nf' // G4
 include {convert_imp5} from '../modules/imputation.nf' // G5
 include {impute5} from '../modules/imputation.nf' // G6
-include {merge_imp} from '../modules/imputation.nf' // G6
+include {merge_imp} from '../modules/imputation.nf' // G7
 include {parse_logs} from '../modules/qc.nf' // E13
-include {annotate_ids} from '../modules/download_db.nf' // A6
 
 // workflow component for snpqt pipeline
 workflow imputation {
