@@ -77,21 +77,7 @@ process decompress {
   '''
 }
 
-// STEP A3: Index files -------------------------
-process index {
-  input:
-  path(x)
-
-  output:
-  path("*.tbi"), emit: idx
-
-  shell:
-  '''
-  tabix !{x}
-  '''
-}
-
-// STEP A4: Remove duplicate records in reference file -------------------------
+// STEP A3: Remove duplicate records in reference file -------------------------
 process qc {
   input:
   tuple val(chr), path(vcf)
@@ -105,7 +91,7 @@ process qc {
   '''
 }
 
-// STEP A5: Unzip genetic maps for phasing -----------------------------------------
+// STEP A4: Unzip genetic maps for phasing -----------------------------------------
 process unzip_shapeit4 {
   input:
   path(x)
@@ -120,7 +106,7 @@ process unzip_shapeit4 {
   '''
 }
 
-// STEP A6: Annotate the variant ids of the reference file -------------------------
+// STEP A5: Annotate the variant ids of the reference file -------------------------
 process annotate_ids {
   input:
   tuple val(chr), path(vcf)

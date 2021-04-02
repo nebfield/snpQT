@@ -6,10 +6,9 @@ nextflow.preview.dsl = 2
 // import modules
 include {qc_ref_data} from '../modules/download_db.nf' // A1
 include {decompress; decompress as decompress_otherBuild} from '../modules/download_db.nf' // A2
-include {index} from '../modules/download_db.nf' // A3
-include {qc} from '../modules/download_db.nf' // A4
-include {unzip_shapeit4} from '../modules/download_db.nf' // A5
-include {annotate_ids} from '../modules/download_db.nf' // A6
+include {qc} from '../modules/download_db.nf' // A3
+include {unzip_shapeit4} from '../modules/download_db.nf' // A4
+include {annotate_ids} from '../modules/download_db.nf' // A5
 
 // workflow component for snpqt pipeline
 workflow download_core {
