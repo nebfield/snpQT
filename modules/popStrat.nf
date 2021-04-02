@@ -1,3 +1,4 @@
+// STEPS D1,D2 are performed in database set up
 // STEP D3: filter minor allele frequency and pruning ------------------
 process filter_maf {
     input:
