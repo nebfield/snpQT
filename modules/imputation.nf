@@ -64,7 +64,8 @@ process to_bcf {
     plink2 --bfile !{bed.baseName} \
         --export vcf bgz \
         --out F4
-    bcftools convert -Ou F4.vcf.gz > F5.bcf
+	bcftools index F4.vcf.gz
+    bcftools convert F4.vcf.gz -Ou -o F5.bcf
     '''
 }
 
@@ -82,7 +83,7 @@ process check_ref_allele {
     shell:
     '''
     bcftools +fixref !{bcf} \
-        -Ob -o F5.bcf -- \
+        -Ob -o F6.bcf -- \
         -d -f !{g37} \
         -i !{dbsnp} 
     '''
