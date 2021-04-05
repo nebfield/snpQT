@@ -163,6 +163,15 @@ if ( params.post_impute && params.gwas){
     System.exit(1)	
 }
 
+// Covariates
+if ( params.pca_covars && params.covar_file){
+	println("--covar_file is not combined with --pca_covars")
+    println("Please rerun using only one of the two parameters")
+	println("Use --help to print help")
+    System.exit(1)	
+}
+
+
 // main workflow ----------------------------------------------------------
 workflow {
   // set up input channels
