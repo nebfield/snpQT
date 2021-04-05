@@ -220,6 +220,7 @@ process impute5 {
     impute5 --h 1k_b37_reference_chr.imp5 \
         --m chr!{chr}.b37.gmap \
         --g G2.vcf.gz \
+		--k_hap 500 \
         --r !{chr} \
         --out-gp-field \
         --o imputed_chr!{chr}.vcf.gz
