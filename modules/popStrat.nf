@@ -1,5 +1,5 @@
 // STEPS D1,D2 are performed in database set up
-// STEP D3: filter minor allele frequency and pruning ------------------
+// STEP D3: QC and preparation of user's data: filter by missing call rate, minor allele frequency and pruning ------------------
 process filter_maf {
     input:
     path(bed)

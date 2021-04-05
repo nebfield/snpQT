@@ -40,7 +40,7 @@ process filter_maf {
     '''
 }
 
-// STEP H3: Identify and remove exact duplicated variants
+// STEP H3: Identify and remove duplicated variants
 process duplicates_cat1 {
     input:
     path(bed)
@@ -55,7 +55,7 @@ process duplicates_cat1 {
     
     shell:
     '''
-    # Annotate all variants to this format chr:pos:ref:alt and remove exact duplicates
+    # All variants are annotated to this format chr:pos:ref:alt and remove exact duplicates
     plink2 --bfile !{bed.baseName} \
         --rm-dup force-first list \
         --make-bed \
