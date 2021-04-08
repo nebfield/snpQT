@@ -117,7 +117,7 @@ process annotate_ids {
  
   shell:
   '''
-  bcftools annotate --set-id +'%CHROM\\_%POS\\_%REF\\_%FIRST_ALT'  !{vcf} -Oz -o !{chr}.vcf.gz
+  bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT'  !{vcf} -Oz -o !{chr}.vcf.gz
   tabix !{chr}.vcf.gz
   '''
 }
