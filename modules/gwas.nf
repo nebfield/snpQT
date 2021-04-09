@@ -9,7 +9,7 @@ process run_gwas {
     path(covar)
 
     output:
-    path "*.logistic", emit: logistic
+    path "*.logistic.hybrid", emit: logistic
     path "*.log", emit: log
     
     shell:
@@ -17,11 +17,13 @@ process run_gwas {
     plink2 --bfile !{bed.baseName} \
       --covar !{covar} \
       --ci 0.95 \
-      --glm hide-covar\
+      --glm hide-covar firth-fallback\
+	  --output-chr 26 \
       --out logistic_results
     plink2 --bfile !{bed.baseName} \
       --ci 0.95 \
-      --glm hide-covar\
+      --glm hide-covar firth-fallback\
+	  --output-chr 26 \
       --out logistic_results_nocovars
     '''
 }
@@ -40,8 +42,11 @@ process plot {
     '''
     # NA p values sometimes happen
     awk '!/'NA'/' !{logistic} > no_na.logistic
-    qqplot.R no_na.logistic
-    manhattan.R no_na.logistic
+	# Remove hash from beginning of line
+	sed 's/#//' no_na.logistic | sed 's/LOG(OR)_SE/SE/' | sed 's/CHROM/CHR/'|  sed 's/POS/BP/' | sed 's/ID/SNP/' > valid.logistic
+	# Run plots
+    qqplot.R valid.logistic
+    manhattan.R valid.logistic
     cp qqplot.png !{id}_qqplot.png
     cp manhattan.png !{id}_manhattan.png
     '''
