@@ -14,16 +14,14 @@ process run_gwas {
     
     shell:
     '''
-    plink --bfile !{bed.baseName} \
+    plink2 --bfile !{bed.baseName} \
       --covar !{covar} \
       --ci 0.95 \
-      --logistic hide-covar\
-      --allow-no-sex \
+      --glm hide-covar\
       --out logistic_results
-    plink --bfile !{bed.baseName} \
+    plink2 --bfile !{bed.baseName} \
       --ci 0.95 \
-      --logistic hide-covar\
-      --allow-no-sex \
+      --glm hide-covar\
       --out logistic_results_nocovars
     '''
 }
