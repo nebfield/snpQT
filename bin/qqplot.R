@@ -21,9 +21,9 @@ logistic %>%
   filter(L95 > 0) %>%
   mutate(beta = log(OR)) %>%
   mutate(z = (beta / SE) * (beta / SE)) %>%
-  # 0.455: rounded median chi-squared distribution (qchisq(0.5, 1))
+  # 0.456: rounded median chi-squared distribution (qchisq(0.5, 1))
   # https://www.biostars.org/p/43328/
-  summarise(median(z) / 0.455) %>% 
+  summarise(median(z) / 0.456) %>% 
   pull(.) -> lambda.value
 
 logistic %>%
