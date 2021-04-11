@@ -17,14 +17,16 @@ plink1 &&  /\) loaded from .fam/ { loaded["people"] = $1;
     loaded["ambig"] = $7 }
 plink1 &&  /remaining phenotypes/ { pheno["cases"] = $4;
     pheno["controls"] = $8 }
-plink1 && /are controls.[[:blank:]]*\(/ { pheno["missing"] = $NF }
+plink1 && /are controls.[[:blank:]]*\(/ { pheno["missing"] = substr($11, 2) }
 
 plink2 && /variants loaded from/ { loaded["variants"] = $1 }
 plink2 && /samples \(/ { loaded["people"] = $1;
     loaded["males"] = $5;
     loaded["females"] = $3;
     loaded["ambig"] = $7 }
-       
+plink2 &&  /phenotype loaded \(/ { pheno["cases"] = substr($5, 2);
+    pheno["controls"] = $7 }
+
 END {
     if (pheno["missing"] == "")
 	pheno["missing"] = 0
@@ -33,7 +35,7 @@ END {
 	# if one is missing, they all are
 	pheno["cases"] = 0
 	pheno["controls"] = 0
-	pheno["missing"] = 0
+	pheno["missing"] = loaded["people"]
     }
     print FILENAME, loaded["variants"], loaded["people"],
 	pheno["cases"] + pheno["controls"] + pheno["missing"],
