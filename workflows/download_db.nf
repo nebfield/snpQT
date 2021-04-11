@@ -101,7 +101,7 @@ workflow download_impute {
       .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
       .set{g37}
 
-    qc(urls)
+    qc(urls.combine(g37))
     annotate_ids(qc.out.vcf)
 	
     // publish to db directory

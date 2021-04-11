@@ -80,14 +80,14 @@ process decompress {
 // STEP A3: Remove duplicate records in reference file -------------------------
 process qc {
   input:
-  tuple val(chr), path(vcf)
+  tuple val(chr), path(vcf), path(g37)
 
   output:
   tuple val(chr), path("*.vcf.gz"), emit: vcf
   
   shell:
   '''
-  bcftools norm --rm-dup both  !{vcf} -Oz -o !{chr}_norm.vcf.gz
+  bcftools norm -m-any --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup both -o !{chr}_norm.vcf.gz
   '''
 }
 
