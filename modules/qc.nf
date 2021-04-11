@@ -445,7 +445,7 @@ process plot_maf {
 
 // STEP E11: Check missingness in case / control status -------------------------
 process test_missing {
-  publishDir "${params.results}/qc/bfiles/", pattern: "*.bed|*.bim|*.fam|*.log",  mode: 'copy'
+  publishDir "${params.results}/qc/bfiles/", pattern: "E11.*",  mode: 'copy'
   
   input:
   path(E10_bed)
