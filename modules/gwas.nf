@@ -9,9 +9,9 @@ process run_gwas {
     path(covar)
 
     output:
-    path "*.logistic.hybrid", emit: logistic
+    path "*.glm.*", emit: gwas
     path "*.log", emit: log
-    
+   
     shell:
     '''
     plink2 --bfile !{bed.baseName} \
@@ -19,35 +19,39 @@ process run_gwas {
       --ci 0.95 \
       --glm hide-covar firth-fallback\
 	  --output-chr 26 \
-      --out logistic_results
+	  --adjust \
+      --out gwas
     plink2 --bfile !{bed.baseName} \
       --ci 0.95 \
       --glm hide-covar firth-fallback\
+	  --adjust \
 	  --output-chr 26 \
-      --out logistic_results_nocovars
-    '''
+      --out gwas_nocovars
+	  '''
 }
 
 process plot {
     publishDir "${params.results}/gwas/figures/", mode: 'copy'
     
     input:
-    tuple id, path(logistic)
-
+    tuple id, path(gwas), path(log)
+	
     output:
     path "*_qqplot.png", emit: qqplot
     path "*_manhattan.png", emit: manhattan
  
     shell:
     '''
+	# Identify lambda value calculated by plink2
+	awk '/lambda/  {print $11+0}' !{log} > lambda.txt
     # NA p values sometimes happen
-    awk '!/'NA'/' !{logistic} > no_na.logistic
+    awk '!/'NA'/' !{gwas} > no_na.gwas
 	# Remove hash from beginning of line
-	sed 's/#//' no_na.logistic | sed 's/LOG(OR)_SE/SE/' | sed 's/CHROM/CHR/'|  sed 's/POS/BP/' | sed 's/ID/SNP/' > valid.logistic
+	sed 's/#//' no_na.gwas | sed 's/LOG(OR)_SE/SE/' | sed 's/CHROM/CHR/'|  sed 's/POS/BP/' | sed 's/ID/SNP/' > valid.gwas
 	# Run plots
-    qqplot.R valid.logistic
-    manhattan.R valid.logistic
-    cp qqplot.png !{id}_qqplot.png
+    qqplot.R valid.gwas lambda.txt
+    manhattan.R valid.gwas
+    cp qqplot.png !{id}_qqplot.png 
     cp manhattan.png !{id}_manhattan.png
     '''
 }

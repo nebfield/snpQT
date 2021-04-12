@@ -16,11 +16,20 @@ workflow gwas {
     
   main:
     run_gwas(ch_bed, ch_bim, ch_fam, covar)
-    run_gwas.out.logistic.flatten()
+    run_gwas.out.gwas.flatten()
       .map { file -> tuple(file.simpleName, file) }
-      .set{ logistic }
-
-    plot(logistic)
+      .set{ gwas }
+	run_gwas.out.log.flatten()
+      .map { file -> tuple(file.simpleName, file) }
+      .set{ logs }
+	
+	logs.view()
+	
+	gwas
+	  .join(logs)
+	  .set{ gwas_files }
+	  
+    plot(gwas_files)
     parse_logs("gwas", run_gwas.out.log, "gwas_log.txt")
     plot.out.qqplot
       .concat(plot.out.manhattan, parse_logs.out.figure)

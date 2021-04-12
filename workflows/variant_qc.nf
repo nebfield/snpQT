@@ -32,6 +32,7 @@ workflow variant_qc {
     plot_hardy(hardy.out.sub_before, hardy.out.zoom_before, hardy.out.sub_after, hardy.out.zoom_after, params.hwe)
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)
     plot_maf(maf.out.before, maf.out.after, params.maf)
+	if (params.linear == false){
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
     plot_missing_by_cohort(test_missing.out.before, test_missing.out.after, params.missingness)
     Channel
@@ -56,10 +57,45 @@ workflow variant_qc {
       .fromPath("$baseDir/bootstrap/variant_report.Rmd", checkIfExists: true)
       .set{ rmd }
     report("qc", figures, rmd)
- 
-  emit:
+
     bed = test_missing.out.bed
     bim = test_missing.out.bim
     fam = test_missing.out.fam
+
+	} else {
+		Channel
+		  .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
+		  .set{ exclude }
+		pca(maf.out.bed, maf.out.bim, maf.out.fam, exclude)
+		plot_pca_user_data(pca.out.eigenvec_user, pca.out.fam)
+		if (params.covar_file == false) {
+		  pca_covariates(pca.out.eigenvec_user)
+		  covar = pca_covariates.out.covar
+		} else {
+		  Channel
+			.fromPath(params.covar_file, checkIfExists: true)
+			.set{ covar }
+		}
+		logs = mpv.out.log.concat(hardy.out.log, maf.out.log).collect()
+		parse_logs("qc", logs, "variant_qc_log.txt")
+		figures = plot_mpv.out.figure
+		  .concat(plot_hardy.out.figure, plot_maf.out.figure, plot_pca_user_data.out.figure, plot_pca_user_data.out.rds ,parse_logs.out.figure)
+		  .collect()
+		Channel
+		  .fromPath("$baseDir/bootstrap/variant_report.Rmd", checkIfExists: true)
+		  .set{ rmd }
+		report("qc", figures, rmd)
+		
+		bed = maf.out.bed
+		bim = maf.out.bim
+		fam = maf.out.fam
+
+	}
+	
+  emit:
+    bed
+    bim
+    fam
     covar
+	
 } 
