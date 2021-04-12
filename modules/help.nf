@@ -53,7 +53,7 @@ def printHelp() {
 		--keep_sex_chroms [true (default),false]            If false, sex chromosomes are removed
 		--pihat [0.125 (default), 0-1]                      Threshold for relatedness identification
 		--pca_covars [3 (default), 1-20]                    Number of Principal Components to be accounted for generating covariates
-
+	    --linear [false (default),true]                     Use if you have quantitative data
     
   Population stratification options:
     Mandatory:
@@ -96,5 +96,6 @@ def printHelp() {
 		--impute                                           Run the imputation workflow
 		--covar_file [false (default), covar.txt]          Import a covariates file (can not be used along with --pca_covars)
 		--pca_covars [3 (default), 1-20]                   Number of Principal Components to be accounted for generating covariates
+		--linear [false (default),true]                    Use if you have quantitative data 
   """.stripIndent()
 }
