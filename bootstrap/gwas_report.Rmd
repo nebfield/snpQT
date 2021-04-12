@@ -14,15 +14,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ## With covariates 
 
 ```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("logistic_results_qqplot.png")
-knitr::include_graphics("logistic_results_manhattan.png")
+knitr::include_graphics("gwas_qqplot.png")
+knitr::include_graphics("gwas_manhattan.png")
 ```
 
 ## Without covariates
 
 ```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("logistic_results_nocovars_qqplot.png")
-knitr::include_graphics("logistic_results_nocovars_manhattan.png")
+knitr::include_graphics("gwas_nocovars_qqplot.png")
+knitr::include_graphics("gwas_nocovars_manhattan.png")
 ```
 
 ## Log
