@@ -5,7 +5,9 @@
 # snpQT
 
 <p align="center">
+  <a href="https://snpqt.readthedocs.io/en/latest/">
   <img width="300" height="300" src="https://raw.githubusercontent.com/nebfield/snpQT/master/docs/img/logo.png">
+  </a>
 </p>
 
 snpQT (pronounced snip-cutie) makes your single-nucleotide polymorphisms cute. Also, it provides support for processing human genomic variants to do:
