@@ -9,10 +9,11 @@
 </p>
 
 snpQT (pronounced snip-cutie) makes your single-nucleotide polymorphisms cute. Also, it provides support for processing human genomic variants to do:
-* build conversion
+* human genome build conversion (b37 -> b38 and/or b38 -> b37)
 * sample quality control
 * population stratification
 * variant quality control
+* pre-imputation quality control
 * local imputation
 * post-imputation quality control
 * genome-wide association studies
