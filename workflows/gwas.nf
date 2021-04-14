@@ -23,8 +23,6 @@ workflow gwas {
       .map { file -> tuple(file.simpleName, file) }
       .set{ logs }
 	
-	logs.view()
-	
 	gwas
 	  .join(logs)
 	  .set{ gwas_files }
