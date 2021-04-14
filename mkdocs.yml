@@ -1,0 +1,19 @@
+site_name: snpQT 
+site_author: Christina Vasilopoulou, Benjamin Wingfield, William Duddy
+nav:
+  - 'Home': index.md
+  - 'User Guide': 
+      - 'Installation': user-guide/installation.md
+      - 'Quickstart': user-guide/quickstart.md
+      - 'Background': user-guide/background.md
+      - 'Workflows description': user-guide/workflows.md
+      - 'Tutorial': user-guide/results.md
+  - 'About':
+      - 'FAQ': about/FAQ.md
+      - 'About us': about/about.md
+      - 'Acknowledgements': about/acknowledgements.md
+theme: readthedocs
+markdown_extensions:
+  - admonition
+  - abbr
+  - attr_list
