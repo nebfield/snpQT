@@ -62,7 +62,7 @@ workflow sample_qc {
     }
 	
     
-    relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam, exclude, individual_missingness.out.imiss_after)
+    relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam)
     missing_phenotype(relatedness.out.bed, relatedness.out.bim, relatedness.out.fam)
     
     if (params.sexcheck && params.keep_sex_chroms) {

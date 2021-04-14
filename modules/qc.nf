@@ -231,8 +231,6 @@ process relatedness {
     path(C5_bed)
     path(C5_bim)
     path(C5_fam)
-    path(exclude_regions)
-    path(imiss)
 
     output:
     path "C6.bed", emit: bed
@@ -242,23 +240,8 @@ process relatedness {
     
     shell:
     '''
-	plink --bfile !{C5_bed.baseName} \
-      --exclude !{exclude_regions} \
-      --indep-pairwise !{params.indep_pairwise} \
-      --out independent_SNPs 
-    plink --bfile !{C5_bed.baseName} \
-      --extract independent_SNPs.prune.in \
-      --genome \
-      --min !{params.pihat} \
-      --out pihat_0.125
-      
-    # Identify all pairs of relatives with pihat > 0.125 and exclude one of the
-    # relatives of each pair, having the highest missingness. Output those failing
-    # samples to pihat_failed_samples.txt
-    run_IBD_QC.pl !{imiss} pihat_0.125.genome !{params.pihat}
-
-    plink --bfile !{C5_bed.baseName} \
-      --remove pihat_failed_samples.txt \
+    plink2 --bfile !{C5_bed.baseName} \
+      --king-cutoff !{params.king_cutoff} \
       --make-bed \
       --out C6
     '''
