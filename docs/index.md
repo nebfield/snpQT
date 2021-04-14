@@ -1,6 +1,8 @@
 # What is snpQT?
 
-![](img/logo.png){: style="height:auto;width:50%"}
+<p align="center">
+  <img width="300" height="300" src="https://raw.githubusercontent.com/nebfield/snpQT/master/docs/img/logo.png">
+</p>
 
 `snpQT` (pronounced _snip-cutie_) makes your single-nucleotide polymorphisms
 cute. Also, it provides support for processing human genomic variants to do: 
