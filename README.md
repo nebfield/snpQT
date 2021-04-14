@@ -1,6 +1,6 @@
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A520.10.0-brightgreen.svg)](http://nextflow.io)
 [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
-[![Documentation Status](https://readthedocs.org/projects/ansicolortags/badge/?version=latest)](https://snpqt.readthedocs.io/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/ansicolortags/badge/?version=latest)](https://snpqt.readthedocs.io/en/latest/?)
 
 # snpQT
 
