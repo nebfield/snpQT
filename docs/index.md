@@ -38,10 +38,8 @@ guide](user-guide/installation.md) and [quickstart](user-guide/quickstart.md).
 
 `snpQT` definitely won't be useful for you if:
 
-* you want to do quality control on raw sequence reads (try
-  SOFTWARE ALTERNATIVE HERE)
-* you want to call variants from raw sequence reads (try SOFTWARE ALTERNATIVE
-  HERE)
+* you want to do quality control on raw sequence reads 
+* you want to call variants from raw sequence reads 
 * you are working on family GWAS data
 * you're not working with human genomic data (how did you get here?! check out the fantastic [SqueezeMeta](https://github.com/jtamames/SqueezeMeta))
 
@@ -65,6 +63,6 @@ _our cool paper_
 | [plink2](https://www.cog-genomics.org/plink/2.0/)               | 2.00a2.3  | Chang CC, Chow CC, Tellier LCAM, Vattikuti S, Purcell SM, Lee JJ (2015) Second-generation PLINK: rising to the challenge of larger and richer datasets. GigaScience, 4.     | GPL3               |
 | [samtools](https://samtools.github.io)                          | 1.11      | Danecek,  P.et al.(2021).   Twelve  years  of  SAMtools  and  BCFtools.GigaScience,10(2), 1–4                                                                                                                                                                           | MIT                |
 | [shapeit4](https://odelaneau.github.io/shapeit4/)               | 4.1.3     | Delaneau, Olivier, et al. "Accurate, scalable and integrative haplotype estimation." Nature communications 10.1 (2019): 1-10.                                               | MIT                |
-| [snpflip](https://github.com/biocore-ntnu/snpflip)              | 0.0.6     |                                                                                                                                                                             | MIT                |
+| [snpflip](https://github.com/biocore-ntnu/snpflip)              | 0.0.6     |  https://github.com/biocore-ntnu/snpflip                                                                                                                                                                           | MIT                |
 
 We also use countless other bits of software like R, the R tidyverse, etc. 
