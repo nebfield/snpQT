@@ -66,11 +66,9 @@ workflow pop_strat {
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam, parfile_ch)
     pca_plink(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, eigensoft.out.eigenvec)
     // prepare plink pca files for plotting
-    // this seems like a really dumb way to do things, but I can't think of a better way
     // want list of tuples: id, eigenvec, racefile
     after_ch = Channel.from("after").concat(pca_plink.out.after, rf).toList()
     plot_plink_pca(Channel.from("before").concat(pca_plink.out.before, rf).toList().concat(after_ch))
-    // stupidity over
     extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)
     logs = filter_maf.out.log.concat(flip_snps.out.log, align.out.log, merge.out.log, pca_prep.out.log, extract_homogenous.out.log).collect()
     parse_logs("pop_strat", logs, "pop_strat_log.txt")
