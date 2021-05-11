@@ -49,7 +49,7 @@ guide](user-guide/installation.md) and [quickstart](user-guide/quickstart.md).
 
 If you find `snpQT` useful please cite:
 
-_our cool paper_
+[snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data](https://arxiv.org/abs/2105.01923)
 
 ## License and third-party software 
 
