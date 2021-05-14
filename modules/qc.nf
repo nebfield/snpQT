@@ -166,7 +166,7 @@ process heterozygosity_rate {
     plink --bfile !{C4_bed.baseName} \
       --het \
       --out C5_het
-    '''
+	'''
 }
 
 process filter_het {

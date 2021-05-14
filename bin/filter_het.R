@@ -7,8 +7,8 @@ library("tidyverse")
 
 args <- commandArgs(trailingOnly = TRUE)
 
-read_table(args[[1]]) %>%
-    mutate(HET_RATE = (`N(NM)` - `O(HOM)`) / `N(NM)`) -> het
+read.table(args[[1]], header = TRUE) %>%
+    mutate(HET_RATE = (N.NM. - O.HOM.) / N.NM.) -> het
 
 het %>%
   filter(HET_RATE < mean(HET_RATE) - 3 * sd(HET_RATE) |
