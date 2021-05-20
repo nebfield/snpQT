@@ -88,7 +88,7 @@ Pipelines like `snpQT` have many steps, and make a lot of files that aren't show
 
 `snpQT` uses Docker biocontainers or conda to provide bioinformatics software for each part of the pipeline. However, `impute5` has a restrictive license and is only free for academic users:
 
-<https://jmarchini.org/impute5/>
+<https://jmarchini.org/software/#impute-5>
 
 If you want to run imputation locally on your computer, you will need:
 
