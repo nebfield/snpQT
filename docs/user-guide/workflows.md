@@ -43,6 +43,7 @@ Quality control workflow options:
     --maf [0.05 (default), 0-1]
     --missingness [1e-7(default), 0-1]
 	--sexcheck [true (default),false]
+	--rm_missing_pheno [false (default),true]
 	--keep_sex_chroms [true (default),false]
 	--pihat [0.125 (default), 0-1]
 	--pca_covars [3 (default), 1-20]
@@ -68,7 +69,7 @@ Below we list the checks which are followed in the Sample QC workflow:
 
 - **Check for cryptic relatedness and duplicates**: Check for cryptic pairs of relatives using `plink`'s pihat. The default is to remove one sample with the lowest call rate from each pair of relatives. Relatedness is defined as 3rd degree or closer (default threshold for this step is pihat is 0.125). This threshold can be changed using the ‘--pihat‘ parameter.
 
-- **Removal of samples with a missing phenotype**: Samples with missing phenotypes are removed as they can't be used in GWAS. As *missing phenotype* here we refer to case/control status (i.e. the last column in your `plink` .fam file). 
+- **Removal of samples with a missing phenotype**: Remove samples with missing phenotypes. As *missing phenotype* here we refer to case/control status (i.e. the last column in your `plink` .fam file). The default option in snpQT is to skip this step.
 
 At the end of Sample QC a .log file is generated listing the number of samples, variants, phenotypes and working directory for each step where the intermediate files are stored, as well as an .html report containing before-and-after the chosen thesholds plots for the vast majority of the aforementioned steps.
 

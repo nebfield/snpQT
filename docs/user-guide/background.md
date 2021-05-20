@@ -64,6 +64,7 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--variant_geno [0.02 (default), 0-1]` | Change the default variant call rate threshold | `--qc`|
 | `--maf [0.05 (default), 0-1]`      | Change the default minor  allele frequency threshold | `--qc`|
 | `--missingness [1e-7(default), 0-1]` | Change the default p-value threshold for missingness vs case/control status| `--qc`|
+| `--rm_missing_pheno [false (default),true] ` | Remove samples with a missing phenotype| `--qc`|
 | `--indep_pairwise ["50 5 0.2" (default),""]`| Change the default [pruning parameters](http://zzz.bwh.harvard.edu/plink/summary.shtml#prune) | `--qc`, `--qc` + `--pop_strat`|
 | `--pca_covars [3 (default), 1-20]`| Change the default number of first Principal Components which are used to create a covariates file |`--qc` + `--gwas`|
 | `--covar_file [false (default), covar.txt]`| Import your own custom covariates file for GWAS workflow| `--qc` + `--gwas`|
