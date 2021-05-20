@@ -62,42 +62,76 @@ workflow sample_qc {
     }
 	
     
-    relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam)
-    missing_phenotype(relatedness.out.bed, relatedness.out.bim, relatedness.out.fam)
-    
-    if (params.sexcheck && params.keep_sex_chroms) {
+     if (params.rm_missing_pheno){
+	 relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam)
+	 missing_phenotype(relatedness.out.bed, relatedness.out.bim, relatedness.out.fam)
+	 bed = missing_phenotype.out.bed
+     bim = missing_phenotype.out.bim
+     fam = missing_phenotype.out.fam
+    }else if (params.rm_missing_pheno  == false){
+	 relatedness(heterozygosity_prune.out.bed, heterozygosity_prune.out.bim, heterozygosity_prune.out.fam)
+	 bed = relatedness.out.bed
+     bim = relatedness.out.bim
+     fam = relatedness.out.fam
+    }
+	
+    if (params.sexcheck && params.keep_sex_chroms && params.rm_missing_pheno) {
       logs = variant_missingness.out.log.concat(individual_missingness.out.log, check_sex.out.log, heterozygosity_prune.out.log, relatedness.out.log, missing_phenotype.out.log).collect()
       parse_logs("qc", logs, "sample_qc_log.txt")
       figures = plot_missingness.out.figure
         .concat(plot_sex.out.figure, plot_heterozygosity.out.figure, parse_logs.out.figure)
         .collect()
-    } else if (params.sexcheck == false && params.keep_sex_chroms){
+    } else if (params.sexcheck && params.keep_sex_chroms && params.rm_missing_pheno == false) {
+      logs = variant_missingness.out.log.concat(individual_missingness.out.log, check_sex.out.log, heterozygosity_prune.out.log, relatedness.out.log).collect()
+      parse_logs("qc", logs, "sample_qc_log.txt")
+      figures = plot_missingness.out.figure
+        .concat(plot_sex.out.figure, plot_heterozygosity.out.figure, parse_logs.out.figure)
+        .collect()
+    } else if (params.sexcheck == false && params.keep_sex_chroms && params.rm_missing_pheno){
       logs = variant_missingness.out.log.concat(individual_missingness.out.log, heterozygosity_prune.out.log, relatedness.out.log, missing_phenotype.out.log).collect()
       parse_logs("qc", logs, "sample_qc_log.txt")
       figures = plot_missingness.out.figure
         .concat(plot_heterozygosity.out.figure, parse_logs.out.figure)
         .collect()
-    } else if (params.sexcheck == false && params.keep_sex_chroms == false){
+    } else if (params.sexcheck == false && params.keep_sex_chroms && params.rm_missing_pheno == false){
+      logs = variant_missingness.out.log.concat(individual_missingness.out.log, heterozygosity_prune.out.log, relatedness.out.log).collect()
+      parse_logs("qc", logs, "sample_qc_log.txt")
+      figures = plot_missingness.out.figure
+        .concat(plot_heterozygosity.out.figure, parse_logs.out.figure)
+        .collect()
+    }else if (params.sexcheck == false && params.keep_sex_chroms == false && params.rm_missing_pheno){
       logs = variant_missingness.out.log.concat(individual_missingness.out.log, extract_autosomal.out.log, heterozygosity_prune.out.log, relatedness.out.log, missing_phenotype.out.log).collect()
       parse_logs("qc", logs, "sample_qc_log.txt")
       figures = plot_missingness.out.figure
         .concat(plot_heterozygosity.out.figure, parse_logs.out.figure)
         .collect()
-    } else if (params.sexcheck && params.keep_sex_chroms == false){
+    } else if (params.sexcheck == false && params.keep_sex_chroms == false && params.rm_missing_pheno == false){
+      logs = variant_missingness.out.log.concat(individual_missingness.out.log, extract_autosomal.out.log, heterozygosity_prune.out.log, relatedness.out.log).collect()
+      parse_logs("qc", logs, "sample_qc_log.txt")
+      figures = plot_missingness.out.figure
+        .concat(plot_heterozygosity.out.figure, parse_logs.out.figure)
+        .collect()
+    }else if (params.sexcheck && params.keep_sex_chroms == false && params.rm_missing_pheno){
       logs = variant_missingness.out.log.concat(individual_missingness.out.log, check_sex.out.log, extract_autosomal.out.log, heterozygosity_prune.out.log, relatedness.out.log, missing_phenotype.out.log).collect()
       parse_logs("qc", logs, "sample_qc_log.txt")
       figures = plot_missingness.out.figure
         .concat(plot_heterozygosity.out.figure, parse_logs.out.figure)
         .collect()
-    } 
+    } else if (params.sexcheck && params.keep_sex_chroms == false && params.rm_missing_pheno == false){
+      logs = variant_missingness.out.log.concat(individual_missingness.out.log, check_sex.out.log, extract_autosomal.out.log, heterozygosity_prune.out.log, relatedness.out.log).collect()
+      parse_logs("qc", logs, "sample_qc_log.txt")
+      figures = plot_missingness.out.figure
+        .concat(plot_heterozygosity.out.figure, parse_logs.out.figure)
+        .collect()
+    }
 	
     Channel
       .fromPath("$baseDir/bootstrap/sample_report.Rmd", checkIfExists: true)
       .set{ rmd }
     report("qc", figures, rmd)  
-
-  emit:
-    bed = missing_phenotype.out.bed
-    bim = missing_phenotype.out.bim
-    fam = missing_phenotype.out.fam
+	
+   emit:
+    bed
+    bim
+    fam
 } 
