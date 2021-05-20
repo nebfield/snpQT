@@ -52,6 +52,7 @@ def printHelp() {
 		--sexcheck [true (default),false]                   If false, skip the check for sex discrepanies (use if your input genomic data do not contain sex chromosomes)
 		--keep_sex_chroms [true (default),false]            If false, sex chromosomes are removed
 		--pihat [0.125 (default), 0-1]                      Threshold for relatedness identification
+		--rm_missing_pheno [false (default),true]           Remove samples with a missing phenotype
 		--pca_covars [3 (default), 1-20]                    Number of Principal Components to be accounted for generating covariates
 	    --linear [false (default),true]                     Use if you have quantitative data
     
