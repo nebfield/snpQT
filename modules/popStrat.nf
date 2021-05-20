@@ -22,7 +22,7 @@ process filter_maf {
       
     # MAF filtering < 5%
     plink --bfile geno \
-      --maf !{params.maf} \
+      --maf 0.05 \
       --make-bed \
       --out maf_filtered
     
