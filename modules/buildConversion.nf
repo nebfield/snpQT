@@ -49,7 +49,7 @@ process liftover {
   shell:
   '''
   # !{dict} unused but needed to stage in file
-  picard "-Xmx64G" LiftoverVcf \
+  picard "-Xmx!{params.mem}G" LiftoverVcf \
     -I !{vcf} \
     -O out.vcf \
     -CHAIN !{chain} \
