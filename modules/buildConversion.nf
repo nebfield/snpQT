@@ -49,7 +49,7 @@ process liftover {
   shell:
   '''
   # !{dict} unused but needed to stage in file
-  picard -Xmx16g LiftoverVcf \
+  picard "-Xmx64G" LiftoverVcf \
     -I !{vcf} \
     -O out.vcf \
     -CHAIN !{chain} \
@@ -100,6 +100,7 @@ process vcf_to_plink {
 	--id-delim _ \
     --max-alleles 2 \
     --chr 1-22 XY \
+	--allow-extra-chr \
     --make-bed \
     --out converted
 	
