@@ -9,7 +9,6 @@
     * If using docker, you'll need to [run the post-install steps](https://docs.docker.com/engine/install/linux-postinstall/)
 
 !!!Tip
-	Conda or Docker?
 	* Conda is suitable for users who are not interested in performing local imputation and who do not have root access in their machines. However, with Conda you can still run imputation-related workflows, like pre-imputation and post-imputation QC, as well as all the rest QC-related workflows of snpQT.
 	* Docker requires root access, while enables the installation of `impute5`, the imputation software.
 		
