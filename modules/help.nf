@@ -61,7 +61,6 @@ def printHelp() {
 		--qc                                               Run the quality control workflow
 
     Optional:
-		--maf [0.05 (default), 0-1]                        Threshold for minor allele frequency 
 		--indep-pairwise ["50 5 0.2" (default), ""]        Parameters for identifying independent markers
 		--racefile [super (default), sub]                  If set to super or sub, superpopulation and subpopulation codes are used
 		--parfile [false (default), parfile.txt]           Add a parfile for smartpca
