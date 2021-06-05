@@ -12,20 +12,20 @@ def printHelp() {
 	-resume
   
   Main workflow arguments:
-    --download_db                                          Run the reference database setup workflow
-    --convert_build                                        Run the build conversion workflow
-    --qc                                                   Run the quality control workflow
-    --pop_strat                                            Run the population stratification workflow
-    --pre_impute                                           Run the pre-imputation quality control workflow
-	--impute                                               Run the imputation workflow
-    --post_impute                                          Run the post-imputation quality control workflow
-    --gwas                                                 Run the genome wide association study workflow
+    --download_db                                           Run the reference database setup workflow
+    --convert_build                                         Run the build conversion workflow
+    --qc                                                    Run the quality control workflow
+    --pop_strat                                             Run the population stratification workflow
+    --pre_impute                                            Run the pre-imputation quality control workflow
+	--impute                                                Run the imputation workflow
+    --post_impute                                           Run the post-imputation quality control workflow
+    --gwas                                                  Run the genome wide association study workflow
    
-    --results                                              The output directory for results files (default: snpQT/results)
+    --results                                               The output directory for results files (default: snpQT/results)
 
   Database download workflow options:
-    --download_db core                                     Download the core reference files to enable --convertBuild, --qc, --popStrat, and --gwas
-    --download_db impute                                   Download additional reference files to enable --impute
+    --download_db core                                      Download the core reference files to enable --convert_build, --qc, --pop_strat, and --gwas
+    --download_db impute                                    Download additional reference files to enable --impute
 
   Build conversion workflow options:
     Mandatory:
