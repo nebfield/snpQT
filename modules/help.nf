@@ -50,6 +50,7 @@ def printHelp() {
 		--maf [0.05 (default), 0-1]                         Threshold for minor allele frequency 
 		--missingness [1e-7(default), 0-1]                  Threshold for the association between missingness and phenotype status
 		--sexcheck [true (default),false]                   If false, skip the check for sex discrepanies (use if your input genomic data do not contain sex chromosomes)
+		--heterozygosity [true (default),false]             If false, skip the heterozygosity pruning (still able to inspect the distribution)
 		--keep_sex_chroms [true (default),false]            If false, sex chromosomes are removed
 		--pihat [0.125 (default), 0-1]                      Threshold for relatedness identification
 		--rm_missing_pheno [false (default),true]           Remove samples with a missing phenotype
@@ -69,7 +70,8 @@ def printHelp() {
   Pre-imputation workflow options:
     Mandatory:
 		--qc                                               Run the quality control workflow
-
+		--pre_impute                                       Run the pre-imputation quality control workflow
+	
   Imputation workflow options:
     Mandatory:
 		--qc                                               Run the quality control workflow
