@@ -214,14 +214,24 @@ process heterozygosity_prune {
 
     shell:
     '''
-    cut -f 1,2 !{het_failed} > het_failed_plink.txt
-    plink --bfile !{C4_bim.baseName} \
-      --make-bed \
-      --remove het_failed_plink.txt \
-      --out C5
-	plink --bfile C5 \
-      --het \
-      --out C5_after
+	if !{params.heterozygosity};
+	then
+		cut -f 1,2 !{het_failed} > het_failed_plink.txt
+		plink --bfile !{C4_bim.baseName} \
+		  --make-bed \
+		  --remove het_failed_plink.txt \
+		  --out C5
+		plink --bfile C5 \
+		  --het \
+		  --out C5_after
+	else 
+		plink --bfile !{C4_bim.baseName} \
+		  --make-bed \
+		  --out C5
+		plink --bfile C5 \
+		  --het \
+		  --out C5_after
+	fi
     '''
 }
 
