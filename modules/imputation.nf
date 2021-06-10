@@ -78,7 +78,7 @@ process check_ref_allele {
     path(g37)
 
     output:
-    path "F5.bcf", emit: bcf
+    path "F6.bcf", emit: bcf
 
     shell:
     '''
@@ -97,13 +97,13 @@ process bcf_to_vcf {
     path(bcf)
     
     output:
-    path "F6.vcf.gz", emit: vcf
-    path "F6.vcf.gz.csi", emit: idx
+    path "F7.vcf.gz", emit: vcf
+    path "F7.vcf.gz.csi", emit: idx
 	
     shell:
     '''
-    bcftools sort !{bcf} | bcftools convert -Oz > F6.vcf.gz
-    bcftools index F6.vcf.gz
+    bcftools sort !{bcf} | bcftools convert -Oz > F7.vcf.gz
+    bcftools index F7.vcf.gz
     '''
 }
 
