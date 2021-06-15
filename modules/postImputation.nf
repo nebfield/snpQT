@@ -139,9 +139,7 @@ process duplicates_cat3 {
 }
 
 // STEP H6: update ids information
-process update_ids {
-    publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
-    
+process update_ids {    
     input:
     path(bed)
     path(bim)
