@@ -24,7 +24,14 @@ if (params.help) {
 }
 
 if (!params.convert_build && !params.qc && !params.pop_strat && !params.impute && !params.gwas && !params.download_db && !params.pre_impute && !params.post_impute) {
-  println("${params}")
+  println """
+  =================================================================
+  snpQT is ready to make your single-nucleotide polymorphisms cute!
+  v0.1.1 - Fluffy penguin, 2021-06-15
+  Parameters in effect:
+  ${params}
+  =================================================================
+	  """.stripIndent()
   println("Please specify some workflow options")
   println("------------------------------------")
   printHelp()
@@ -34,7 +41,7 @@ if (!params.convert_build && !params.qc && !params.pop_strat && !params.impute &
 println """
 =================================================================
 snpQT is ready to make your single-nucleotide polymorphisms cute!
-v1.0, February 2021
+v0.1.1 - Fluffy penguin, 2021-06-15
 Parameters in effect:
 ${params}
 =================================================================
