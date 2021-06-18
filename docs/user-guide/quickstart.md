@@ -37,8 +37,8 @@ nextflow run main.nf -profile conda --vcf ./data/toy.vcf.gz --fam ./data/toy.fam
     * `--fam`
 * snpQT options:
     * `--convert_build` runs the [build conversion workflow](workflows.md#build-conversion)
-	* `--input_build 37` tells the [build conversion workflow](workflows.md#build-conversion) that the input data are built on b37
-	* `--input_build 38` tells the [build conversion workflow](workflows.md#build-conversion) that the output data should be built on b38
+	* `--input_build` tells the [build conversion workflow](workflows.md#build-conversion) that the input data are built on b37
+	* `--output_build` tells the [build conversion workflow](workflows.md#build-conversion) that the output data should be built on b38
     * `--results` specifies a directory where output files are copied to	
 * Nextflow options:
     * `-resume` is helpful if you want to try different combinations of workflows later

@@ -65,7 +65,7 @@ Below we list the checks which are followed in the Sample QC workflow:
 
 - **Removal of non-autosomal SNPs**: The default mode of `snpQT` is to keep the sex chromosomes. If the user wishes to remove the sex chromosomes, use `--keep_sex_chroms false` 
 
-- **Heterozygosity check**: Extract highly independent SNPs based on Linkage Disequilibrium (LD) and Major Histocompatiblity Complex (MHC) regions, then identify and remove heterozygosity outliers (samples that deviate more than 3 units of Standard Deviation from the mean heterozygosity). The distribution of the samples' heterozygosity is vizualized through a histogram and scatterplot. Extreme heterozygosity implies inbreeding and/or DNA contamination.
+- **Heterozygosity check**: Identify and remove heterozygosity outliers (samples that deviate more than 3 units of Standard Deviation from the mean heterozygosity). The distribution of the samples' heterozygosity is vizualized through a histogram and scatterplot. Extreme heterozygosity implies inbreeding and/or DNA contamination.
 
 - **Check for cryptic relatedness and duplicates**: Check for cryptic pairs of relatives using `plink`'s pihat. The default is to remove one sample with the lowest call rate from each pair of relatives. Relatedness is defined as 3rd degree or closer (default threshold for this step is pihat is 0.125). This threshold can be changed using the ‘--pihat‘ parameter.
 
@@ -122,7 +122,7 @@ This workflow aims to identify and remove ethnic outliers using [EBI's phased la
 !!!Note
 	Population stratification is a sample QC step and for this reason it is designed to run between the Sample and Variant QC `--qc` workflows.
 
-The first step in `--pop_strat` is to prepare and merge 1,000 human genome data with the user's dataset followthing a number of QC steps using `plink2`. The processing steps for 1,000 human genome data include:
+The first step in `--pop_strat` is to prepare and merge 1,000 human genome data with the user's dataset following a number of QC steps using `plink2`. The processing steps for 1,000 human genome data include:
 
 - Removing sex chromosomes
 
@@ -285,7 +285,7 @@ Tha main aims of this workflow are:
 	- Annotate merged SNPs: Merged SNPs are a special category of duplicated SNP ids with different position and ref/alt alleles. You can read more about this category [here](https://www.ncbi.nlm.nih.gov/books/NBK44468/#!po=6.25000).
 
 !!! Note
-	Even though Post-Imputation sub-workflow is nested under the `--impute` flag, it is also designed to run indepedently as some users might prefer running imputation using online servers, or have already imputed data and they wish to proceed with a Post-Imputation QC. 
+	Even though Post-Imputation sub-workflow is nested under the `--impute` flag, it is also designed to run independently as some users might prefer running imputation using online servers, or have already imputed data and they wish to proceed with a Post-Imputation QC. 
 	
 !!! Warning
 	The input `--vcf input.vcf.gz` file should contain the same samples as the input `--fam input.fam` file. In case, they contain different samples `snpQT` will output an error.
@@ -316,14 +316,11 @@ The Genome-Wide Association Studies (GWAS) workflow aims to identify markers wit
 	* Not adjusting for covariates.
 	
 !!!Warning 
-	-`--covar_file` can not be combined with `--pca_covars`
-	- For the format of the covar.txt file please advise [plink2](https://www.cog-genomics.org/plink2/).
-	- Since we are using `plink2`'s `--glm`, the covariates file can not contain columns for the sex of the samples. Sex is automatically accounted for in `--glm`.
+	*`--covar_file` can not be combined with `--pca_covars`
+	* For the format of the covar.txt file please advise [plink2](https://www.cog-genomics.org/plink2/).
+	* Since we are using `plink2`'s `--glm`, the covariates file can not contain columns for the sex of the samples. Sex is automatically accounted for in `--glm`.
 	
 We added these two processes for two main reasons. The first one is to make `--gwas` useful for users who do not wish to run `--pop_strat` or use covariates or even inspect/compare the effect of the used covariates. In this case, the first process will not produce an output (designed so as to not produce an error), but the second process will provide the expected results (along with a Manhattan plot and a QQ-plot). The second reason is for users that wish to run `--pop_strat`, use `--pop_strat` covariates or insert their own covariates and it would be helpful for them to compare their GWAS results in the output plots with and without covariates.
-
-!!! Note
-	This version supports only association tests on binary data. We plan to incorporate linear regression for quantitative traits in a future `snpQT` version.
 
 - **Illustrate a QQ (Quantile-Quantile) plot**: A plot to inspect the lambda genomic inflation parameter (calculated as median 1df chi-square stat / 0.456), expressing the relationship between the observed and the expected quantile p-values of the sample cohort under a normal distribution.
 
