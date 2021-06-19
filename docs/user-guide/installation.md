@@ -2,16 +2,17 @@
 
 [TOC]
 
-`snpQT` uses docker containers or conda to install and run an underlying collection of bioinformatics software. Before you can download and run the pipeline you'll need:
+`snpQT` uses docker containers, Anaconda and/or environment modules to install and run an underlying collection of bioinformatics software. Before you can download and run the pipeline you'll need:
 
-* [Nextflow](https://www.nextflow.io) `>20.01.0`
-* [Docker](https://docs.docker.com/get-docker/) or [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
+* [Nextflow](https://www.nextflow.io) `>=20.10.0`
+* [Docker](https://docs.docker.com/get-docker/), [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) or [Environment Modules](http://modules.sourceforge.net/)
     * If using docker, you'll need to [run the post-install steps](https://docs.docker.com/engine/install/linux-postinstall/)
 
 !!!Tip
 	* Conda is suitable for users who are not interested in performing local imputation and who do not have root access in their machines. However, with Conda you can still run imputation-related workflows, like pre-imputation and post-imputation QC, as well as all the rest QC-related workflows of snpQT.
 	* Docker requires root access, while enables the installation of `impute5`, the imputation software.
-		
+	* Environment modules are useful to run in HPC environments, where root access is not available, however they still require some user configuration because installed packages and package names are custom to each HPC environment
+	
 * A reasonably powerful computer running something Linux flavoured 
     * `snpQT` has been tested on centOS and Ubuntu
 
