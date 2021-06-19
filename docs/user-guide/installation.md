@@ -5,7 +5,7 @@
 `snpQT` uses docker containers, Anaconda and/or environment modules to install and run an underlying collection of bioinformatics software. Before you can download and run the pipeline you'll need:
 
 * [Nextflow](https://www.nextflow.io) `>=20.10.0`
-* [Docker](https://docs.docker.com/get-docker/), [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) or [Environment Modules](http://modules.sourceforge.net/)
+* [Docker](https://docs.docker.com/get-docker/), [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) or [Environment Modules](http://modules.sourceforge.net/)
     * If using docker, you'll need to [run the post-install steps](https://docs.docker.com/engine/install/linux-postinstall/)
 
 !!!Tip
@@ -43,34 +43,34 @@ To do anything interesting with `snpQT` you'll need to download some reference d
 nextflow run main.nf -profile [conda/docker] --download_db core
 ```
 
-This will download the core reference files, prepare them and put them in a `./db/` folder in the `snpQT` directory. On our computers it takes around an hour to run but this may take longer depending on your network. The core dataset requires about ~43GB of initial storage of intermediate files in the `./work/` that can be removed using `nextflow run main.nf --download_db core && rm -r work` and only 19.7Gb of reference files that are stored in database directory `./db/`.
+This will download the core reference files, prepare them and put them in a `db/` folder in the `snpQT` directory. On our computers it takes around an hour to run but this may take longer depending on your network. The core dataset requires about ~43GB of initial storage of intermediate files in the `work/` that can be removed using `nextflow run main.nf --download_db core && rm -r work` and only 19.7GB of reference files that are stored in database directory `db/`.
 
-Another way to download the required reference data is to directly download an already processed `.tar.gz` file (17.3Gb) from one of our servers, which on our computers takes around 40 minutes to finish, using the following lines of code:
+Another way to download the required reference data is to directly download an already processed `.tar.gz` file (17.3GB) from one of our servers, which on our computers takes around 40 minutes to finish, using the following lines of code:
 
 ```
-mkdir ./db/
+mkdir db/
 cd db
 wget https://sys-myo.com/snpQT/core.tar.gz
 tar -xvf core.tar.gz
 ```
 
 !!!Tip
-	If you are not interested in using pre-imputation (and local imputation see below), you can significantly free up space by deleting `All_20180423.vcf.gz` (and `All_20180423.vcf.gz.tbi`), the largest file in the database (14.3Gb) which is only used for this purpose and it is not needed in the other workflows. This will leave you with only ~5Gb size storage of reference files.
+	If you are not interested in using pre-imputation (and local imputation see below), you can significantly free up space by deleting `All_20180423.vcf.gz` (and `All_20180423.vcf.gz.tbi`), the largest file in the database (14.3GB) which is only used for this purpose and it is not needed in the other workflows. This will leave you with only ~5GB size storage of reference files.
 
 ## Imputation reference data
 
-To do local imputation with `snpQT` you'll need to download additional reference data after downloading the core reference data. 
+To perform a local imputation with `snpQT` you'll need to download additional reference data after downloading the core reference data. 
 
 ```
 nextflow run main.nf -profile [conda/docker] --download_db impute
 ```
 
-This will download the imputation reference files and put them in `snpQT/db/impute`. Downloading and processing the imputation data can take an hour or two depending on your network and computer. These reference files require an additional 30GB of storage.
+This command will download the imputation reference files and store them in `snpQT/db/impute/`. Downloading and processing the imputation data can take an hour or two depending on your network and computer. These reference files require an additional 30GB of storage.
 
-Another way to download the required reference data is to directly download an already processed `.tar.gz` file (13Gb) from one of our servers, in our computers the download takes about 25 minutes to finish. For this purpose, you can use the following lines of code:
+Another way to download the required reference data is to directly download an already processed `.tar.gz` file (13GB, when unzipped it requires 19.7GB of space)) from one of our servers, in our computers the download takes about 25 minutes to finish. For this purpose, you can use the following lines of code:
 
 ```
-mkdir ./db/
+mkdir db/
 cd db
 wget https://sys-myo.com/snpQT/impute.tar.gz
 tar -xvf impute.tar.gz
@@ -92,7 +92,7 @@ Pipelines like `snpQT` have many steps, and make a lot of files that aren't show
 
 ## Imputation prerequisite 
 
-`snpQT` uses Docker biocontainers or conda to provide bioinformatics software for each part of the pipeline. However, `impute5` has a restrictive license and is only free for academic users:
+`snpQT` uses Docker BioContainers or Anaconda to provide bioinformatics software for each part of the pipeline. However, `impute5` has a restrictive license and is only free for academic users:
 
 <https://jmarchini.org/software/#impute-5>
 
@@ -106,7 +106,7 @@ cd environments/impute5/
 docker build -t snpqt/imputation .
 ```
 
-When the Dockerfile builds successfully you'll be able to do local imputation.
+When the Dockerfile builds successfully you'll be able to perform local imputation.
 
 ## Run the toy dataset
 
