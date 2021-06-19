@@ -8,17 +8,17 @@ This quickstart assumes you know what you're doing when it comes to human genomi
 
 `snpQT` contains nine different workflows:
 
-| Workflow                        | Inputs              | db             | Docker | Conda |
-|---------------------------------|---------------------|----------------|--------|-------|
-| Reference data setup            | Not applicable      | Not applicable | Yes    | Yes   |
-| Build conversion                | `--vcf --fam`       | core           | Yes    | Yes   |
-| Sample quality control          | `--bed --bim --fam` | core           | Yes    | Yes   |
-| Population stratification       | `--bed --bim --fam` | core           | Yes    | Yes   |
-| Variant quality control         | `--bed --bim --fam` | core           | Yes    | Yes   |
-| Pre-imputation quality control  | `--bed --bim --fam` | core           | Yes    | Yes   |
-| Local phasing & imputation      | `--bed --bim --fam` | core + impute  | Yes    | No    |
-| Post-imputation quality control | `--vcf --fam`       | core           | Yes    | Yes   |
-| GWAS                            | `--bed --bim --fam` | core           | Yes    | Yes   |
+| Workflow                        | Inputs              | db             | Docker | Conda | Modules |
+|---------------------------------|---------------------|----------------|--------|-------|---------|
+| Reference data setup            | Not applicable      | Not applicable | Yes    | Yes   | Yes |
+| Build conversion                | `--vcf --fam`       | core           | Yes    | Yes   | Yes |
+| Sample quality control          | `--bed --bim --fam` | core           | Yes    | Yes   | Yes |
+| Population stratification       | `--bed --bim --fam` | core           | Yes    | Yes   | Yes |
+| Variant quality control         | `--bed --bim --fam` | core           | Yes    | Yes   | Yes |
+| Pre-imputation quality control  | `--bed --bim --fam` | core           | Yes    | Yes   | Yes |
+| Local phasing & imputation      | `--bed --bim --fam` | core + impute  | Yes    | No    | Yes |
+| Post-imputation quality control | `--vcf --fam`       | core           | Yes    | Yes   | Yes |
+| GWAS                            | `--bed --bim --fam` | core           | Yes    | Yes   | Yes |
 
 
 The first time you run a `snpQT` workflow it may seem a little slow. Nextflow will quietly download conda environments and docker images required by the pipeline.
@@ -61,7 +61,7 @@ nextflow run main.nf -profile conda --bed data/toy.bed --fam data/toy.fam --bim 
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively, learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--results` specifies a directory where output files are copied to
@@ -81,7 +81,7 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively, learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
@@ -89,9 +89,9 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
 	* `--results` specifies a directory where output files are copied to.
 	
 !!! note
-    * This workflow assumes your PLINK bfiles are already aligned in b37 
+    * This workflow assumes your binary PLINK files are already aligned in b37 
 	* The SNP IDs need to be in a "rs" ID format, in order to be merged with the 1,000 human genome data
-	* Population stratification can not be used without the quality control workflow
+	* Population stratification can not be used without the quality control workflow. If you forget to add `--qc`, `snpQT` will produce an error and will remind you to add the aforementioned workflow.
 	* You can combine this workflow with `--convert_built` workflow. In this case, the input files should be a VCF and a .fam file.
 	
 
@@ -102,9 +102,9 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively, learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
-    * `--qc` runs the [build conversion workflow](workflows.md#build-conversion)
+    * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
     * `--gwas` runs the [GWAS workflow](workflows.md#genome-wide-association-study)
     * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
@@ -120,14 +120,12 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
 ```
 
 * Inputs:
-    * `--bed`
-    * `--bim`
-    * `--fam`
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
-    * `--qc` runs the [build conversion workflow](workflows.md#build-conversion)
+    * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
-    * `--pre_impute` runs the [Pre-Imputation workflow](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#pre-imputation-quality-control) preparing your dataset for phasing and imputation
-    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes
+    * `--pre_impute` runs the [pre-imputation workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#pre-imputation-quality-control) preparing your dataset for phasing and imputation
+    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
 
 !!! note
     * This workflow assumes your VCF file is aligned in human genome build 37
@@ -141,17 +139,15 @@ nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam
 ```
 
 * Inputs:
-    * `--bed`
-    * `--bim`
-    * `--fam`
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
-    * `--qc` runs the [build conversion workflow](workflows.md#build-conversion)
-    * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
-    * `--impute` runs the pre-imputation, [imputation](workflows.md#phasing-imputation) and post-imputation quality control workflows
-    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes
+    * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
+    * `--pop_strat` runs the [population stratification workflow](workflows.md#population-stratification)
+    * `--impute` runs the [pre-imputation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#pre-imputation-quality-control), [imputation](workflows.md#phasing-imputation) and [post-imputation quality control](https://snpqt.readthedocs.io/en/latest/user-guide/quickstart/#post-imputation) workflows
+    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
 
 !!! note
-	* You will need to have set up a [docker imputation image](installation#imputation-prerequisite) and [additional reference database](installation.md#imputation-reference-data)
+	* You will need to have set up a [docker imputation image](https://snpqt.readthedocs.io/en/latest/user-guide/installation/#imputation-prerequisite) and [additional reference database](installation.md#imputation-reference-data)
     * This workflow assumes your VCF file is aligned to human genome build 37. If your input data are built on b38 you can add `--convert_build --input_build 38 --output_build 37`. In this case, the input files should be a VCF and a .fam file.
 	* Imputation workflow combines pre-imputation and post-imputation, so `--pre_impute`, `--post_impute` and `--impute` should not be used together (if they do an error message is displayed to the standard output).
 
@@ -163,11 +159,9 @@ nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam
 nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --impute --gwas --sexcheck false -resume
 ```
 * Inputs:
-    * `--bed`
-    * `--bim`
-    * `--fam`
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
-    * `--qc` runs the [build conversion workflow](workflows.md#build-conversion)
+    * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
     * `--impute` runs the pre-imputation, [imputation](workflows.md#phasing-imputation) and post-imputation quality control workflows
     * `--gwas` runs the [GWAS workflow](workflows.md#genome-wide-association-study)
@@ -184,8 +178,8 @@ nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --r
 ```
 
 * Inputs:
-    * `--vcf`
-    * `--fam`
+    * `--vcf`: This workflow requires a valid VCF file of human genomic data
+    * `--fam`: This workflow also requires an accompanying plink .fam file which should contain the same samples as the VCF file.
 * snpQT options:
 	* `--post_impute` runs the [post-imputation workflow]
 	* `--sexcheck false`, the toy dataset doesn't have sex chromosomes
