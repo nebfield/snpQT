@@ -4,7 +4,7 @@
 
 [TOC]
 
-This quickstart assumes you know what you're doing when it comes to human genomic variant data and you're not interested in [a more thorough explanation](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/).
+This quickstart assumes you know what you're doing when it comes to human genomic variant data and you're not interested in [a more thorough explanation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/).
 
 `snpQT` contains nine different workflows:
 
@@ -12,37 +12,37 @@ This quickstart assumes you know what you're doing when it comes to human genomi
 |---------------------------------|---------------------|----------------|--------|-------|
 | Reference data setup            | Not applicable      | Not applicable | Yes    | Yes   |
 | Build conversion                | `--vcf --fam`       | core           | Yes    | Yes   |
-| sample quality control          | `--bed --bim --fam` | core           | Yes    | Yes   |
-| population stratification       | `--bed --bim --fam` | core           | Yes    | Yes   |
-| variant quality control         | `--bed --bim --fam` | core           | Yes    | Yes   |
-| pre-imputation                  | `--bed --bim --fam` | core           | Yes    | Yes   |
-| local imputation                | `--bed --bim --fam` | core + impute  | Yes    | No    |
-| post-imputation quality control | `--vcf --fam`       | core           | Yes    | Yes   |
+| Sample quality control          | `--bed --bim --fam` | core           | Yes    | Yes   |
+| Population stratification       | `--bed --bim --fam` | core           | Yes    | Yes   |
+| Variant quality control         | `--bed --bim --fam` | core           | Yes    | Yes   |
+| Pre-imputation quality control  | `--bed --bim --fam` | core           | Yes    | Yes   |
+| Local phasing & imputation      | `--bed --bim --fam` | core + impute  | Yes    | No    |
+| Post-imputation quality control | `--vcf --fam`       | core           | Yes    | Yes   |
 | GWAS                            | `--bed --bim --fam` | core           | Yes    | Yes   |
 
 
 The first time you run a `snpQT` workflow it may seem a little slow. Nextflow will quietly download conda environments and docker images required by the pipeline.
 
-Below are some examples of common tasks that `snpQT` can do (after the [database set up](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/installation/#core-reference-data)). All examples below assume that you're currently in the `snpQT` base directory. Make sure to use different combinations of workflows depending on what is best for your needs! 
+Below are some examples of common tasks that `snpQT` can do (after the [database set up](https://snpqt.readthedocs.io/en/latest/user-guide/installation/#core-reference-data). All examples below assume that you're currently in the `snpQT` base directory. Make sure to use different combinations of workflows depending on what is best for your needs! 
 
 ## Human genome build conversion
 
 ```nextflow
 cd snpQT/
-nextflow run main.nf -profile conda --vcf ./data/toy.vcf.gz --fam ./data/toy.fam --results ./results/ -resume --convert_build --input_build 37 --output_build 38
+nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --results results/ -resume --convert_build --input_build 37 --output_build 38
 ```
 
 * Inputs:
-    * `--vcf`
-    * `--fam`
+    * `--vcf`: This workflow requires a valid VCF file of human genomic data
+    * `--fam`: This workflow also requires an accompanying plink .fam file which should contain the same samples as the VCF file.
 * snpQT options:
     * `--convert_build` runs the [build conversion workflow](workflows.md#build-conversion)
-	* `--input_build` tells the [build conversion workflow](workflows.md#build-conversion) that the input data are built on b37
-	* `--output_build` tells the [build conversion workflow](workflows.md#build-conversion) that the output data should be built on b38
-    * `--results` specifies a directory where output files are copied to	
+	* `--input_build` tells the [build conversion workflow](workflows.md#build-conversion) that the input data are aligned on b37
+	* `--output_build` tells the [build conversion workflow](workflows.md#build-conversion) that the output data should be aligned on b38.
+    * `--results` specifies a directory where the output files are copied to	
 * Nextflow options:
-    * `-resume` is helpful if you want to try different combinations of workflows later
-    * `-profile conda` can be replaced with `-profile docker` depending on your installation
+    * `-resume` is helpful if you want to try different combinations of workflows later, keeping cached work
+    * `-profile conda` can be replaced with `-profile docker` or `-profile modules` depending on your installation.
 	
 !!! note
     * `snpQT` inputs and options always start with two `--` 
@@ -51,26 +51,24 @@ nextflow run main.nf -profile conda --vcf ./data/toy.vcf.gz --fam ./data/toy.fam
 	* You can convert in the end of the `snpQT` pipeline your dataset back to b38 using `--input_build 37 --output_build 38`.
 
 !!!Warning
-	The .fam file should contain the same samples as the VCF. It is used to update the missing sex and phenotype status of the VCF.
+	The .fam file should contain the same samples as the VCF file. It is used to update the missing sex and phenotype status of the VCF file.
 	
 ## Quality control
 
 ```nextflow
 cd snpQT/
-nextflow run main.nf -profile conda --bed ./data/toy.bed --fam ./data/toy.fam --bim ./data/toy.bim --results ./results/ --qc --sexcheck false -resume
+nextflow run main.nf -profile conda --bed data/toy.bed --fam data/toy.fam --bim data/toy.bim --results results/ --qc --sexcheck false -resume
 ```
 
 * Inputs:
-    * `--bed`
-    * `--fam`
-	* `--bim`
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively, learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
-    * `--qc` runs the [quality control workflow](workflows.nd#quality-control)
+    * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--results` specifies a directory where output files are copied to
-    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes
+    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter. 
 * Nextflow options:
     * `-resume` is helpful if you want to try different combinations of workflows later
-    * `-profile conda` can be replaced with `-profile docker` depending on your installation
+    * `-profile conda` can be replaced with `-profile docker` or `-profile modules` depending on your installation.
 
 !!! note
     * This workflow assumes your genomic data are in human genome build 37 
@@ -79,50 +77,46 @@ nextflow run main.nf -profile conda --bed ./data/toy.bed --fam ./data/toy.fam --
 ## Population stratification with quality control
 
 ```nextflow
-nextflow run main.nf -profile conda --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --pop_strat --sexcheck false -resume --results ./results_popStrat/
+nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --sexcheck false -resume --results results_popStrat/
 ```
 
 * Inputs:
-    * `--bed`
-    * `--bim`
-    * `--fam`
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively, learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
-    * `--qc` runs the [quality control workflow](workflows.nd#quality-control)
+    * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
-    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes
-	* `--results` specifies a directory where output files are copied to
+    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter
+	* `--results` specifies a directory where output files are copied to.
 	
 !!! note
-    * This workflow assumes your plink bfiles are already aligned in b37 
-	* The snp ids need to be in a "rs" id format, compatible with the 1,000 human genome data
-	* Population stratification can not be used without quality control workflow
+    * This workflow assumes your PLINK bfiles are already aligned in b37 
+	* The SNP IDs need to be in a "rs" ID format, in order to be merged with the 1,000 human genome data
+	* Population stratification can not be used without the quality control workflow
 	* You can combine this workflow with `--convert_built` workflow. In this case, the input files should be a VCF and a .fam file.
 	
 
 ## GWAS
 
 ```nextflow
-nextflow run main.nf -profile conda --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --pop_strat --gwas --sexcheck false -resume
+nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --gwas --sexcheck false -resume
 ```
 
 * Inputs:
-    * `--bed`
-    * `--bim`
-    * `--fam`
+    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively, learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [build conversion workflow](workflows.md#build-conversion)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
     * `--gwas` runs the [GWAS workflow](workflows.md#genome-wide-association-study)
-    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes
+    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
 
 !!! note
-    * This workflow assumes your VCF file is aligned in human genome build 37
+    * This workflow requires the `--qc` workflow in order to run. But, do not worry, if you forget to add `--qc`, `snpQT` will produce an error and will remind you to add the aforementioned workflow.
 	* If your input data are built on b38 you can add `--convert_build --input_build 38 --output_build 37`. In this case, the input files should be a VCF and a .fam file.
 	
 ## Pre-imputation
 
 ```nextflow
-nextflow run main.nf -profile conda --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --pop_strat --pre_impute --sexcheck false -resume
+nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --pre_impute --sexcheck false -resume
 ```
 
 * Inputs:
@@ -143,7 +137,7 @@ nextflow run main.nf -profile conda --bed ./data/toy.bed --bim ./data/toy.bim --
 ## Imputation 
     
 ```nextflow
-nextflow run main.nf -profile docker --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --pop_strat --impute --sexcheck false -resume
+nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --impute --sexcheck false -resume
 ```
 
 * Inputs:
@@ -166,7 +160,7 @@ nextflow run main.nf -profile docker --bed ./data/toy.bed --bim ./data/toy.bim -
 ## Imputation with GWAS
 
 ```nextflow
-nextflow run main.nf -profile docker --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --pop_strat --impute --gwas --sexcheck false -resume
+nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --impute --gwas --sexcheck false -resume
 ```
 * Inputs:
     * `--bed`
@@ -186,7 +180,7 @@ nextflow run main.nf -profile docker --bed ./data/toy.bed --bim ./data/toy.bim -
 
 ```nextflow
 cd snpQT/
-nextflow run main.nf -profile conda --vcf ./data/toy.vcf.gz --fam ./data/toy.fam --results ./results/ -resume --post_impute --sexcheck false
+nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --results results/ -resume --post_impute --sexcheck false
 ```
 
 * Inputs:
