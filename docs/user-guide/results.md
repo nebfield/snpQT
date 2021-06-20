@@ -301,16 +301,16 @@ ALS dataset: Manhattan plot                  |ALS dataset: Manhattan plot with n
 ![](../img/als_dataset/gwas/logistic_results_manhattan.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_manhattan.png)
 
 
-Toy dataset: QQ-plot                  |Toy dataset: QQ-plot with no covariates
+Toy dataset: Q-Q plot                  |Toy dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
 ![](../img/toy_dataset/gwas/logistic_results_qqplot.png)|![](../img/toy_dataset/gwas/logistic_results_nocovars_qqplot.png)
 
-ALS dataset: QQ-plot                 |ALS dataset: QQ-plot with no covariates
+ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
 ![](../img/als_dataset/gwas/logistic_results_qqplot.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_qqplot.png)
 
 !!!Note 
-	The QQ-plot for ALS data with covariates has a lower lambda value, much closer to 1, which reflects a clean and good quality dataset. This is not the case for the ALS dataset where covariates were not used, which demonstrates that population stratification is an important step, accounting for inner population structure.
+	The Q-Q plot for ALS data with covariates has a lower lambda value, much closer to 1, which reflects a clean and good quality dataset. This is not the case for the ALS dataset where covariates were not used, which demonstrates that population stratification is an important step, accounting for inner population structure.
 	
 ## Imputation
 
@@ -360,11 +360,11 @@ ALS dataset: Manhattan plot                  |ALS dataset: Manhattan plot with n
 ![](../img/als_dataset/gwas/logistic_results_manhattan.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_manhattan.png)
 
 
-Toy dataset: QQ-plot                  |Toy dataset: QQ-plot with no covariates
+Toy dataset: Q-Q plot                  |Toy dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
 ![](../img/toy_dataset/imputation-GWAS/logistic_results_qqplot.png)|![](../img/toy_dataset/imputation-GWAS/logistic_results_nocovars_qqplot.png)
 
-ALS dataset: QQ-plot                 |ALS dataset: QQ-plot with no covariates
+ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
 ![](../img/als_dataset/gwas/logistic_results_qqplot.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_qqplot.png)
 
