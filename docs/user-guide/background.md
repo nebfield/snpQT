@@ -20,11 +20,11 @@ The incorporated workflows include the following:
 
 - **E: Variant Quality Control**: Processes that ensure the quality of the genotyped Single Nucleotide Polymorphisms (SNPs) (e.g. checking variant call rate, Hardy Weinberg Equilibrium, etc.)
 
-- **F: Pre-Imputation**: Processes that ensure that the user's dataset is compatible with phasing and imputation 
+- **F: Pre-Imputation Quality Control**: Processes that ensure that the user's dataset is compatible with phasing and imputation 
 
 - **G: Phasing and Imputation**: Local phasing using `shapeit4`, and imputation using `impute5`
 
-- **H: Post-Imputation**: Removal of low quality SNPs, handling of multiple SNP id duplicate categories, and automatic phenotypic update of the VCF files
+- **H: Post-Imputation Quality Control**: Removal of low quality SNPs, handling of multiple SNP id duplicate categories, and automatic phenotypic update of the VCF files
 
 - **I: GWAS**: Genome-Wide Association Study analysis, using covariates which can be inserted by the user or automatically using the first Principal Components taking into account remaining fine-scale population structure.
 
@@ -33,7 +33,7 @@ A more in-depth and step-by-step view of the workflows is presented in the [Work
 
 `snpQT`  provides the options to:
 
-- use default mode which includes running all workflows (as seen in Figure above)
+- use default mode which includes running all workflows (as seen in the Figure above)
 
 - run alternative paths using different compatible combinations of workflows (examples shown in the upper right corner in the figure above and in the zoomed figure below).
 
@@ -56,11 +56,13 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--vcf` | Path to a [Variant Call Format](https://samtools.github.io/hts-specs/VCFv4.1.pdf) file | `--convert_build`|
 | `--input_build [38 (default),37]` | Assign which built your input data are aligned | `--convert_build` |
 | `--output_build [37 (default),38]` | Assign which built your output data are going to be aligned | `--convert_build` |
+| `--mem [16 (default)]` | Assign the memory size that the LiftoverVCF utility can use | `--convert_build` |
 | `--sexcheck [true (default),false]` | When set to false the sex check step in Sample QC is skipped | `--qc`|
 | `--keep_sex_chroms [true (default),false]` | When set to false the sex chromosomes are removed | `--qc`|
 | `--mind [0.02 (default), 0-1]`     | Change the default sample call rate threshold | `--qc`|
-| `--pihat [0.125 (default), 0-1]`     | Change the default sample call rate threshold | `--qc`|
+| `--king_cutoff [0.125 (default), 0-1]` | Change the default `plink2`’s [relationship-based pruning](https://www.cog-genomics.org/plink/2.0/distance#king_cutoff) threshold | `--qc`|
 | `--hwe [1e-7 (default), 0-1]`     | Change the default Hardy-Weinberg Equilibriem p-value threshold | `--qc`|
+| `--heterozygosity [true (default),false]` | When set to false, it skips the heterozygosity check step | `--qc`|
 | `--variant_geno [0.02 (default), 0-1]` | Change the default variant call rate threshold | `--qc`|
 | `--maf [0.05 (default), 0-1]`      | Change the default minor  allele frequency threshold | `--qc`|
 | `--missingness [1e-7(default), 0-1]` | Change the default p-value threshold for missingness vs case/control status| `--qc`|
@@ -74,6 +76,7 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--parfile [false (default), parfile.txt]` | Change the optional parameters to the parameter file for `smartpca` | `--qc` + `--pop_strat`|
 | `--impute_maf [0.01 (default), 0-1]`| Change the default Minor Allele Frequency threshold in Post-Imputation|`--impute`|
 | `--info [0.7 (default), 0-1]`      | Change the default Info score | `--impute`|
+| `--impute_chroms [1(default), 1-23]`      | Controls the number of chromosomes that are imputed at the same time | `--impute`|
 
 
 
