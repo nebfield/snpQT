@@ -52,7 +52,7 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--impute`          | Pre-Imputation QC, Phasing, Imputation and Post-Imputation  QC  | `--qc` + `--pop_strat`|
 | `--post_impute`     | Post-Imputation QC   | none |
 | `--gwas`            | Genome-Wide Association Analysis           | `--qc`, `--qc` + `--pop_strat`, `--qc` + `--pop_strat` + `--impute`|
-| `--bed`, `--bim`, `--fam` | Path to input binary plink files [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) | `--qc`|
+| `--bed`, `--bim`, `--fam` | Path to input binary PLINK files [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) | `--qc`|
 | `--vcf` | Path to a [Variant Call Format](https://samtools.github.io/hts-specs/VCFv4.1.pdf) file | `--convert_build`|
 | `--input_build [38 (default),37]` | Assign which built your input data are aligned | `--convert_build` |
 | `--output_build [37 (default),38]` | Assign which built your output data are going to be aligned | `--convert_build` |
