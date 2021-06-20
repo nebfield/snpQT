@@ -320,9 +320,9 @@ The Genome-Wide Association Studies (GWAS) workflow aims to identify markers wit
 	* Not adjusting for covariates.
 	
 !!!Warning 
-	-`--covar_file` can not be combined with `--pca_covars`
-	- For the format of the covar.txt file please advise [plink2](https://www.cog-genomics.org/plink2/).
-	- Since we are using `plink2`'s `--glm`, the covariates file can not contain columns for the sex of the samples. Sex is automatically accounted for in `--glm`.
+	* The `--covar_file` parameter can not be combined with `--pca_covars`.
+	* For the format of the covar.txt file please advise [plink2](https://www.cog-genomics.org/plink2/).
+	* Since we are using `plink2`'s `--glm`, the covariates file can not contain columns for the sex of the samples. Sex is automatically accounted for in `--glm`.
 	
 We added these two processes for two main reasons. The first one is to make `--gwas` useful for users who do not wish to run `--pop_strat` or use covariates or even inspect/compare the effect of the used covariates. In this case, the first process will not produce an output (designed so as to not produce an error), but the second process will provide the expected results (along with a Manhattan plot and a Q-Q plot). The second reason is for users that wish to run `--pop_strat`, use `--pop_strat` covariates or insert their own covariates and it would be helpful for them to compare their GWAS results in the output plots with and without covariates.
 
