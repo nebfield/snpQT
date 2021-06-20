@@ -1,6 +1,6 @@
 # Tutorial
 
-This tutorial will guide you through the `snpQT` Quality Control pipeline, explaining the steps and showing the results  of our software using two different datasets. We assume that you followed the [Installation](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/installation/) and the [Quickstart](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/quickstart/) guides and you have set up `snpQT` successfully.
+This tutorial will guide you through the `snpQT` Quality Control pipeline, explaining the steps and showing the results  of our software using two different datasets. We assume that you followed the [Installation](https://snpqt.readthedocs.io/en/latest/user-guide/installation/) and the [Quickstart](https://snpqt.readthedocs.io/en/latest/user-guide/quickstart/) guides and you have set up `snpQT` successfully.
 
 ## The datasets 
 
@@ -38,7 +38,7 @@ The second dataset which we will use in this section is a real-world genomic Amy
 
 ** Toy dataset **
 
-In the `./data/` directory you will find three binary plink files and a vcf.gz file. The toy dataset is built in b37 for an easier use of the `snpQT` tutorial, so there is no need to use the [Build Conversion Workflow](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#build-conversion), but for demonstration purposes we show below two examples of genome build conversion using the toy dataset. 
+In the `./data/` directory you will find three binary plink files and a vcf.gz file. The toy dataset is built in b37 for an easier use of the `snpQT` tutorial, so there is no need to use the [Build Conversion Workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#build-conversion), but for demonstration purposes we show below two examples of genome build conversion using the toy dataset. 
 
 One reason that this workflow can be helpful for users, is when you have completed the `snpQT` QC and population stratification, and you wish to upload your data to an external imputation server that uses a reference panel that is aligned in b38. Or you wish to convert your data to b38 for any other reason, in general.
 You can convert the genomic build of the available toy dataset aligned in b37 to b38, running the following line of code:
@@ -151,7 +151,7 @@ ALS removed samples log in sample QC                 |  ALS removed variants log
 It is normal to expect a drop in the number of variants between C1 and C2 steps, as poor quality variants are removed in B1 (`--geno 0.1`) and if `--keep-sex-chroms false` is used then a decrease between C4 and C5 is expected, as in B4 sex chromosomes are excluded. Accordingly, in the same steps of the sample log plot you observe a flat line.
 
 !!!Note
-	To remember the codes for each step visit the [Workflow Descriptions](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#log-steps-table) section.
+	To remember the codes for each step visit the [Workflow Descriptions](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#log-steps-table) section.
 
 
 ####2. Variant Quality Control
@@ -282,7 +282,7 @@ ALS removed samples log in population stratification |  ALS removed variants log
 ![](../img/als_dataset/popStrat/pop_strat_log_samples.png)   |  ![](../img/als_dataset/popStrat/pop_strat_log_variants.png)
 
 !!!Note
-	To remember the codes for each step visit the [Workflow Descriptions](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control) section.
+	To remember the codes for each step visit the [Workflow Descriptions](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#log-steps-table) section.
 
 ### Genome-Wide Association Study `--gwas`
 
@@ -328,7 +328,7 @@ If you wish to run Imputation locally you should run the following line of code:
 
 ### Pre-Imputation, Imputation & Post-Imputation `--impute`
 
-When `--impute` workflow parameter is used, pre-imputation, local imputation and post-imputation are performed. When [Imputation](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#phasing-imputation) is finished the toy dataset contains 1,666,204 variants located in chromosome 1. Those variants are then further processed and filtered in the [Post-Imputation](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control) workflow. You can see below log graphs illustrating the number of the remaining variants and samples for each step. All the checks in Post-Imputation are performed in variants, but to ensure again that nothing went wrong we also provide details about the number of samples (which remain the same).
+When `--impute` workflow parameter is used, pre-imputation, local imputation and post-imputation are performed. When [Imputation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#phasing-imputation) is finished the toy dataset contains 1,666,204 variants located in chromosome 1. Those variants are then further processed and filtered in the [Post-Imputation QC](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control) workflow. You can see below log graphs illustrating the number of the remaining variants and samples for each step. All the checks in Post-Imputation are performed in variants, but to ensure again that nothing went wrong we also provide details about the number of samples (which remain the same).
 
 Toy: Number of variants per step in Post-Imputation  |  Toy: Number of samples per step in Post-Imputation
 :---------------------------------------------------:|:---------------------------------------:
@@ -340,7 +340,7 @@ ALS: Number of variants per step in Post-Imputation  |  ALS: Number of samples p
 
 !!!Note
 	- You can inspect the exact number of variants and samples per step in the `./results_toy/post_imputation/logs/post_impute_log.txt`
-	- You can check what is the purpose of each step of the code [here](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#log-steps-table).
+	- You can check what is the purpose of each step of the code [here](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#log-steps-table).
 
 Since, the latest EBI 1,000 human genome data release (5b) has removed the variant ids, we annotate all the variants in a "chromosome:position:reference_allele:alternative_allele" format. 
 
@@ -431,7 +431,7 @@ You can add `--info [0.7]` and `--impute_maf [0.01]` parameters to tailor the pr
 Post-imputation makes an extra `./results_toy/post_imputation/` directory which contains three folders `./logs/`, `./figures/` and `./bfiles/`.  
 
 !!!Warning
-	*`--post_impute` parameter can not be linked to any other workflow
+	* The `--post_impute` parameter can not be linked to any other workflow
 	* The `.vcf.gz` should have an INFO column
 	* The `.fam` file should contain the exact same samples as the VCF file (B11.fam -the output file of the `--qc` pipeline would be ideal for this purpose).
 
