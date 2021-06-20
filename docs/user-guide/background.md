@@ -71,12 +71,12 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--pca_covars [3 (default), 1-20]`| Change the default number of first Principal Components which are used to create a covariates file |`--qc` + `--gwas`|
 | `--covar_file [false (default), covar.txt]`| Import your own custom covariates file for GWAS workflow| `--qc` + `--gwas`|
 | `--linear [false (default), true]`| Use when quantitative data are imported | `--qc` |
-| `--racefile [super (default), sub]` | Change the default Variant Call Rate threshold | `--qc` + `--pop_strat`|
+| `--racefile [super (default), sub]` | Assign race labels for the 1,000 Genome data using super population labels (e.g. EUR, AFR, AMR) or subpopulation labels | `--qc` + `--pop_strat`|
 | `--racecode [""(default), EUR/AFR/SAS... ]` | Change the population codes that you wish to include in the poplist.txt file that is used in `smartpca` | `--qc` + `--pop_strat`|
 | `--parfile [false (default), parfile.txt]` | Change the optional parameters to the parameter file for `smartpca` | `--qc` + `--pop_strat`|
-| `--impute_maf [0.01 (default), 0-1]`| Change the default Minor Allele Frequency threshold in Post-Imputation|`--impute`|
-| `--info [0.7 (default), 0-1]`      | Change the default Info score | `--impute`|
-| `--impute_chroms [1(default), 1-23]`      | Controls the number of chromosomes that are imputed at the same time | `--impute`|
+| `--impute_maf [0.01 (default), 0-1]`| Change the default Minor Allele Frequency threshold in Post-Imputation QC workflow |`--impute`, `--post_impute`|
+| `--info [0.7 (default), 0-1]`      | Change the default Info score | `--impute`, `--post_impute`|
+| `--impute_chroms [1(default), 1-23]`      | Controls the number of chromosomes that are imputed at the same time | `--impute`, `--post_impute`|
 
 
 
