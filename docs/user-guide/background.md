@@ -48,9 +48,9 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--convert_build`   | Convert b38 human genome build data to b37 (default) and vice versa| none       |
 | `--qc`              | Sample and variant quality control (QC)    | none       |
 | `--pop_strat`       | Population stratification                  | `--qc`     |
-| `--pre_impute`      | Pre-Imputation                             | `--qc`     |
-| `--impute`          | Pre-Imputation, Phasing, Imputation and Post-Imputation    | `--qc` + `--pop_strat`|
-| `--post_impute`     | Post-Imputation    | none |
+| `--pre_impute`      | Pre-Imputation QC                           | `--qc`     |
+| `--impute`          | Pre-Imputation QC, Phasing, Imputation and Post-Imputation  QC  | `--qc` + `--pop_strat`|
+| `--post_impute`     | Post-Imputation QC   | none |
 | `--gwas`            | Genome-Wide Association Analysis           | `--qc`, `--qc` + `--pop_strat`, `--qc` + `--pop_strat` + `--impute`|
 | `--bed`, `--bim`, `--fam` | Path to input binary plink files [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) | `--qc`|
 | `--vcf` | Path to a [Variant Call Format](https://samtools.github.io/hts-specs/VCFv4.1.pdf) file | `--convert_build`|
