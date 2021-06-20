@@ -33,7 +33,7 @@ nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --r
 ```
 
 * Inputs:
-    * `--vcf`: This workflow requires a valid VCF file of human genomic data
+    * `--vcf`: This workflow requires a valid [Variant Call Format](https://samtools.github.io/hts-specs/VCFv4.1.pdf) (VCF) file of human genomic data
     * `--fam`: This workflow also requires an accompanying PLINK [.fam](https://www.cog-genomics.org/plink2/formats#fam) file which should contain the same samples as the VCF file.
 * snpQT options:
     * `--convert_build` runs the [build conversion workflow](workflows.md#build-conversion)
@@ -178,7 +178,7 @@ nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --r
 ```
 
 * Inputs:
-    * `--vcf`: This workflow requires a valid VCF file of human genomic data
+    * `--vcf`: This workflow requires a valid [Variant Call Format](https://samtools.github.io/hts-specs/VCFv4.1.pdf) (VCF) file of human genomic data
     * `--fam`: This workflow also requires an accompanying PLINK [.fam](https://www.cog-genomics.org/plink2/formats#fam) file which should contain the same samples as the VCF file.
 * snpQT options:
 	* `--post_impute` runs the [post-imputation quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control)
