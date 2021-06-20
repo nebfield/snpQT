@@ -15,11 +15,13 @@ Build conversion workflow options:
   Optional:	
 	--input_build [38 (default),37]
 	--output_build [37 (default),38]
+	--mem [16 (default)]
 ```
 
-`snpQT` assumes that your genomic data are built on human genome build 37. Even though b37 is not the most recent build, it is the most frequently used build among current public, reference genomic datasets (e.g. 1,000 human genome, Haplotype Reference Concortium) and available snp-array datasets, and for this reason we decided that `snpQT` should support b37 for the most of the workflows. However, if you wish to impute your data using an external online server that uses a reference panel in b38 like TOPMed, we provide input parameters to convert your `snpQT` clean dataset from b37 back to b38 (using `--input_build 37` and `--output_build 38`).
+`snpQT` assumes that your genomic data are built on human genome build 37. Even though b37 is not the most recent build, it is the most frequently used build among current public, reference genomic datasets (e.g. 1,000 Genome data, Haplotype Reference Concortium panel) and available SNP-array datasets, and for this reason we decided that `snpQT` should support b37 for the most of the workflows. However, if you wish to impute your data using an external online server that uses a reference panel in b38 like TOPMed, we provide input parameters to convert your `snpQT` clean dataset from b37 back to b38 (using `--input_build 37` and `--output_build 38`). 
 
-This workflow is intented for those users whose data are built on b38 (default) or b37 and they wish to convert them to b37 or b38, accordingly, using `Picard`'s `LiftoverVcf` utility, so that their data are compatible with subsequent `snpQT` workflows and also the users can convert their data in their initial build if they wish to. If your data are built neither on b38 nor b37 then visit our [public git repo](https://github.com/ChristinaVasil/Quality-Control-Pipeline-for-Genomic-data/tree/master/1_HumanGenomeBuildConversion) where you can run the code of this workflow yourselves, using alternative .chain.gz files depending on your current build.
+This workflow is intented for those users whose data are built on b38 (default) or b37 and they wish to convert them to b37 or b38, accordingly, using `Picard`'s `LiftoverVcf` utility, so that their data are compatible with subsequent `snpQT` workflows and also the users can convert their data in their initial build if they wish to. If your data are built neither on b38 nor b37 then visit our [public git repo](https://github.com/ChristinaVasil/Quality-Control-Pipeline-for-Genomic-data/tree/master/1_HumanGenomeBuildConversion) where you can run the code of this workflow yourselves, using alternative .chain.gz files depending on your current build. Lastly, `--mem` parameter controls the memory size that the `LiftoverVCF` utility can use.
+
 
 !!! Warning
 	Be aware that a small portion of SNPs is expected to be removed between conversion. A portion of SNPs are different among different hgb versions (e.g. not present, merged or relabelled).
@@ -45,7 +47,8 @@ Quality control workflow options:
 	--sexcheck [true (default),false]
 	--rm_missing_pheno [false (default),true]
 	--keep_sex_chroms [true (default),false]
-	--pihat [0.125 (default), 0-1]
+	--heterozygosity [true (default),false]
+	--king_cutoff [0.125 (default), 0-1]
 	--pca_covars [3 (default), 1-20]
 	--linear [false (default),true]
 ```
@@ -65,11 +68,11 @@ Below we list the checks which are followed in the Sample QC workflow:
 
 - **Removal of non-autosomal SNPs**: The default mode of `snpQT` is to keep the sex chromosomes. If the user wishes to remove the sex chromosomes, use `--keep_sex_chroms false` 
 
-- **Heterozygosity check**: Identify and remove heterozygosity outliers (samples that deviate more than 3 units of Standard Deviation from the mean heterozygosity). The distribution of the samples' heterozygosity is vizualized through a histogram and scatterplot. Extreme heterozygosity implies inbreeding and/or DNA contamination.
+- **Heterozygosity check**: Identify and remove heterozygosity outliers (samples that deviate more than 3 units of Standard Deviation from the mean heterozygosity). The distribution of the samples' heterozygosity is vizualized through a histogram and scatterplot. Extreme heterozygosity implies inbreeding and/or DNA contamination. This step can be skipped using `--heterozygosity false`. This can be useful in occasions where the dataset has been already through heterozygosity once, so the user does not wish to remove samples again based on this metric.
 
-- **Check for cryptic relatedness and duplicates**: Check for cryptic pairs of relatives using `plink`'s pihat. The default is to remove one sample with the lowest call rate from each pair of relatives. Relatedness is defined as 3rd degree or closer (default threshold for this step is pihat is 0.125). This threshold can be changed using the ‘--pihat‘ parameter.
+- **Check for cryptic relatedness and duplicates**: Check for cryptic pairs of relatives using `plink2`'s [relationship-based pruning](https://www.cog-genomics.org/plink/2.0/distance#king_cutoff) threshold. Relatedness is defined as 3rd degree or closer (default threshold for this step is 0.125). This threshold can be changed using the `--king_cutoff` parameter.
 
-- **Removal of samples with a missing phenotype**: Remove samples with missing phenotypes. As *missing phenotype* here we refer to case/control status (i.e. the last column in your `plink` .fam file). The default option in snpQT is to skip this step.
+- **Removal of samples with a missing phenotype**: Remove samples with missing phenotypes. As *missing phenotype* here we refer to case/control status (i.e. the last column in your PLINK .fam file). The default option in `snpQT` is to skip this step.
 
 At the end of Sample QC a .log file is generated listing the number of samples, variants, phenotypes and working directory for each step where the intermediate files are stored, as well as an .html report containing before-and-after the chosen thesholds plots for the vast majority of the aforementioned steps.
 
@@ -110,7 +113,7 @@ Population stratification options:
     --qc
   
   Optional:
-    --maf [0.05 (default), 0-1]
+    --variant_geno [0.02 (default), 0-1]
     --indep-pairwise ["50 5 0.2" (default), ""]
     --racefile [super (default), sub]
 	--parfile [false (default), parfile.txt]
@@ -132,21 +135,21 @@ The first step in `--pop_strat` is to prepare and merge 1,000 human genome data 
 
 - Removing multi-allelic variants
 
-- Removing very poorly genotyped variants (`--geno 0.1`)
+- Removing very poorly genotyped variants
 
-- Removing samples with low call rate (`--mind 0.02`)
+- Removing samples with low call rate (>98%)
 
-- Removing poorly genotyped variants in a second more stringent threshold (`--geno 0.02`)
+- Removing poorly genotyped variants in a second more stringent threshold (`--variant_geno 0.02`)
 
-- Removing rare variants (`--maf 0.05`)
+- Removing rare variants
 
 - Keeping only highly independent SNPs by excluding regions with high linkage equilibrium and pruning using `--indep-pairwise 50 5 0.2`.
 
 The next step is to prepare the user's dataset (samples having already been processed through the Sample QC workflow):
 
-- Removing poorly genotyped variants in a second more stringent threshold (`--geno 0.02`)
+- Removing poorly genotyped variants in a second more stringent threshold (`--variant_geno 0.02`)
 
-- Removing rare variants (`--maf 0.05`)
+- Removing rare variants
 
 - Keeping only highly independent SNPs by excluding regions with high linkage equilibrium and pruning using `--indep-pairwise 50 5 0.2`.
 
@@ -237,6 +240,7 @@ Imputation workflow options:
 	 Optional:
 	  --impute_maf [0.01 (default), 0-1]
 	  --info [0.7 (default), 0-1]
+	  --impute_chroms [1(default), 1-23]
 
 ```
 
@@ -248,7 +252,7 @@ This workflow has three main parts:
 	
 	* Convert reference genome (1,000 human genome) into a `.imp5` format for each chromosome, using 	imp5Converter
 	* Run `impute5` using the converted reference genome, genetic maps and user's prepared phased data.
-	
+	* Using the parameter `--impute_chroms [1(default), 1-23]` you can control the number of chromosomes that are imputed at the same time. As higher the number of chromosomes is, the more RAM your machine will need to use.
 		
 ## Post-imputation quality control
 
@@ -285,7 +289,7 @@ Tha main aims of this workflow are:
 	- Annotate merged SNPs: Merged SNPs are a special category of duplicated SNP ids with different position and ref/alt alleles. You can read more about this category [here](https://www.ncbi.nlm.nih.gov/books/NBK44468/#!po=6.25000).
 
 !!! Note
-	Even though Post-Imputation sub-workflow is nested under the `--impute` flag, it is also designed to run independently as some users might prefer running imputation using online servers, or have already imputed data and they wish to proceed with a Post-Imputation QC. 
+	Even though Post-Imputation workflow is nested under the `--impute` flag, it is also designed to run independently as some users might prefer running imputation using online servers, or have already imputed data and they wish to proceed with a Post-Imputation QC. 
 	
 !!! Warning
 	The input `--vcf input.vcf.gz` file should contain the same samples as the input `--fam input.fam` file. In case, they contain different samples `snpQT` will output an error.
@@ -307,7 +311,7 @@ GWAS workflow options:
 	  --linear [false (default),true]
 ```
 
-The Genome-Wide Association Studies (GWAS) workflow aims to identify markers with a statistically significant association with the trait of interest. This workflow performs logistic or linear regression (depending on the phenotype) with and without covariates (calculated at the end of the `---qc` workflow and passed to the GWAS workflow). The `---gwas` workflow illustrates the results of Generalized Linear Regression (`plink2`'s `--glm`) in the forms of a Manhattan plot and a QQ-plot. The main processes of this workflow include:
+The Genome-Wide Association Studies (GWAS) workflow aims to identify markers with a statistically significant association with the trait of interest. This workflow performs logistic or linear regression (depending on the phenotype) with and without covariates (calculated at the end of the `---qc` workflow and passed to the GWAS workflow). The `---gwas` workflow illustrates the results of Generalized Linear Regression (`plink2`'s `--glm`) in the forms of a Manhattan plot and a Q-Q plot. The main processes of this workflow include:
 
 - **Run logistic or linear regression**: 
 
@@ -316,13 +320,13 @@ The Genome-Wide Association Studies (GWAS) workflow aims to identify markers wit
 	* Not adjusting for covariates.
 	
 !!!Warning 
-	*`--covar_file` can not be combined with `--pca_covars`
-	* For the format of the covar.txt file please advise [plink2](https://www.cog-genomics.org/plink2/).
-	* Since we are using `plink2`'s `--glm`, the covariates file can not contain columns for the sex of the samples. Sex is automatically accounted for in `--glm`.
+	-`--covar_file` can not be combined with `--pca_covars`
+	- For the format of the covar.txt file please advise [plink2](https://www.cog-genomics.org/plink2/).
+	- Since we are using `plink2`'s `--glm`, the covariates file can not contain columns for the sex of the samples. Sex is automatically accounted for in `--glm`.
 	
-We added these two processes for two main reasons. The first one is to make `--gwas` useful for users who do not wish to run `--pop_strat` or use covariates or even inspect/compare the effect of the used covariates. In this case, the first process will not produce an output (designed so as to not produce an error), but the second process will provide the expected results (along with a Manhattan plot and a QQ-plot). The second reason is for users that wish to run `--pop_strat`, use `--pop_strat` covariates or insert their own covariates and it would be helpful for them to compare their GWAS results in the output plots with and without covariates.
+We added these two processes for two main reasons. The first one is to make `--gwas` useful for users who do not wish to run `--pop_strat` or use covariates or even inspect/compare the effect of the used covariates. In this case, the first process will not produce an output (designed so as to not produce an error), but the second process will provide the expected results (along with a Manhattan plot and a Q-Q plot). The second reason is for users that wish to run `--pop_strat`, use `--pop_strat` covariates or insert their own covariates and it would be helpful for them to compare their GWAS results in the output plots with and without covariates.
 
-- **Illustrate a QQ (Quantile-Quantile) plot**: A plot to inspect the lambda genomic inflation parameter (calculated as median 1df chi-square stat / 0.456), expressing the relationship between the observed and the expected quantile p-values of the sample cohort under a normal distribution.
+- **Illustrate a Q-Q (Quantile-Quantile) plot**: A plot to inspect the lambda genomic inflation parameter (calculated as median 1df chi-square stat / 0.456), expressing the relationship between the observed and the expected quantile p-values of the sample cohort under a normal distribution.
 
 - **Illustrate Manhattan plot**: A plot where the association p-values are represented on the y-axis, and the positions of the tested variants are represented on the x-axis.
 
