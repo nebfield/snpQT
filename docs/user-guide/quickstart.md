@@ -34,7 +34,7 @@ nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --r
 
 * Inputs:
     * `--vcf`: This workflow requires a valid VCF file of human genomic data
-    * `--fam`: This workflow also requires an accompanying plink .fam file which should contain the same samples as the VCF file.
+    * `--fam`: This workflow also requires an accompanying PLINK .fam file which should contain the same samples as the VCF file.
 * snpQT options:
     * `--convert_build` runs the [build conversion workflow](workflows.md#build-conversion)
 	* `--input_build` tells the [build conversion workflow](workflows.md#build-conversion) that the input data are aligned on b37
@@ -113,7 +113,7 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
     * This workflow requires the `--qc` workflow in order to run. But, do not worry, if you forget to add `--qc`, `snpQT` will produce an error and will remind you to add the aforementioned workflow.
 	* If your input data are built on b38 you can add `--convert_build --input_build 38 --output_build 37`. In this case, the input files should be a VCF and a .fam file.
 	
-## Pre-imputation
+## Pre-imputation quality control
 
 ```nextflow
 nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --pre_impute --sexcheck false -resume
@@ -143,7 +143,7 @@ nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat` runs the [population stratification workflow](workflows.md#population-stratification)
-    * `--impute` runs the [pre-imputation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#pre-imputation-quality-control), [imputation](workflows.md#phasing-imputation) and [post-imputation quality control](https://snpqt.readthedocs.io/en/latest/user-guide/quickstart/#post-imputation) workflows
+    * `--impute` runs the [pre-imputation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#pre-imputation-quality-control), [imputation](workflows.md#phasing-imputation) and [post-imputation quality control](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control) workflows
     * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
 
 !!! note
@@ -163,14 +163,14 @@ nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
-    * `--impute` runs the pre-imputation, [imputation](workflows.md#phasing-imputation) and post-imputation quality control workflows
     * `--gwas` runs the [GWAS workflow](workflows.md#genome-wide-association-study)
-    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes
+    * `--impute` runs the [pre-imputation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#pre-imputation-quality-control), [imputation](workflows.md#phasing-imputation) and [post-imputation quality control](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control) workflows
+    * `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
 
 !!! note
-    This workflow assumes your VCF file is aligned to human genome build 37. If your input data are built on b38 you can add `--convert_build --input_build 38 --output_build 37`. In this case, the input files should be a VCF and a .fam file.
+    This workflow assumes your VCF file is aligned to human genome build 37. If your input data are aligned in b38 you can add `--convert_build --input_build 38 --output_build 37`. In this case, the input files should be a VCF and a .fam file.
 
-## Post-imputation
+## Post-imputation quality control
 
 ```nextflow
 cd snpQT/
@@ -179,10 +179,10 @@ nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --r
 
 * Inputs:
     * `--vcf`: This workflow requires a valid VCF file of human genomic data
-    * `--fam`: This workflow also requires an accompanying plink .fam file which should contain the same samples as the VCF file.
+    * `--fam`: This workflow also requires an accompanying PLINK .fam file which should contain the same samples as the VCF file.
 * snpQT options:
-	* `--post_impute` runs the [post-imputation workflow]
-	* `--sexcheck false`, the toy dataset doesn't have sex chromosomes
+	* `--post_impute` runs the [post-imputation quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control)
+	* `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
 
 !!! note
     * `--post_impute` is designed for users who have imputed their data and they wish to perform a post-imputation quality control. You can use the output binary files of this workflow to run any other workflow that is supported by `snpQT`.
