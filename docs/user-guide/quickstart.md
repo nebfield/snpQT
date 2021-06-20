@@ -34,7 +34,7 @@ nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --r
 
 * Inputs:
     * `--vcf`: This workflow requires a valid VCF file of human genomic data
-    * `--fam`: This workflow also requires an accompanying PLINK .fam file which should contain the same samples as the VCF file.
+    * `--fam`: This workflow also requires an accompanying PLINK [.fam](https://www.cog-genomics.org/plink2/formats#fam) file which should contain the same samples as the VCF file.
 * snpQT options:
     * `--convert_build` runs the [build conversion workflow](workflows.md#build-conversion)
 	* `--input_build` tells the [build conversion workflow](workflows.md#build-conversion) that the input data are aligned on b37
@@ -61,7 +61,7 @@ nextflow run main.nf -profile conda --bed data/toy.bed --fam data/toy.fam --bim 
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--bim` and `--fam` expect valid PLINK [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--results` specifies a directory where output files are copied to
@@ -81,7 +81,7 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--bim` and `--fam` expect valid PLINK [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
@@ -102,7 +102,7 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--bim` and `--fam` expect valid PLINK [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
@@ -120,7 +120,7 @@ nextflow run main.nf -profile conda --bed data/toy.bed --bim data/toy.bim --fam 
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--bim` and `--fam` expect valid PLINK [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
@@ -139,7 +139,7 @@ nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam
 ```
 
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--bim` and `--fam` expect valid PLINK [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat` runs the [population stratification workflow](workflows.md#population-stratification)
@@ -159,7 +159,7 @@ nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam
 nextflow run main.nf -profile docker --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --impute --gwas --sexcheck false -resume
 ```
 * Inputs:
-    * `--bed`, `--fam` and `--bim` expect valid PLINK .bed, .bim and .fam files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
+    * `--bed`, `--bim` and `--fam` expect valid PLINK [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) files, respectively. Learn more [here](https://www.cog-genomics.org/plink2/formats).
 * snpQT options:
     * `--qc` runs the [quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#quality-control)
     * `--pop_strat`runs the [population stratification workflow](workflows.md#population-stratification)
@@ -179,7 +179,7 @@ nextflow run main.nf -profile conda --vcf data/toy.vcf.gz --fam data/toy.fam --r
 
 * Inputs:
     * `--vcf`: This workflow requires a valid VCF file of human genomic data
-    * `--fam`: This workflow also requires an accompanying PLINK .fam file which should contain the same samples as the VCF file.
+    * `--fam`: This workflow also requires an accompanying PLINK [.fam](https://www.cog-genomics.org/plink2/formats#fam) file which should contain the same samples as the VCF file.
 * snpQT options:
 	* `--post_impute` runs the [post-imputation quality control workflow](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control)
 	* `--sexcheck false`, the toy dataset doesn't have sex chromosomes so to avoid PLINK producing an error, `snpQT` skips the sex discrepancies check step using this parameter.
