@@ -17,3 +17,5 @@ markdown_extensions:
   - admonition
   - abbr
   - attr_list
+  - toc:
+      permalink:
