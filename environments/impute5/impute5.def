@@ -2,20 +2,38 @@ Bootstrap: docker
 From: ubuntu:18.04
 Stage: spython-base
 
-%files
-impute5_v1.1.4.zip /opt/
 %post
+    # impute5_url changes often! you might have to change it 
+    impute5_url='https://www.dropbox.com/sh/mwnceyhir8yze2j/AADL_tkdcTvW4GSEPqy6zyWUa/old_versions/impute5_v1.1.4.zip?dl=0'
 
-apt-get update && apt-get -y install unzip
-ls /opt/
-unzip /opt/impute5_v1.1.4.zip -d /opt/
-mkdir -p /opt/impute5
-mv /opt/impute5_v1.1.4/impute5_1.1.4_static /opt/impute5/impute5
-mv /opt/impute5_v1.1.4/imp5Converter_1.1.4_static /opt/impute5/imp5Converter
-PATH="/opt/impute5/:${PATH}"
+    apt-get update && apt-get -y install unzip wget
+    wget $impute5_url -O /opt/impute5_v1.1.4.zip
+    unzip /opt/impute5_v1.1.4.zip -d /opt/
+    mkdir -p /opt/impute5
+    mv /opt/impute5_v1.1.4/impute5_1.1.4_static /opt/impute5/impute5_1.1.4_static
+    mv /opt/impute5_v1.1.4/imp5Converter_1.1.4_static /opt/impute5/imp5Converter_1.1.4_static
+    chmod +x /opt/impute5/imp5Converter_1.1.4_static /opt/impute5/impute5_1.1.4_static
+    PATH="/opt/impute5/:${PATH}"
+
 %environment
-export PATH="/opt/impute5/:${PATH}"
+    export PATH="/opt/impute5/:${PATH}"
+  
 %runscript
-exec /bin/bash "$@"
+    exec /bin/bash "$@"
+  
 %startscript
-exec /bin/bash "$@"
+    exec /bin/bash "$@"
+
+%labels
+    Author b.wingfield@ulster.ac.uk
+    Version v0.0.1
+
+%help
+    This singularity definition file demonstrates how to create a singularity
+    container for impute5 v5.1.1.4. It shouldn't be built unless you've accepted
+    the license terms described here:
+
+    https://jmarchini.org/software/
+    https://jmarchini.org/licence/
+
+    You may have to update the dropbox URL to sucessfully build this file.
