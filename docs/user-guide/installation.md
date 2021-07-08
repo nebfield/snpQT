@@ -80,14 +80,14 @@ To set up the core data:
 
 ```
 $ mkdir snpQT-0.1.2/db
-$ wget https://zenodo.org/record/4916469/files/core.tar.gz?download=1 -O snpQT-0.1.2/db/core.tar.gz
+$ wget 'https://zenodo.org/record/4916469/files/core.tar.gz?download=1' -O snpQT-0.1.2/db/core.tar.gz
 $ cd snpQT-0.1.2/db && tar -xvf core.tar.gz
 ```
 
 And optionally if you're doing imputation:
 
 ```
-$ wget https://zenodo.org/record/4916469/files/impute.tar.gz?download=1 -O snpQT-0.1.2/db/impute.tar.gz
+$ wget 'https://zenodo.org/record/4916469/files/impute.tar.gz?download=1' -O snpQT-0.1.2/db/impute.tar.gz
 $ cd snpQT-0.1.2/db && tar -xvf impute.tar.gz 
 ```
 
