@@ -27,7 +27,7 @@ if (!params.convert_build && !params.qc && !params.pop_strat && !params.impute &
   println """
   =================================================================
   snpQT is ready to make your single-nucleotide polymorphisms cute!
-  v0.1.1 - Fluffy penguin, 2021-06-15
+  v0.1.3 - Fluffy penguin, 2021-06-15
   Parameters in effect:
   ${params}
   =================================================================
@@ -41,7 +41,7 @@ if (!params.convert_build && !params.qc && !params.pop_strat && !params.impute &
 println """
 =================================================================
 snpQT is ready to make your single-nucleotide polymorphisms cute!
-v0.1.1 - Fluffy penguin, 2021-06-15
+v0.1.3 - Fluffy penguin, 2021-06-15
 Parameters in effect:
 ${params}
 =================================================================
