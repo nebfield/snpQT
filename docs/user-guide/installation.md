@@ -46,9 +46,9 @@ The [release page always contains the latest version of
 something like:
 
 ```
-$ wget https://github.com/nebfield/snpQT/archive/refs/tags/v0.1.2.zip
-$ unzip v0.1.2.zip
-$ cd snpQT-0.1.2/
+$ wget https://github.com/nebfield/snpQT/archive/refs/tags/v0.1.3.zip
+$ unzip v0.1.3.zip
+$ cd snpQT-0.1.3/
 $ nextflow run main.nf
 ```
 
@@ -79,16 +79,16 @@ post-imputation.
 To set up the core data:
 
 ```
-$ mkdir snpQT-0.1.2/db
-$ wget 'https://zenodo.org/record/4916469/files/core.tar.gz?download=1' -O snpQT-0.1.2/db/core.tar.gz
-$ cd snpQT-0.1.2/db && tar -xvf core.tar.gz
+$ mkdir snpQT-0.1.3/db
+$ wget 'https://zenodo.org/record/4916469/files/core.tar.gz?download=1' -O snpQT-0.1.3/db/core.tar.gz
+$ cd snpQT-0.1.3/db && tar -xvf core.tar.gz
 ```
 
 And optionally if you're doing imputation:
 
 ```
-$ wget 'https://zenodo.org/record/4916469/files/impute.tar.gz?download=1' -O snpQT-0.1.2/db/impute.tar.gz
-$ cd snpQT-0.1.2/db && tar -xvf impute.tar.gz 
+$ wget 'https://zenodo.org/record/4916469/files/impute.tar.gz?download=1' -O snpQT-0.1.3/db/impute.tar.gz
+$ cd snpQT-0.1.3/db && tar -xvf impute.tar.gz 
 ```
 
 ## Build your own reference data (optional)
