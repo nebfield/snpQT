@@ -62,7 +62,7 @@ Let's assume for a start that you want to perform Sample and Variant QC, check f
 
 The toy dataset does not contain sex chromosomes so to avoid `plink` producing an error when running a sex check using the `--check-sex` flag, it is important to add `--sexcheck false` as an extra parameter for this dataset. You can run the following command:
  
-`nextflow run main.nf -profile conda --bed toy.bed --bim toy.bim --fam toy.fam --qc --gwas --pop_strat -resume --results ./results_toy/ --sexcheck false`
+`nextflow run main.nf -profile conda --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --gwas --pop_strat -resume --results ./results_toy/ --sexcheck false`
 
 ** Amyotrophic Lateral Sclerosis (ALS) dataset **
 
@@ -71,7 +71,7 @@ The ALS dataset is aligned using the human genome build 37, so again we did not 
 `nextflow run main.nf -profile conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results ./results_als/`
 
 !!! Note
-	In the previous example I used `-profile conda`. I could alternatively have used `-profile docker`, but if you are not a superuser then `conda` is the only option.
+	In the previous example I used `-profile conda`. I could alternatively have used `-profile docker` or `-profile modules`, but if you are not a superuser then `docker` is the not suitable for you.
 
 Once you hit enter, you should be able to see the following on your standard output:
 
@@ -318,7 +318,7 @@ ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 
 If you wish to run Imputation locally you should run the following line of code:
 
-`nextflow run main.nf -profile docker --bed toy.bed --bim toy.bim --fam toy.fam --qc --pop_strat --gwas --impute -resume --results ./results_toy_imputed/ --sexcheck false`
+`nextflow run main.nf -profile docker --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --pop_strat --gwas --impute -resume --results ./results_toy_imputed/ --sexcheck false`
 
 !!!Tip
 	- You need to be a superuser to run Imputation
@@ -373,7 +373,7 @@ ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 
 If you wish to perform imputation in an external imputation server or you want to use another reference panel than the latest release of 1,000 human genome data, `snpQT` is designed to process your data both before and after imputation, with pre-imputation and post-imputation QC workflows, respectively. If you want to clean your dataset and prepare it for imputation, you can run the following line of code:
 
-`nextflow run main.nf -profile docker --bed toy.bed --bim toy.bim --fam toy.fam --qc --pop_strat --pre_impute -resume --results ./results_toy/ --sexcheck false`
+`nextflow run main.nf -profile docker --bed ./data/toy.bed --bim ./data/toy.bim --fam ./data/toy.fam --qc --pop_strat --pre_impute -resume --results ./results_toy/ --sexcheck false`
 
 Pre-imputation makes an extra `./results_toy/preImputation/files/` directory which contains 2,612 variants stored in `D11.vcf.gz` and an indexed `D11.vcf.gz.csi` file. 
 
