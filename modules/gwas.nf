@@ -35,6 +35,7 @@ process plot {
     
     input:
     tuple id, path(gwas), path(log)
+    tuple val(id), path(gwas), path(log)
 	
     output:
     path "*_qqplot.png", emit: qqplot
