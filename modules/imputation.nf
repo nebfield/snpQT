@@ -206,7 +206,7 @@ process impute5 {
     label 'bigmem'
 
     input:
-    tuple chr, file('1k_b37_reference_chr.imp5'), \
+    tuple val(chr), file('1k_b37_reference_chr.imp5'), \
         file('1k_b37_reference_chr.imp5.idx'), file('G2.vcf.gz'), \
         file('G2.vcf.gz.csi'), file('genetic_maps.b37.tar.gz') 
        
