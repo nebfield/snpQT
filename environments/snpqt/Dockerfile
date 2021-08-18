@@ -13,7 +13,7 @@ ENV BCFTOOLS_PLUGINS=/opt/bcftools-1.10.2/plugins
 
 RUN R -e 'install.packages(c("cowplot", "plotly", "htmlwidgets", "qqman", "tidyverse"))'
 
-RUN curl http://s3.amazonaws.com/plink2-assets/alpha2/plink2_linux_avx2.zip \
+RUN curl https://s3.amazonaws.com/plink2-assets/alpha2/plink2_linux_x86_64.zip \
   --output /opt/plink2.zip
 RUN unzip /opt/plink2.zip -d /opt/plink2/
 ENV PATH="/opt/plink2:${PATH}"
