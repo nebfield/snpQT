@@ -1,5 +1,5 @@
 // GWAS workflow
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 // import modules
 include {run_gwas} from '../modules/gwas.nf' // I1

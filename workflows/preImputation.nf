@@ -1,5 +1,5 @@
 // Imputation workflow
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 // import modules
 include {set_chrom_code} from '../modules/imputation.nf' // F1

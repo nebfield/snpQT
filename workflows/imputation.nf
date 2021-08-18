@@ -1,5 +1,5 @@
 // Imputation workflow
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 // import modules
 include {annotate_ids} from '../modules/download_db.nf' // A6

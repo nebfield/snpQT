@@ -1,5 +1,5 @@
 // Build conversion workflow
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 // import modules
 include {decompress; decompress as decompress_otherBuild} from '../modules/download_db.nf' // A1

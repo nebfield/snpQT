@@ -1,5 +1,5 @@
 // Post-imputation QC workflow
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 // import modules
 include {filter_imp} from '../modules/postImputation.nf' // H1

@@ -1,7 +1,7 @@
 // Variant quality control workflow
 
 // enable dsl2
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 // import modules
 include {mpv} from '../modules/qc.nf' // E8
