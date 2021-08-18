@@ -1,4 +1,19 @@
 ---
+  # input parameters -----------------------------------------------------------
+  # fam filepath is mandatory for all workflows
+  fam: 'data/toy.fam'
+
+  # if you're doing build conversion, input data needs to be a VCF filepath
+  # (otherwise set to false)
+  vcf: 'data/toy.vcf.gz'
+
+  # if you're not doing build conversion, input data needs a bed / bim filepath
+  bed: false
+  bim: false
+  
+  # output parameters ----------------------------------------------------------
+  results: "$baseDir/results/"
+  
   # workflow parameters --------------------------------------------------------
   convert_build: false
   qc: false
@@ -42,13 +57,6 @@
   info: 0.7
   impute_maf: 0.01
 
-  # output parameters ----------------------------------------------------------
-  results: "$baseDir/results/"
-
   # dummy parameters to silence nextflow warnings ------------------------------
-  bed: false
-  bim: false
-  fam: false
-  vcf: false
   help: false
   download_db: false
