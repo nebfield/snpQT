@@ -35,7 +35,7 @@ process num_to_chr {
 
 // STEP B4: Run liftOver to map genome build -----------------------------------
 process liftover {
-  memory { params.mem + 'GB' }
+  memory { (params.mem * 1.2) + 'G' }
 
   input:
   path(vcf)
