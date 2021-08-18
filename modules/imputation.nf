@@ -203,7 +203,7 @@ process convert_imp5 {
 // then combine so each tuple element has a shapeit4 map file 
 
 process impute5 {
-    maxForks params.impute_chroms
+    label 'bigmem'
 
     input:
     tuple chr, file('1k_b37_reference_chr.imp5'), \
