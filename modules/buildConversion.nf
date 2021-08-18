@@ -35,7 +35,8 @@ process num_to_chr {
 
 // STEP B4: Run liftOver to map genome build -----------------------------------
 process liftover {
-  
+  memory { params.mem + 'GB' }
+
   input:
   path(vcf)
   path(hg)
@@ -81,7 +82,6 @@ process chr_to_num {
 
 // STEP B6: Convert VCF to PLINK format ---------------------------------------
 process vcf_to_plink {
-
   publishDir "${params.results}/convertBuild/files/", mode: 'copy'
   
   input:
