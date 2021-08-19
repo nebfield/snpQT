@@ -1,8 +1,8 @@
 # Imputation set up 
 
 The software we use for imputation, `impute5`, has a restrictive license. You
-will need to accept this license, download the software, and configure `snpQT`
-to use it.
+will need to accept this license, [download the
+software](https://jmarchini.org/software/), and configure `snpQT` to use it.
 
 ## Singularity
 
@@ -22,10 +22,9 @@ Then build a Singularity `.sif` file:
 $ sudo singularity build impute5.sif impute5.def
 ```
 
-Building Singularity images requires **root access**, however you can run
-Singularity containers without root (unlike Docker). If you want to impute on a
-computer where you don't have root access, you can transfer the `impute5.sif` to
-`environments/impute5/`.
+Singularity containers can run by normal users, but building Singularity images
+requires **root access**. If you want to impute on a computer where you don't have
+root access, you can transfer the `impute5.sif` to `environments/impute5/`.
 
 If you don't have root access on any computers, you could try Singularity's
 [remote builder service](https://cloud.sylabs.io/builder). Or maybe use a
@@ -62,7 +61,7 @@ process {
 }
 ```
 
-And change 'impute/5_1.1.4` to whatever is listed in `module avail`. `-profile
+And change `impute/5_1.1.4` to whatever is listed in `module avail`. `-profile
 modules` also requires Anaconda to be installed. 
 
 ## Docker
