@@ -2,12 +2,11 @@ Bootstrap: docker
 From: ubuntu:18.04
 Stage: spython-base
 
+%files
+    impute5_v1.1.4.zip /opt/
+    
 %post
-    # impute5_url changes often! you might have to change it 
-    impute5_url='https://www.dropbox.com/sh/mwnceyhir8yze2j/AADL_tkdcTvW4GSEPqy6zyWUa/old_versions/impute5_v1.1.4.zip?dl=0'
-
-    apt-get update && apt-get -y install unzip wget
-    wget $impute5_url -O /opt/impute5_v1.1.4.zip
+    apt-get update && apt-get -y install unzip 
     unzip /opt/impute5_v1.1.4.zip -d /opt/
     mkdir -p /opt/impute5
     mv /opt/impute5_v1.1.4/impute5_1.1.4_static /opt/impute5/impute5_1.1.4_static
@@ -35,5 +34,3 @@ Stage: spython-base
 
     https://jmarchini.org/software/
     https://jmarchini.org/licence/
-
-    You may have to update the dropbox URL to sucessfully build this file.
