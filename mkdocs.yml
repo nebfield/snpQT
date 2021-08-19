@@ -2,9 +2,14 @@ site_name: snpQT
 site_author: Christina Vasilopoulou, Benjamin Wingfield, William Duddy
 nav:
   - 'Home': index.md
-  - 'User Guide': 
-      - 'Installation': user-guide/installation.md
-      - 'Quickstart': user-guide/quickstart.md
+  - 'Quick start': 
+      - 'Installation': quickstart/installation.md
+      - 'Profiles': quickstart/profiles.md
+      - 'Parameter file': quickstart/parameters.md
+      - 'Imputation': quickstart/imputation.md
+      - 'Example run': quickstart/quickstart.md
+  - 'User guide':
+      - 'Advanced installation': user-guide/installation.md 
       - 'Background': user-guide/background.md
       - 'Workflows description': user-guide/workflows.md
       - 'Tutorial': user-guide/results.md
