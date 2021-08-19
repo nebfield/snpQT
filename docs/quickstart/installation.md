@@ -1,7 +1,5 @@
 # Installation
 
-[TOC]
-
 Assuming you're running a modern version of Linux, firstly install
 [Nextflow](https://www.nextflow.io):
 
