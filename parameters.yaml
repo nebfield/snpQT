@@ -15,8 +15,8 @@
   results: "$baseDir/results/"
   
   # workflow parameters --------------------------------------------------------
-  convert_build: false
-  qc: false
+  convert_build: true
+  qc: true
   pop_strat: false 
   impute: false
   pre_impute: false
@@ -29,7 +29,7 @@
   mem: 16
 
   # qc & popstrat parameters ---------------------------------------------------
-  sexcheck: true
+  sexcheck: false
   keep_sex_chroms: true
   mind: 0.02
   indep_pairwise: '50 5 0.2'
