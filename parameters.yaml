@@ -139,8 +139,8 @@
   impute_maf: 0.01
   
   # The chosen default thresholds are used only to improve the user experience,
-  # they have been chosen based on related literature and experience on our own
-  # datasets, however, each dataset is unique, so please feel to change them
+  # they have been chosen based on experience on our own datasets, 
+  # however, each dataset is unique, so please feel free to change them
   # taking into account the accepted ranges
   
   # dummy parameters to silence nextflow warnings ------------------------------
