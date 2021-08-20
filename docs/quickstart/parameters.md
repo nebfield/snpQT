@@ -11,6 +11,14 @@ It's important that you understand what each parameter means. Different data
 sets will require different parameters if you want to do sensible quality
 control and analysis.
 
+We recommend using a parameter file instead of specifying parameters at the
+[command line](https://www.nextflow.io/docs/latest/config.html) because:
+
+* You'll have a permanent record of your specified parameters. If you wanted to
+  publish an analysis you could include this file as a supplement.
+* `snpQT` has a lot of parameters. Specifying them all on the command line can
+  be confusing!
+
 To make things easier we have provided an example parameters.yaml file with
 `snpQT`:
 

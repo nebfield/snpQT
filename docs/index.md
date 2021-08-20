@@ -16,13 +16,15 @@ cute. Also, it provides support for processing human genomic variants to do:
 * post-imputation quality control
 * genome-wide association studies
 
-with an automated and containerised `nextflow` pipeline.
+within an automated nextflow pipeline. We run a collection of versioned
+bioinformatics software in Singularity containers or Anaconda environments to
+improve reliability and reproducibility.
 
 ## Who is snpQT for?
 
 `snpQT` might be useful for you if:
 
-* you want a clean Genomic dataset using a reproducible, fast and comprehensive pipeline
+* you want a clean genomic dataset using a reproducible, fast and comprehensive pipeline
 * you are interested to identify significant SNP associations to a trait
 * you want to identify ethnic outliers
 * you wish to perform imputation locally
@@ -36,20 +38,20 @@ with an automated and containerised `nextflow` pipeline.
 * your samples have either a binary or a quantitative phenotype
 
 If this sounds like you, check out the [installation
-guide](user-guide/installation.md) and [quickstart](user-guide/quickstart.md).
+guide](quickstart/installation.md). 
 
 `snpQT` definitely won't be useful for you if:
 
 * you want to do quality control on raw sequence reads 
 * you want to call variants from raw sequence reads 
 * you are working on family GWAS data
-* you're not working with human genomic data (how did you get here?! check out the fantastic [SqueezeMeta](https://github.com/jtamames/SqueezeMeta))
+* you're not working with human genomic data 
 
 ## Citation
 
 If you find `snpQT` useful please cite:
 
-[snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data](https://arxiv.org/abs/2105.01923)
+Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data [version 1; peer review: 1 approved with reservations]. F1000Research 2021, 10:567 (https://doi.org/10.12688/f1000research.53821.1)
 
 ## License and third-party software 
 
