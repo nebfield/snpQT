@@ -7,7 +7,8 @@ Assuming you're running a modern version of Linux, firstly install
 $ curl -s https://get.nextflow.io | bash 
 ```
 
-Then simply run:
+Make sure to add `nextflow` to [PATH](https://unix.stackexchange.com/a/26059) so
+you can run nextflow in your terminal from anywhere. Then simply run:
 
 ```
 $ nextflow run nebfield/snpqt -r v0.1.4
