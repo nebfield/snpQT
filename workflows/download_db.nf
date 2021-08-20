@@ -1,7 +1,7 @@
 // Database download workflow
 
 // enable dsl2
-nextflow.preview.dsl = 2
+nextflow.enable.dsl = 2
 
 // import modules
 include {qc_ref_data} from '../modules/download_db.nf' // A1
