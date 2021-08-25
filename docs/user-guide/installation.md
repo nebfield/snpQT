@@ -4,6 +4,8 @@
 
 ## Clone development version
 
+Download the most recent development version (pulling all the commits in our repository):
+
 ```
 $ git clone https://github.com/nebfield/snpQT.git
 ```

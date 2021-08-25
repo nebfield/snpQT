@@ -17,18 +17,21 @@ $ nextflow run nebfield/snpqt -r v0.1.4
 Where `-r v0.1.4` reflects the latest release of `snpQT`. You can find different
 releases of snpQT on our [releases
 page](https://github.com/nebfield/snpQT/releases).  You should see a helpful
-message in your terminal if everything went well.
+message in your terminal if everything went well. In case you wish to pull the latest changes to the snpQT 
+repository check our [Advanced Installation](https://snpqt.readthedocs.io/en/latest/quickstart/installation/) guide.
 
 Finally, you must download some reference data
 ([10.5281/zenodo.4916468](https://doi.org/10.5281/zenodo.4916468)) for snpQT to
 work:
 
+Identify the local path (by default
+`$HOME/.nextflow/assets/nebfield/snpqt`):
+
 ```
 $ nextflow info nebfield/snpqt
 ```
 
-Download the reference files to the local path (by default
-`$HOME/.nextflow/assets/nebfield/snpqt`):
+Download the reference files to the local path:
 
 ```
 $ cd $HOME/.nextflow/assets/nebfield/snpqt
