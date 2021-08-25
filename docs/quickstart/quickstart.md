@@ -2,8 +2,8 @@
 
 Assuming you've been able to:
 
-* [Installed](installation.md) `snpQT`
-* Picked and maybe configured [a profile](profiles.md)
+* [Install](installation.md) `snpQT`
+* Pick and maybe configure [a profile](profiles.md)
 * Set up your own [parameter file](parameters.md)
 
 You're now ready to run `snpQT`:
@@ -19,10 +19,10 @@ nextflow run nebfield/snpqt -params-file <path_to_params_file> -profile standard
   checkpoints and allows `-resume` to continue work if the pipeline stops. The
   directory can get quite big.
 
-Once the pipeline finishes, a summary analysis ond your output data will be
-published to the directory you specify in the parameter file.
+Once the pipeline finishes, a summary analysis and your output data will be
+published to the `--results` directory you specified in the parameter file.
 
-A simple full example using the provided toy dataset:
+A simple full example using the provided toy dataset (stored in `data/` directory) including a Sample and Variant QC:
 
 ```
 $ nextflow info nebfield/snpqt
@@ -31,8 +31,9 @@ $ cp -r $HOME/.nextflow/assets/nebfield/snpqt/results $HOME/snpqt_toy_results
 ```
 
 Feel free to inspect the reports generated in `$HOME/snpqt_toy_results`. The
-reports will look a bit odd because the input data is synthetic. 
+reports will look a bit odd because the input data is synthetic. For a more detailed exploration of all the implemented
+workflows on the toy dataset, as well as a real-life ALS- Control Cohort visit our [Tutorial](https://snpqt.readthedocs.io/en/latest/user-guide/results/) page.
 
 There are nine individual workflows in `snpQT`. We provide a detailed
-explanation of each workflow in the [user guide](../user-guide/tutorial.md)
+explanation of each workflow in the [User guide](https://snpqt.readthedocs.io/en/latest/user-guide/background/)
 section.
