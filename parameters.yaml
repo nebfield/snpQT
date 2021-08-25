@@ -21,7 +21,7 @@
   #   https://snpqt.readthedocs.io/en/latest/user-guide/background/
   
   # build conversion workflow
-  convert_build: true
+  convert_build: false
   # sample and variant QC workflow
   qc: true
   # population stratification workflow
