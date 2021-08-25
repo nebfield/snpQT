@@ -7,6 +7,13 @@ Assuming you're running a modern version of Linux, firstly install
 $ curl -s https://get.nextflow.io | bash 
 ```
 
+The minimal supported version of Nextflow is `21.04.3`. If you have already installed an older version of Nextflow, 
+you can update the version like this:
+
+```
+$ nextflow self-update 
+```
+
 Make sure to add `nextflow` to [PATH](https://unix.stackexchange.com/a/26059) so
 you can run nextflow in your terminal from anywhere. Then simply run:
 
