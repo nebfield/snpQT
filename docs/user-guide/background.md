@@ -6,7 +6,7 @@ A rapid explosion in the quantity of genomic data has created the need for syste
 
 `snpQT` is comprised of nine different interconnected workflows, as seen in the Figure below. 
 
-![Screenshot](../img/snpQT_workflow_228.pdf)
+![Screenshot](../img/snpQT_workflow.png)
 
 The incorporated workflows include the following:
 
