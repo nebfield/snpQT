@@ -5,11 +5,11 @@
 
   # if you're doing build conversion, input data needs to be a VCF filepath
   # (otherwise set to false)
-  vcf: 'data/toy.vcf.gz'
+  vcf: false
 
   # if you're not doing build conversion, input data needs a bed / bim filepath
-  bed: false
-  bim: false
+  bed: 'data/toy.bed'
+  bim: 'data/toy.bim'
   
   # output parameters ----------------------------------------------------------
   results: "$baseDir/results/"
