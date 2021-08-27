@@ -217,23 +217,23 @@ process pca_prep {
     '''
 }
 
-// STEP D7: Create a racefile ----------------------------------
-process racefile {
+// STEP D7: Create a popfile ----------------------------------
+process popfile {
     input:
     path(panel)
     
     output:
-    path "super_racefile.txt", emit: super
-    path "sub_racefile.txt", emit: sub
+    path "super_popfile.txt", emit: super
+    path "sub_popfile.txt", emit: sub
 
     shell:
     '''
-    # Make 1st racefile, using the 20130502 panel using superpopulation codes
+    # Make 1st popfile, using the 20130502 panel using superpopulation codes
     # (i.e., AFR,AMR,EASN,SAS and EUR)
-    awk '{print $1,$1,$3}' !{panel} > super_racefile.txt
+    awk '{print $1,$1,$3}' !{panel} > super_popfile.txt
 
-    # Make 2nd racefile, using the 20130502 panel using subpopulation codes 
-    awk '{print $1,$1,$2}' !{panel} > sub_racefile.txt  
+    # Make 2nd popfile, using the 20130502 panel using subpopulation codes 
+    awk '{print $1,$1,$2}' !{panel} > sub_popfile.txt  
     '''
 }
 
@@ -243,27 +243,27 @@ process eigensoft {
     path bed
     path bim
     path fam
-    path racefile
+    path popfile
     path pca_fam
     path parfile
 
     output:
     path "eigenvec", emit: eigenvec
-    path "merged_racefile.txt", emit: merged_racefile 
+    path "merged_popfile.txt", emit: merged_popfile 
     path "keep_sample_list.txt", emit: keep_samples
     
     shell:
     '''
-    # Concatenate racefiles: User's + racefile
-    awk '{print $1,$2,"OWN"}' !{pca_fam} > racefile_toy_own.txt
-    cat !{racefile} racefile_toy_own.txt | sed -e '1i\\FID IID race' >  merged_racefile.txt
+    # Concatenate popfiles: User's + popfile
+    awk '{print $1,$2,"OWN"}' !{pca_fam} > popfile_toy_own.txt
+    cat !{popfile} popfile_toy_own.txt | sed -e '1i\\FID IID pop' >  merged_popfile.txt
 
     # Assign populations to FID and IIDs, make .pedind
-    awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_racefile.txt !{fam} > D8_indep.pedind
+    awk 'NR==FNR {h[\$2] = \$3; next} {print \$1,\$2,\$3,\$4,\$5,h[\$2]}' merged_popfile.txt !{fam} > D8_indep.pedind
 
     # make poplist.txt
     echo "OWN" > poplist.txt
-    echo !{params.racecode} | xargs -n1 >> poplist.txt
+    echo !{params.popcode} | xargs -n1 >> poplist.txt
     
     echo "genotypename: !{bed}" > parfile
     echo "snpname:      !{bim}" >> parfile
@@ -297,7 +297,7 @@ process pca_plink {
     plink --bfile !{bed.baseName} \
       --pca header \
       --out before
-    # Keep only a homogenous ethnic cohort
+    # Keep only a homogenous cohort
     awk '{print $1}' !{eigenvec} | tail -n +2 | awk -F ":" '{print $1,$2}' > keep_sample_list.txt
     plink --bfile !{bed.baseName} \
         --keep keep_sample_list.txt \
@@ -313,7 +313,7 @@ process plot_plink_pca {
     publishDir "${params.results}/pop_strat/figures", mode: 'copy'
     
     input:
-    tuple val(id), path(eigenvec), path(racefile)
+    tuple val(id), path(eigenvec), path(popfile)
 
     output:
     path "*.png", emit: figure
@@ -321,11 +321,11 @@ process plot_plink_pca {
     
     shell:
     '''
-    plot_pca_plink.R !{eigenvec} !{racefile} !{id}
+    plot_pca_plink.R !{eigenvec} !{popfile} !{id}
     '''    
 }
 
-// STEP D9: Extract a homogenous ethnic group ------------------------------------------------------
+// STEP D9: Extract a homogenous group ------------------------------------------------------
 process extract_homogenous {
     publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
     

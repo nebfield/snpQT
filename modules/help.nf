@@ -64,9 +64,9 @@ def printHelp() {
 
     Optional:
         --indep-pairwise ["50 5 0.2" (default), ""]        Parameters for identifying independent markers
-        --racefile [super (default), sub]                  If set to super or sub, superpopulation and subpopulation codes are used
+        --popfile [super (default), sub]                   If set to super or sub, superpopulation and subpopulation codes are used
         --parfile [false (default), parfile.txt]           Add a parfile for smartpca
-        --racecode [""(default), "EUR"/"AFR"/"SAS"... ]    List population codes for smartpca
+        --popcode [""(default), "EUR"/"AFR"/"SAS"... ]     List population codes for smartpca
 
   Pre-imputation workflow options:
     Mandatory:

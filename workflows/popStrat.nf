@@ -8,7 +8,7 @@ include {flip_snps} from '../modules/popStrat.nf' // D4
 include {align} from '../modules/popStrat.nf' // D5
 include {merge} from '../modules/popStrat.nf' // D6
 include {pca_prep} from '../modules/popStrat.nf' // D6
-include {racefile} from '../modules/popStrat.nf' // D7
+include {popfile} from '../modules/popStrat.nf' // D7
 include {eigensoft} from '../modules/popStrat.nf' // D8
 include {pca_plink} from '../modules/popStrat.nf' // D8
 include {plot_plink_pca} from '../modules/popStrat.nf' // D8
@@ -48,11 +48,11 @@ workflow pop_strat {
     Channel
       .fromPath("${params.db}/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
       .set{ panel }
-    racefile(panel)
-    if (params.racefile == "super") {
-      rf = racefile.out.super
-    } else if (params.racefile == "sub") {
-      rf = racefile.out.sub
+    popfile(panel)
+    if (params.popfile == "super") {
+      rf = popfile.out.super
+    } else if (params.popfile == "sub") {
+      rf = popfile.out.sub
     }
     if (params.parfile == false ) {
       Channel
@@ -66,7 +66,7 @@ workflow pop_strat {
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam, parfile_ch)
     pca_plink(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, eigensoft.out.eigenvec)
     // prepare plink pca files for plotting
-    // want list of tuples: id, eigenvec, racefile
+    // want list of tuples: id, eigenvec, popfile
     after_ch = Channel.from("after").concat(pca_plink.out.after, rf).toList()
     plot_plink_pca(Channel.from("before").concat(pca_plink.out.before, rf).toList().concat(after_ch))
     extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)
