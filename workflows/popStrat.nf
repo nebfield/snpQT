@@ -25,20 +25,20 @@ workflow pop_strat {
 
   main:
     Channel
-      .fromPath("$baseDir/db/all_phase3_1.bed", checkIfExists: true)
+      .fromPath("${params.db}/all_phase3_1.bed", checkIfExists: true)
       .set{ ref_bed }
     Channel
-      .fromPath("$baseDir/db/all_phase3_1.bim", checkIfExists: true)
+      .fromPath("${params.db}/all_phase3_1.bim", checkIfExists: true)
       .set{ ref_bim }
     Channel
-      .fromPath("$baseDir/db/all_phase3_1.fam", checkIfExists: true)
+      .fromPath("${params.db}/all_phase3_1.fam", checkIfExists: true)
       .set{ ref_fam } 
     Channel
-      .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
+      .fromPath("${params.db}/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
     filter_maf(ch_bed, ch_bim, ch_fam, exclude)
     Channel
-      .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
+      .fromPath("${params.db}/h37_squeezed.fasta", checkIfExists: true)
       .set { g37 }
     run_snpflip(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, g37)
     flip_snps(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, run_snpflip.out.rev, run_snpflip.out.ambig)
@@ -46,7 +46,7 @@ workflow pop_strat {
     merge(align.out.bed, align.out.bim, align.out.fam, ref_bed, ref_bim, ref_fam)
     pca_prep(merge.out.bed, merge.out.bim, merge.out.fam, exclude)
     Channel
-      .fromPath("$baseDir/db/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
+      .fromPath("${params.db}/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
       .set{ panel }
     racefile(panel)
     if (params.racefile == "super") {
