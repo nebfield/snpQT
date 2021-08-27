@@ -30,6 +30,12 @@ $ nextflow run nebfield/snpqt -params-file $HOME/.nextflow/assets/nebfield/snpqt
 $ cp -r $HOME/.nextflow/assets/nebfield/snpqt/results $HOME/snpqt_toy_results
 ```
 
+!!! Tip
+	* If you've followed the [clone development installation](https://snpqt.readthedocs.io/en/latest/user-guide/installation/#clone-development-version), 
+	then you can run snpQT using `nextflow run main.nf` instead of `nextflow run nebfield/snpqt`. 
+	* Using a parameter file is a good practise however, if you prefer using arguments on the command-line, the equivalent
+	command would be: `nextflow run nebfield/snpqt --db db/ --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --results results_toy/ --qc  -profile standard,conda -w $HOME/work`.
+ 
 Feel free to inspect the reports generated in `$HOME/snpqt_toy_results`. The
 reports will look a bit odd because the input data is synthetic. For a more detailed exploration of all the implemented
 workflows on the toy dataset, as well as a real-life ALS- Control Cohort visit our [Tutorial](https://snpqt.readthedocs.io/en/latest/user-guide/results/) page.
