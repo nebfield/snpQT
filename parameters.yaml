@@ -16,7 +16,7 @@
   bim: 'data/toy.bim'
   
   # output parameters ----------------------------------------------------------
-  results: '.results/'
+  results: 'results/'
   
   # workflow parameters --------------------------------------------------------
   

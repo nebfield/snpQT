@@ -41,7 +41,7 @@ To make things easier we have provided an example parameters.yaml file with
   bim: 'data/toy.bim'
   
   # output parameters ----------------------------------------------------------
-  results: ".results/"
+  results: 'results/'
   
   # workflow parameters --------------------------------------------------------
   
