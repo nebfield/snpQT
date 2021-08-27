@@ -21,17 +21,17 @@ workflow preImputation {
   main:
     set_chrom_code(ch_bed, ch_bim, ch_fam)
     Channel
-      .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
+      .fromPath("${params.db}/h37_squeezed.fasta", checkIfExists: true)
       .set { g37 }
     run_snpflip(set_chrom_code.out.bed, set_chrom_code.out.bim, set_chrom_code.out.fam, g37)
     flip_snps(ch_bed, ch_bim, ch_fam, run_snpflip.out.rev, run_snpflip.out.ambig)
     fix_duplicates(flip_snps.out.bed, flip_snps.out.bim, flip_snps.out.fam)
     to_bcf(fix_duplicates.out.bed, fix_duplicates.out.bim, fix_duplicates.out.fam)
     Channel
-      .fromPath("$baseDir/db/All_20180423.vcf.gz", checkIfExists: true)
+      .fromPath("${params.db}/All_20180423.vcf.gz", checkIfExists: true)
       .set{ dbsnp }
     Channel
-      .fromPath("$baseDir/db/All_20180423.vcf.gz.tbi", checkIfExists: true)
+      .fromPath("${params.db}/All_20180423.vcf.gz.tbi", checkIfExists: true)
       .set{ dbsnp_idx }
     check_ref_allele(to_bcf.out.bcf, dbsnp, dbsnp_idx, g37)
     bcf_to_vcf(check_ref_allele.out.bcf)

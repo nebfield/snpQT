@@ -36,7 +36,7 @@ workflow variant_qc {
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
     plot_missing_by_cohort(test_missing.out.before, test_missing.out.after, params.missingness)
     Channel
-      .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
+      .fromPath("${params.db}/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
     pca(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
     plot_pca_user_data(pca.out.eigenvec_user, pca.out.fam)
@@ -64,7 +64,7 @@ workflow variant_qc {
 
 	} else {
 		Channel
-		  .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
+		  .fromPath("${params.db}/PCA.exclude.regions.b37.txt", checkIfExists: true)
 		  .set{ exclude }
 		pca(maf.out.bed, maf.out.bim, maf.out.fam, exclude)
 		plot_pca_user_data(pca.out.eigenvec_user, pca.out.fam)

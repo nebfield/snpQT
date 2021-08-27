@@ -29,14 +29,14 @@ workflow imputation {
     split_user_chrom(annotate_ids.out.vcf, annotate_ids.out.idx, chrom)
     // maps for shapeit4
     Channel
-      .fromPath("$baseDir/db/impute/genetic_maps.b37.tar.gz", checkIfExists: true)
+      .fromPath("${params.db}/impute/genetic_maps.b37.tar.gz", checkIfExists: true)
       .set { ch_map }
     user_chroms = split_user_chrom.out.chrom.combine(ch_map)
     phasing(user_chroms)
     phased = bcftools_index_chr(phasing.out.chrom)
     // thousand genome reference data
     Channel
-      .fromPath("$baseDir/db/impute/chr*.vcf.gz", checkIfExists: true)
+      .fromPath("${params.db}/impute/chr*.vcf.gz", checkIfExists: true)
       .map{ f -> [f.baseName.find(/(?<=chr)[A-Z0-9]+/), f] } // regex: chrX, chr11 -> X, 11 
       .set{ thousand_genomes }
     thousand_genomes_with_idx = tabix_chr(thousand_genomes)

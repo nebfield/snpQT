@@ -70,7 +70,7 @@ workflow download_core {
     println "Downloading core database files..."
     qc_ref_data.out.bed
       .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, hg38, chr, decompress.out.file, decompress_otherBuild.out.file, panel, dbsnp, dbsnp_idx)
-      .collectFile(storeDir: "$baseDir/db/")
+      .collectFile(storeDir: "${params.db}")
 }
 
 workflow download_impute {
@@ -98,7 +98,7 @@ workflow download_impute {
       // need .vcf.gz.tbi extension for .collectFile()
 
     Channel
-      .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
+      .fromPath("${params.db}/h37_squeezed.fasta", checkIfExists: true)
       .set{g37}
 
     qc(urls.combine(g37))
@@ -108,5 +108,5 @@ workflow download_impute {
     println "Downloading database files for imputation, this might take a while! Go and have a cup of tea :)"
     unzip_shapeit4.out.maps
       .concat(annotate_ids.out.vcf, idx_urls)
-      .collectFile(storeDir: "$baseDir/db/impute")
+      .collectFile(storeDir: "${params.db}/impute")
 }

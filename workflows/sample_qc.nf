@@ -31,7 +31,7 @@ workflow sample_qc {
     individual_missingness(variant_missingness.out.bed, variant_missingness.out.bim, variant_missingness.out.fam)
     plot_missingness(individual_missingness.out.imiss_before, individual_missingness.out.imiss_after, params.mind)
     Channel
-      .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
+      .fromPath("${params.db}/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{exclude}
     
     if (params.sexcheck && params.keep_sex_chroms) {
