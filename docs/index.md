@@ -26,7 +26,7 @@ improve reliability and reproducibility.
 
 * you want a clean genomic dataset using a reproducible, fast and comprehensive pipeline
 * you are interested to identify significant SNP associations to a trait
-* you want to identify ethnic outliers
+* you want to identify and remove outliers based on their ancestry
 * you wish to perform imputation locally
 * you wish to prepare your genomic dataset for imputation in an external server (following a comprehensive QC and a pre-imputation QC preparation)
 

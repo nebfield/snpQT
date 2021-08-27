@@ -16,7 +16,7 @@ The incorporated workflows include the following:
 
 - **C: Sample Quality Control**:  Processes that ensure the quality of the genomic samples (e.g. checking samples' call rates, sex discrepancies, cryptic relatedness, etc.)
 
-- **D: Population Stratification**: Automatic identification and visualization of ethnic outliers and inner population structure
+- **D: Population Stratification**: Automatic identification and visualization of outliers and inner population structure
 
 - **E: Variant Quality Control**: Processes that ensure the quality of the genotyped Single Nucleotide Polymorphisms (SNPs) (e.g. checking variant call rate, Hardy Weinberg Equilibrium, etc.)
 
@@ -52,6 +52,7 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--impute`          | Pre-Imputation QC, Phasing, Imputation and Post-Imputation  QC  | `--qc` + `--pop_strat`|
 | `--post_impute`     | Post-Imputation QC   | none |
 | `--gwas`            | Genome-Wide Association Analysis           | `--qc`, `--qc` + `--pop_strat`, `--qc` + `--pop_strat` + `--impute`|
+| `--db`              | Path to the local directory of the core and impute databases | none |
 | `--bed`, `--bim`, `--fam` | Path to input binary PLINK files [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) | `--qc`|
 | `--vcf` | Path to a [Variant Call Format](https://samtools.github.io/hts-specs/VCFv4.1.pdf) file | `--convert_build`|
 | `--input_build [38 (default),37]` | Assign which built your input data are aligned | `--convert_build` |
@@ -71,8 +72,8 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--pca_covars [3 (default), 1-20]`| Change the default number of first Principal Components which are used to create a covariates file |`--qc` + `--gwas`|
 | `--covar_file [false (default), covar.txt]`| Import your own custom covariates file for GWAS workflow| `--qc` + `--gwas`|
 | `--linear [false (default), true]`| Use when quantitative data are imported | `--qc` |
-| `--racefile [super (default), sub]` | Assign race labels for the 1,000 Genome data using super population labels (e.g. EUR, AFR, AMR) or subpopulation labels | `--qc` + `--pop_strat`|
-| `--racecode [""(default), EUR/AFR/SAS... ]` | Change the population codes that you wish to include in the poplist.txt file that is used in `smartpca` | `--qc` + `--pop_strat`|
+| `--popfile [super (default), sub]` | Assign population labels for the 1,000 Genome data using super population labels (e.g. EUR, AFR, AMR) or subpopulation labels | `--qc` + `--pop_strat`|
+| `--popcode [""(default), EUR/AFR/SAS... ]` | Change the population codes that you wish to include in the poplist.txt file that is used in `smartpca` | `--qc` + `--pop_strat`|
 | `--parfile [false (default), parfile.txt]` | Change the optional parameters to the parameter file for `smartpca` | `--qc` + `--pop_strat`|
 | `--impute_maf [0.01 (default), 0-1]`| Change the default Minor Allele Frequency threshold in Post-Imputation QC workflow |`--impute`, `--post_impute`|
 | `--info [0.7 (default), 0-1]`      | Change the default Info score | `--impute`, `--post_impute`|
