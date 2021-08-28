@@ -51,7 +51,7 @@ guide](quickstart/installation.md).
 
 If you find `snpQT` useful please cite:
 
-Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data [version 1; peer review: 1 approved with reservations]. F1000Research 2021, 10:567 (https://doi.org/10.12688/f1000research.53821.1)
+Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data [version 1; peer review: 2 approved with reservations]. F1000Research 2021, 10:567 (https://doi.org/10.12688/f1000research.53821.1)
 
 ## License and third-party software 
 
