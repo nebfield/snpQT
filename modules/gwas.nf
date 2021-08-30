@@ -31,6 +31,7 @@ process run_gwas {
 }
 
 process plot {
+    label 'small'
     publishDir "${params.results}/gwas/figures/", mode: 'copy'
     
     input:
