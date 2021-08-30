@@ -1,6 +1,5 @@
 Bootstrap: docker
 From: ubuntu:18.04
-Stage: spython-base
 
 %files
     impute5_v1.1.4.zip /opt/
