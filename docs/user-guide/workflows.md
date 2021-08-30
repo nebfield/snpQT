@@ -115,12 +115,12 @@ Population stratification options:
   Optional:
     --variant_geno [0.02 (default), 0-1]
     --indep-pairwise ["50 5 0.2" (default), ""]
-    --racefile [super (default), sub]
+    --popfile [super (default), sub]
 	--parfile [false (default), parfile.txt]
-	--racecode [""(default), "EUR"/"AFR"/"SAS"... ]
+	--popcode [""(default), "EUR"/"AFR"/"SAS"... ]
 ```
 
-This workflow aims to identify and remove ethnic outliers using [EBI's phased latest release 1,000 human genome reference panel](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/) aligned in human genome build 37, as well as account for potential inner population structure in the later GWAS workflow.  Population stratification is an essential step in QC analysis, since it minimizes the possibility that the difference in the allele frequencies is caused by the different ethnicities of the samples.
+This workflow aims to identify and remove outliers using [EBI's phased latest release 1,000 human genome reference panel](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/) aligned in human genome build 37, as well as account for potential inner population structure in the later GWAS workflow.  Population stratification is an essential step in QC analysis, since it minimizes the possibility that the difference in the allele frequencies is caused by the different ancestry of the samples.
 
 !!!Note
 	Population stratification is a sample QC step and for this reason it is designed to run between the Sample and Variant QC `--qc` workflows.
@@ -161,9 +161,9 @@ The next step is to prepare the user's dataset (samples having already been proc
 
 When both datasets are prepared, the next step is merging: keeping only mutual SNPs shared by both the user's dataset and the 1,000 human genome data. 
 
-Then we make a racefile summarizing the samples of the merged dataset adding a third column labelling the race of each sample. User's samples are automatically labelled as "OWN". The race label for 1,000 human genome data is defined by the `--racefile` flag, having as a default to use super population labels (e.g. EUR, AFR, AMR). If you want to use subpopulation labels then you should add the `--racefile sub` parameter.
+Then we make a popfile summarizing the samples of the merged dataset adding a third column labelling the population origin of each sample. User's samples are automatically labelled as "OWN". The population label for 1,000 human genome data is defined by the `--popfile` flag, having as a default to use super population labels (e.g. EUR, AFR, AMR). If you want to use subpopulation labels then you should add the `--popfile sub` parameter.
 
-When the racefile and the merged dataset are ready, it is time to run Eigensoft's `smartpca` software. `smartpca` needs a set of parameters in order to run, which are in the form of a file (parfile). We provide the option to change this parfile according to the users' needs (you can have a look at the parameters of the parfile [here](https://github.com/DReichLab/EIG/tree/master/POPGEN)). Our default parameters for the parfile are the following:
+When the popfile and the merged dataset are ready, it is time to run Eigensoft's `smartpca` software. `smartpca` needs a set of parameters in order to run, which are in the form of a file (parfile). We provide the option to change this parfile according to the users' needs (you can have a look at the parameters of the parfile [here](https://github.com/DReichLab/EIG/tree/master/POPGEN)). Our default parameters for the parfile are the following:
 
 ```
 	genotypename: C6_indep.bed
@@ -197,7 +197,7 @@ When `--pop_strat` has finished, we provide the following PCA results in a .html
 
 The last and most important step in `--pop_strat` is the:
 
-- **Removal of any samples that are ethnic outliers**. 
+- **Removal of any samples that are outliers**. 
 
 We also provide all the figures, logs and binary plink files in separate directories `./pop_strat/figures/`, `./pop_strat/logs/` and `./pop_strat/bfiles/`, respectively. 
 
@@ -363,9 +363,9 @@ The table below links every step with a log code which can be useful for users w
 | E14      | Create a .html report  |`--qc`| Variant QC, Sample QC |
 | D3       | QC and preparation of user's data |`--pop_strat`| PopStrat|
 | D4       | Fix strand errors and remove ambiguous SNPs |`--pop_strat`| PopStrat|
-| D5       | Allign reference allele according to reference genome |`--pop_strat`| PopStrat|
+| D5       | Align reference allele according to reference genome |`--pop_strat`| PopStrat|
 | D6       | Merge user's dataset with 1,000 Human Genome data |`--pop_strat`| PopStrat|
-| D7       | Create a racefile |`--pop_strat`| PopStrat|
+| D7       | Create a population file |`--pop_strat`| PopStrat|
 | D8       | Principal Component Analysis & `smartpca` |`--pop_strat`| PopStrat|
 | D9       | Remove outliers from user's dataset |`--pop_strat`| PopStrat|
 | F1       | Set appropriate chromosome codes |`--impute`, `--pre_impute`| Pre-Imputation|

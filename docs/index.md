@@ -26,7 +26,7 @@ improve reliability and reproducibility.
 
 * you want a clean genomic dataset using a reproducible, fast and comprehensive pipeline
 * you are interested to identify significant SNP associations to a trait
-* you want to identify ethnic outliers
+* you want to identify and remove outliers based on their ancestry
 * you wish to perform imputation locally
 * you wish to prepare your genomic dataset for imputation in an external server (following a comprehensive QC and a pre-imputation QC preparation)
 
@@ -51,7 +51,7 @@ guide](quickstart/installation.md).
 
 If you find `snpQT` useful please cite:
 
-Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data [version 1; peer review: 1 approved with reservations]. F1000Research 2021, 10:567 (https://doi.org/10.12688/f1000research.53821.1)
+Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data [version 1; peer review: 2 approved with reservations]. F1000Research 2021, 10:567 (https://doi.org/10.12688/f1000research.53821.1)
 
 ## License and third-party software 
 

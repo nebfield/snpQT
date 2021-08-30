@@ -8,7 +8,7 @@ include {flip_snps} from '../modules/popStrat.nf' // D4
 include {align} from '../modules/popStrat.nf' // D5
 include {merge} from '../modules/popStrat.nf' // D6
 include {pca_prep} from '../modules/popStrat.nf' // D6
-include {racefile} from '../modules/popStrat.nf' // D7
+include {popfile} from '../modules/popStrat.nf' // D7
 include {eigensoft} from '../modules/popStrat.nf' // D8
 include {pca_plink} from '../modules/popStrat.nf' // D8
 include {plot_plink_pca} from '../modules/popStrat.nf' // D8
@@ -25,20 +25,20 @@ workflow pop_strat {
 
   main:
     Channel
-      .fromPath("$baseDir/db/all_phase3_1.bed", checkIfExists: true)
+      .fromPath("${params.db}/all_phase3_1.bed", checkIfExists: true)
       .set{ ref_bed }
     Channel
-      .fromPath("$baseDir/db/all_phase3_1.bim", checkIfExists: true)
+      .fromPath("${params.db}/all_phase3_1.bim", checkIfExists: true)
       .set{ ref_bim }
     Channel
-      .fromPath("$baseDir/db/all_phase3_1.fam", checkIfExists: true)
+      .fromPath("${params.db}/all_phase3_1.fam", checkIfExists: true)
       .set{ ref_fam } 
     Channel
-      .fromPath("$baseDir/db/PCA.exclude.regions.b37.txt", checkIfExists: true)
+      .fromPath("${params.db}/PCA.exclude.regions.b37.txt", checkIfExists: true)
       .set{ exclude }
     filter_maf(ch_bed, ch_bim, ch_fam, exclude)
     Channel
-      .fromPath("$baseDir/db/h37_squeezed.fasta", checkIfExists: true)
+      .fromPath("${params.db}/h37_squeezed.fasta", checkIfExists: true)
       .set { g37 }
     run_snpflip(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, g37)
     flip_snps(filter_maf.out.bed, filter_maf.out.bim, filter_maf.out.fam, run_snpflip.out.rev, run_snpflip.out.ambig)
@@ -46,13 +46,13 @@ workflow pop_strat {
     merge(align.out.bed, align.out.bim, align.out.fam, ref_bed, ref_bim, ref_fam)
     pca_prep(merge.out.bed, merge.out.bim, merge.out.fam, exclude)
     Channel
-      .fromPath("$baseDir/db/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
+      .fromPath("${params.db}/integrated_call_samples_v3.20130502.ALL.panel", checkIfExists: true)
       .set{ panel }
-    racefile(panel)
-    if (params.racefile == "super") {
-      rf = racefile.out.super
-    } else if (params.racefile == "sub") {
-      rf = racefile.out.sub
+    popfile(panel)
+    if (params.popfile == "super") {
+      rf = popfile.out.super
+    } else if (params.popfile == "sub") {
+      rf = popfile.out.sub
     }
     if (params.parfile == false ) {
       Channel
@@ -66,7 +66,7 @@ workflow pop_strat {
     eigensoft(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, rf, filter_maf.out.fam, parfile_ch)
     pca_plink(pca_prep.out.bed, pca_prep.out.bim, pca_prep.out.fam, eigensoft.out.eigenvec)
     // prepare plink pca files for plotting
-    // want list of tuples: id, eigenvec, racefile
+    // want list of tuples: id, eigenvec, popfile
     after_ch = Channel.from("after").concat(pca_plink.out.after, rf).toList()
     plot_plink_pca(Channel.from("before").concat(pca_plink.out.before, rf).toList().concat(after_ch))
     extract_homogenous(ch_bed, ch_bim, ch_fam, eigensoft.out.keep_samples)

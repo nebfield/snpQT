@@ -25,19 +25,23 @@ To make things easier we have provided an example parameters.yaml file with
 ```
 ---
   # input parameters -----------------------------------------------------------
+  
+  # set database path to the directory of the core and impute databases
+  db : 'db/'
+  
   # fam filepath is mandatory for all workflows
   fam: 'data/toy.fam'
 
   # if you're doing build conversion, input data needs to be a VCF filepath
   # (otherwise set to false)
-  vcf: 'data/toy.vcf.gz'
+  vcf: false
 
   # if you're not doing build conversion, input data needs a bed / bim filepath
-  bed: false
-  bim: false
+  bed: 'data/toy.bed'
+  bim: 'data/toy.bim'
   
   # output parameters ----------------------------------------------------------
-  results: "$baseDir/results/"
+  results: 'results/'
   
   # workflow parameters --------------------------------------------------------
   
@@ -46,11 +50,11 @@ To make things easier we have provided an example parameters.yaml file with
   #   https://snpqt.readthedocs.io/en/latest/user-guide/background/
   
   # build conversion workflow
-  convert_build: true
+  convert_build: false
   # sample and variant QC workflow
   qc: true
   # population stratification workflow
-  pop_strat: false 
+  pop_strat: true 
   # local phasing and imputation workflow
   impute: false
   # pre-Imputation QC workflow
@@ -58,7 +62,7 @@ To make things easier we have provided an example parameters.yaml file with
   # post-Imputation QC workflow
   post_impute: false
   # GWAS workflow
-  gwas: false
+  gwas: true
 
   # build conversion parameters ------------------------------------------------
   
@@ -110,15 +114,15 @@ To make things easier we have provided an example parameters.yaml file with
   # using the parameter --linear true (see below)
   missingness: 10e-7
   
-  # assign race labels for the 1,000 Genome data 
-  # using --racefile [super] for super population labels (e.g. EUR, AFR, AMR) 
-  # or --racefile [sub] for subpopulation labels
-  racefile: super
+  # assign population labels for the 1,000 Genome data 
+  # using --popfile [super] for super population labels (e.g. EUR, AFR, AMR) 
+  # or --popfile [sub] for subpopulation labels
+  popfile: super
   
   # change the population codes that you wish to include in the poplist.txt file
   # that is used in smartpca
-  # accepted values: --racecode [""(default), EUR/AFR/SAS... ]
-  racecode: " "
+  # accepted values: --popcode [""(default), EUR/AFR/SAS... ]
+  popcode: " "
   
   # change the optional parameters to the parameter file for smartpca
   # accepted values: --parfile [false (default), parfile.txt]
@@ -153,13 +157,13 @@ To make things easier we have provided an example parameters.yaml file with
   # accepted range: 1-23
   impute_chroms: 1 
 
-  # postimputation parameters --------------------------------------------------
+  # post- imputation parameters --------------------------------------------------
   
   # change the info score which expresses the quality of imputation per marker
   # accepted range: 0-1
   info: 0.7
   
-  # change the Minor Allele Frequency threshold in post-Imputation QC
+  # change the Minor Allele Frequency threshold in post- imputation QC
   # accepted range: 0-1
   impute_maf: 0.01
   
@@ -172,5 +176,6 @@ To make things easier we have provided an example parameters.yaml file with
   
   help: false
   download_db: false
+
 ```
 

@@ -19,31 +19,31 @@ workflow buildConversion {
   
   if (params.input_build == 38 && params.output_build == 37){
     Channel
-      .fromPath("$baseDir/db/hg19.fa.gz", checkIfExists: true)
+      .fromPath("${params.db}/hg19.fa.gz", checkIfExists: true)
       .set{hg19}
 	decompress(hg19)
     dictionary(decompress.out.file)
     Channel
-      .fromPath("$baseDir/db/1toChr1.txt", checkIfExists: true)
+      .fromPath("${params.db}/1toChr1.txt", checkIfExists: true)
       .set{chr_map}
 	num_to_chr(ch_vcf, chr_map)
     Channel
-      .fromPath("$baseDir/db/hg38ToHg19.over.chain", checkIfExists: true)
+      .fromPath("${params.db}/hg38ToHg19.over.chain", checkIfExists: true)
       .set{chain}
     liftover(num_to_chr.out.vcf, decompress.out.file, chain, dictionary.out.dict)
     chr_to_num(liftover.out.vcf, chr_map)
 	}else if (params.input_build == 37 && params.output_build == 38){
 		Channel
-		  .fromPath("$baseDir/db/hg38.fa.gz", checkIfExists: true)
+		  .fromPath("${params.db}/hg38.fa.gz", checkIfExists: true)
 		  .set{hg38}
 		decompress(hg38)
 		dictionary(decompress.out.file)
 		Channel
-		  .fromPath("$baseDir/db/1toChr1.txt", checkIfExists: true)
+		  .fromPath("${params.db}/1toChr1.txt", checkIfExists: true)
 		  .set{chr_map}
 		num_to_chr(ch_vcf, chr_map)
 		Channel
-		  .fromPath("$baseDir/db/hg19ToHg38.over.chain", checkIfExists: true)
+		  .fromPath("${params.db}/hg19ToHg38.over.chain", checkIfExists: true)
 		  .set{chain}
 		liftover(num_to_chr.out.vcf, decompress.out.file, chain, dictionary.out.dict)
 		chr_to_num(liftover.out.vcf, chr_map)

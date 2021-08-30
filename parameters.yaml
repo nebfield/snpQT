@@ -1,5 +1,9 @@
 ---
   # input parameters -----------------------------------------------------------
+  
+  # set database path to the directory of the core and impute databases
+  db: 'db/'
+  
   # fam filepath is mandatory for all workflows
   fam: 'data/toy.fam'
 
@@ -12,13 +16,13 @@
   bim: 'data/toy.bim'
   
   # output parameters ----------------------------------------------------------
-  results: "$baseDir/results/"
+  results: 'results/'
   
   # workflow parameters --------------------------------------------------------
   
   # change a workflow parameter to true, if you want to use it
   # check how you can combine multiple workflows at:
-  #   https://snpqt.readthedocs.io/en/latest/user-guide/background/
+  # https://snpqt.readthedocs.io/en/latest/user-guide/background/
   
   # build conversion workflow
   convert_build: false
@@ -85,15 +89,15 @@
   # using the parameter --linear true (see below)
   missingness: 10e-7
   
-  # assign race labels for the 1,000 Genome data 
-  # using --racefile [super] for super population labels (e.g. EUR, AFR, AMR) 
-  # or --racefile [sub] for subpopulation labels
-  racefile: super
+  # assign population labels for the 1,000 Genome data 
+  # using --popfile [super] for super population labels (e.g. EUR, AFR, AMR) 
+  # or --popfile [sub] for subpopulation labels
+  popfile: super
   
   # change the population codes that you wish to include in the poplist.txt file
   # that is used in smartpca
-  # accepted values: --racecode [""(default), EUR/AFR/SAS... ]
-  racecode: " "
+  # accepted values: --popcode [""(default), EUR/AFR/SAS... ]
+  popcode: " "
   
   # change the optional parameters to the parameter file for smartpca
   # accepted values: --parfile [false (default), parfile.txt]
