@@ -151,3 +151,4 @@
   
   help: false
   download_db: false
+  impute5_version: '_1.1.4_static'
