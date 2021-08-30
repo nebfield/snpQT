@@ -19,6 +19,9 @@
   results: 'results/'
   
   # workflow parameters --------------------------------------------------------
+
+  # maximimum cpus per process
+  cores: 4
   
   # change a workflow parameter to true, if you want to use it
   # check how you can combine multiple workflows at:
