@@ -47,7 +47,7 @@ process duplicates_cat1 {
     path(bim)
     path(fam)
 
-     output:
+    output:
     path "H3.bed", emit: bed
     path "H3.bim", emit: bim 
     path "H3.fam", emit: fam
@@ -76,20 +76,20 @@ process duplicates_cat2 {
     path "H4.fam", emit: fam
     path "H4.log", emit: log
   
-	shell:
+    shell:
     '''
     # Identify the multi-allelics based on position and reference allele
     cut -f 1,4,6 !{bim} | sort | uniq -d | cut -f 2 | grep -w -F -f - !{bim} | cut -f 2 > multi_allelics.txt
     if [[ $(wc -l < multi_allelics.txt) -gt 0 ]]
     then
-	plink2 --bfile !{bed.baseName} \
-        --exclude multi_allelics.txt \
-        --make-bed \
-        --out H4
-	else
-      plink -bfile !{bim.baseName} \
-        --make-bed \
-        --out H4
+        plink2 --bfile !{bed.baseName} \
+	    --exclude multi_allelics.txt \
+	    --make-bed \
+	    --out H4
+        else
+        plink -bfile !{bim.baseName} \
+	    --make-bed \
+	    --out H4
     fi
     '''
 }
@@ -114,26 +114,26 @@ process duplicates_cat3 {
     if [[ $(wc -l < merged_variants.txt) -gt 0 ]]
     then
       plink2 --bfile !{bim.baseName} \
-        -extract merged_variants.txt \
-        --make-bed \
-        --out merged_snps
+          -extract merged_variants.txt \
+          --make-bed \
+          --out merged_snps
       plink2 --bfile !{bim.baseName} \
-        --exclude merged_variants.txt \
-        --make-bed \
-        --out excluded_snps
+          --exclude merged_variants.txt \
+          --make-bed \
+          --out excluded_snps
       plink2 --bfile merged_snps \
-        --set-all-var-ids @:#:\\$r:\\$a \
-        --new-id-max-allele-len 300 missing\
-        --make-bed \
-        --out annotated
+          --set-all-var-ids @:#:\\$r:\\$a \
+          --new-id-max-allele-len 300 missing\
+          --make-bed \
+          --out annotated
       plink --bfile excluded_snps \
-        --bmerge annotated \
-        --make-bed \
-        --out H5   
+          --bmerge annotated \
+          --make-bed \
+          --out H5   
     else
-      plink -bfile !{bim.baseName} \
-        --make-bed \
-        --out H5
+        plink -bfile !{bim.baseName} \
+            --make-bed \
+            --out H5
     fi
     '''
 }
@@ -154,9 +154,9 @@ process update_ids {
     
     shell:
     '''
-	awk '{print $1, $2}' !{fam} > old_pids.txt
-	awk '{print $1, $2}' !{user_fam} > new_pids.txt
-	paste old_pids.txt new_pids.txt > update_ids.txt
+    awk '{print $1, $2}' !{fam} > old_pids.txt
+    awk '{print $1, $2}' !{user_fam} > new_pids.txt
+    paste old_pids.txt new_pids.txt > update_ids.txt
 	
     plink2 --bfile !{bed.baseName} \
         --update-ids update_ids.txt \

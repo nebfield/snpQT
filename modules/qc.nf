@@ -97,19 +97,19 @@ process check_sex {
     shell:
     '''
     plink --bfile !{C2_bed.baseName} \
-      --check-sex \
-	  --out before
+        --check-sex \
+        --out before
     # Identify the samples with sex discrepancies 
     grep "PROBLEM" before.sexcheck | awk '{print $1,$2}'> \
-      problematic_samples.txt
+        problematic_samples.txt
     # Delete all problematic samples
     plink --bfile !{C2_bed.baseName} \
-      --remove problematic_samples.txt \
-      --make-bed \
-      --out C3
-	plink --bfile C3 \
-      --check-sex \
-	  --out after 
+        --remove problematic_samples.txt \
+        --make-bed \
+        --out C3
+    plink --bfile C3 \
+        --check-sex \
+	--out after 
     '''
 }
 
@@ -119,7 +119,7 @@ process plot_sex {
 
     input:
     path(sexcheck_before)
-	path(sexcheck_after) 
+    path(sexcheck_after) 
 
     output:
     path "*.png", emit: figure
@@ -147,9 +147,9 @@ process extract_autosomal {
     '''
     # Extract only autosomal chromosomes 
     plink2 --bfile !{C3_bed.baseName} \
-      --autosome \
-      --make-bed \
-      --out C4    
+        --autosome \
+	--make-bed \
+	--out C4    
     ''' 
 }
 
@@ -166,13 +166,14 @@ process heterozygosity_rate {
     shell:
     '''    
     plink --bfile !{C4_bed.baseName} \
-      --het \
-      --out C5_het
-	'''
+        --het \
+        --out C5_het
+    '''
 }
 
 process filter_het {
     label 'small'
+    
     input:
     path het
 
@@ -185,7 +186,8 @@ process filter_het {
     '''
 }
 
-process plot_heterozygosity { 
+process plot_heterozygosity {
+    label 'small'
     publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input: 
@@ -254,9 +256,9 @@ process relatedness {
     shell:
     '''
     plink2 --bfile !{C5_bed.baseName} \
-      --king-cutoff !{params.king_cutoff} \
-      --make-bed \
-      --out C6
+        --king-cutoff !{params.king_cutoff} \
+        --make-bed \
+        --out C6
     '''
 }
 
@@ -276,9 +278,9 @@ process missing_phenotype {
     shell:
     '''
     plink --bfile !{C6_bed.baseName} \
-      --prune \
-      --make-bed \
-      --out C7
+        --prune \
+        --make-bed \
+        --out C7
     '''
 }
 
@@ -300,15 +302,15 @@ process mpv {
     shell:
     '''
     plink --bfile !{E7_bed.baseName} \
-	  --missing \
-	  --out E8_before
+	--missing \
+	--out E8_before
     plink --bfile !{E7_bed.baseName} \
-      --geno !{params.variant_geno} \
-      --make-bed \
-      --out E8 
+        --geno !{params.variant_geno} \
+	--make-bed \
+	--out E8 
     plink --bfile E8 \
-	  --missing \
-	  --out E8_after
+	--missing \
+	--out E8_after
     '''
 }
 
@@ -332,96 +334,95 @@ process plot_mpv {
 
 // STEP E9: Check deviation from Hardy_Weinberg equilibrium (HWE) ----------------------------
 process hardy {
-  input:
-  path(E8_bed)
-  path(E8_bim)
-  path(E8_fam)
-  
-  output:
-  path "E9.bed", emit: bed
-  path "E9.bim", emit: bim
-  path "E9.fam", emit: fam
-  path "E9.log", emit: log
-  path "plink_sub_before.hwe", emit: sub_before
-  path "plinkzoomhwe_before.hwe", emit: zoom_before
-  path "plink_sub_after.hwe", emit: sub_after
-  path "plinkzoomhwe_after.hwe", emit: zoom_after
-  
-  
-  shell: 
-  '''
-  plink --bfile !{E8_bed.baseName} \
-    --hardy \
-    --out plink_before
-  # sample 1% of SNPs
-  head -n1 plink_before.hwe > plink_sub_before.hwe
-  perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_before.hwe) >> plink_sub_before.hwe
-  awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
-	  plink_before.hwe > plinkzoomhwe_before.hwe
-  plink --bfile !{E8_bed.baseName} \
-    --hwe !{params.hwe} \
-    --make-bed \
-    --out E9 
-  plink --bfile E9 \
-    --hardy \
-	--out plink_after
-  # sample 1% of SNPs
-  head -n1 plink_after.hwe > plink_sub_after.hwe
-  perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_after.hwe) >> plink_sub_after.hwe
-  awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
-	  plink_after.hwe > plinkzoomhwe_after.hwe
-  '''
+    input:
+    path(E8_bed)
+    path(E8_bim)
+    path(E8_fam)
+
+    output:
+    path "E9.bed", emit: bed
+    path "E9.bim", emit: bim
+    path "E9.fam", emit: fam
+    path "E9.log", emit: log
+    path "plink_sub_before.hwe", emit: sub_before
+    path "plinkzoomhwe_before.hwe", emit: zoom_before
+    path "plink_sub_after.hwe", emit: sub_after
+    path "plinkzoomhwe_after.hwe", emit: zoom_after
+
+    shell: 
+    '''
+    plink --bfile !{E8_bed.baseName} \
+	--hardy \
+	--out plink_before
+    # sample 1% of SNPs
+    head -n1 plink_before.hwe > plink_sub_before.hwe
+    perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_before.hwe) >> plink_sub_before.hwe
+    awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
+	    plink_before.hwe > plinkzoomhwe_before.hwe
+    plink --bfile !{E8_bed.baseName} \
+        --hwe !{params.hwe} \
+        --make-bed \
+        --out E9 
+    plink --bfile E9 \
+        --hardy \
+        --out plink_after
+    # sample 1% of SNPs
+    head -n1 plink_after.hwe > plink_sub_after.hwe
+    perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_after.hwe) >> plink_sub_after.hwe
+    awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
+        plink_after.hwe > plinkzoomhwe_after.hwe
+    '''
 }
 
 process plot_hardy {
-  publishDir "${params.results}/qc/figures/", mode: 'copy'
-  
-  input:
-  path sub_before
-  path zoom_before
-  path sub_after
-  path zoom_after
-  val(threshold)
     label 'small'
+    publishDir "${params.results}/qc/figures/", mode: 'copy'
 
-  output:
-  path "*.png", optional: true, emit: figure
-  
-  shell:
-  '''
-  plot_hwe.R !{sub_before} !{sub_after} !{threshold} "" 
-  plot_hwe.R !{zoom_before} !{zoom_after} !{threshold} "strongly deviating SNPs only"
-  '''
+    input:
+    path sub_before
+    path zoom_before
+    path sub_after
+    path zoom_after
+    val(threshold)
+
+    output:
+    path "*.png", optional: true, emit: figure
+
+    shell:
+    '''
+    plot_hwe.R !{sub_before} !{sub_after} !{threshold} "" 
+    plot_hwe.R !{zoom_before} !{zoom_after} !{threshold} "strongly deviating SNPs only"
+    '''
 }
 
 // STEP E10: Remove low minor allele frequency (MAF) ---------------------------
 process maf {  
-  input:
-  path(E9_bed)
-  path(E9_bim)
-  path(E9_fam)
+    input:
+    path(E9_bed)
+    path(E9_bim)
+    path(E9_fam)
 
-  output:
-  path "E10.bed", emit: bed
-  path "E10.bim", emit: bim
-  path "E10.fam", emit: fam
-  path "MAF_check_before.frq", emit: before
-  path "MAF_check_after.frq", emit: after
-  path "E10.log", emit: log
-  
-  shell:
-  '''
-  plink --bfile !{E9_bed.baseName} \
-    --freq \
-    --out MAF_check_before
-  plink --bfile !{E9_bed.baseName} \
-    --maf !{params.maf} \
-    --make-bed \
-    --out E10
-  plink --bfile E10 \
-    --freq \
-    --out MAF_check_after
-  '''
+    output:
+    path "E10.bed", emit: bed
+    path "E10.bim", emit: bim
+    path "E10.fam", emit: fam
+    path "MAF_check_before.frq", emit: before
+    path "MAF_check_after.frq", emit: after
+    path "E10.log", emit: log
+
+    shell:
+    '''
+    plink --bfile !{E9_bed.baseName} \
+        --freq \
+        --out MAF_check_before
+    plink --bfile !{E9_bed.baseName} \
+        --maf !{params.maf} \
+        --make-bed \
+        --out E10
+    plink --bfile E10 \
+        --freq \
+        --out MAF_check_after
+    '''
 }
 
 process plot_maf {
@@ -444,53 +445,53 @@ process plot_maf {
 
 // STEP E11: Check missingness in case / control status -------------------------
 process test_missing {
-  publishDir "${params.results}/qc/bfiles/", pattern: "E11.*",  mode: 'copy'
-  
-  input:
-  path(E10_bed)
-  path(E10_bim)
-  path(E10_fam)
-  
-  output:
-  path "E11.bed", emit: bed
-  path "E11.bim", emit: bim
-  path "E11.fam", emit: fam
-  path "before.missing", emit: before
-  path "after.missing", emit: after
-  path "E11.log", emit: log
-  
-  shell:
-  '''
-  plink --bfile !{E10_bed.baseName} \
-    --test-missing \
-	--out before
-  awk '{ if ($5 < !{params.missingness}) print $2 }' before.missing > fail_missingness.txt
-  plink --bfile !{E10_bed.baseName} \
-    --exclude fail_missingness.txt \
-    --make-bed \
-    --out E11
-  plink --bfile E11 \
-    --test-missing \
-	--out after
-  '''
+    publishDir "${params.results}/qc/bfiles/", pattern: "E11.*",  mode: 'copy'
+
+    input:
+    path(E10_bed)
+    path(E10_bim)
+    path(E10_fam)
+
+    output:
+    path "E11.bed", emit: bed
+    path "E11.bim", emit: bim
+    path "E11.fam", emit: fam
+    path "before.missing", emit: before
+    path "after.missing", emit: after
+    path "E11.log", emit: log
+
+    shell:
+    '''
+    plink --bfile !{E10_bed.baseName} \
+        --test-missing \
+        --out before
+    awk '{ if ($5 < !{params.missingness}) print $2 }' before.missing > fail_missingness.txt
+    plink --bfile !{E10_bed.baseName} \
+        --exclude fail_missingness.txt \
+	--make-bed \
+	--out E11
+    plink --bfile E11 \
+        --test-missing \
+        --out after
+    '''
 }
 
 process plot_missing_by_cohort {
-  publishDir "${params.results}/qc/figures/", mode: 'copy'
-  
-  input:
-  path(missing_before)
-  path(missing_after)
-  val(threshold)
-  
-  output:
-  path "*.png", optional: true, emit: figure
     label 'small'
+    publishDir "${params.results}/qc/figures/", mode: 'copy'
 
-  shell:
-  '''
-  plot_missing_cohort.R !{missing_before} !{missing_after} !{threshold} 
-  ''' 
+    input:
+    path(missing_before)
+    path(missing_after)
+    val(threshold)
+
+    output:
+    path "*.png", optional: true, emit: figure
+
+    shell:
+    '''
+    plot_missing_cohort.R !{missing_before} !{missing_after} !{threshold} 
+    ''' 
 }
 
 // STEP E12: Create covariates and plot PCA -------------------------
@@ -509,23 +510,23 @@ process pca {
     shell:
     '''
     plink --bfile !{bed.baseName} \
-      --exclude !{exclude_regions} \
-      --indep-pairwise !{params.indep_pairwise} \
-      --out indepSNPs_1k_1
+	--exclude !{exclude_regions} \
+	--indep-pairwise !{params.indep_pairwise} \
+	--out indepSNPs_1k_1
     plink --bfile !{bed.baseName} \
-      --extract indepSNPs_1k_1.prune.in \
-      --make-bed \
-      --out E12_indep
-
+	--extract indepSNPs_1k_1.prune.in \
+	--make-bed \
+	--out E12_indep
     # Perform a PCA on user's data   
     plink --bfile E12_indep \
-	  --pca header \
-	  --out E12_pca
+        --pca header \
+        --out E12_pca
     '''
 }
 
 process pca_covariates {
     label 'small'
+    
     input:
     path(eigenvec_user)
 
@@ -534,8 +535,8 @@ process pca_covariates {
     
     shell:
     '''
-	# Create covariate file including the first X PCs that the user requested
-	awk -v var="!{params.pca_covars}" '{for(i=1;i<=var+2;i++) printf $i" "; print ""}' E12_pca.eigenvec > covar_pca
+    # Create covariate file including the first X PCs that the user requested
+    awk -v var="!{params.pca_covars}" '{for(i=1;i<=var+2;i++) printf $i" "; print ""}' E12_pca.eigenvec > covar_pca
     '''
 }
 
@@ -553,56 +554,57 @@ process plot_pca_user_data {
     
     shell:
     '''
-	# Create case/control file
+    # Create case/control file
     awk '{print $1, $2, $6}' !{fam} > status
- 
     plot_pca_OnlyUsersData.r !{eigenvec_user} status
     '''    
 }
 
 // STEP E13: Parse all log files and combine them into a .txt file -----------------
 process parse_logs {
-  publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
-  publishDir "${params.results}/${dir}/logs", mode: 'copy', pattern: "*.txt"
-	
-  input:
-  val(dir)
-  path(logs)
-  val(fn)
     label 'small'
 
-  output:
-  path "${fn}", emit: log
-  path "*.png", emit: figure
-  
-  shell:
-  '''
-  echo "stage variants samples pheno pheno_case pheno_control pheno_miss wd" > !{fn}
-  ls *.log | sort -V | xargs -n1 parse_logs.awk >> !{fn}
-  plot_logs.R !{fn} $(basename -s .txt !{fn})
-  '''
+    publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
+    publishDir "${params.results}/${dir}/logs", mode: 'copy', pattern: "*.txt"
+
+    input:
+    val(dir)
+    path(logs)
+    val(fn)
+
+    output:
+    path "${fn}", emit: log
+    path "*.png", emit: figure
+
+    shell:
+    '''
+    echo "stage variants samples pheno pheno_case pheno_control pheno_miss wd" > !{fn}
+    ls *.log | sort -V | xargs -n1 parse_logs.awk >> !{fn}
+    plot_logs.R !{fn} $(basename -s .txt !{fn})
+    '''
 }
 
 // STEP E14: Make an .html report ---------------------------------------------------
 process report {
-  publishDir "${params.results}/${dir}/", mode: 'copy'
-  // rmarkdown doesn't respect symlinks
-  // https://github.com/rstudio/rmarkdown/issues/1508
-  stageInMode 'copy'
-  
-  input:
-  val dir
-  path x
-  path rmd
     label 'small'
 
-  output:
-  path "*_report.html"
-  
-  shell:
-  '''
-  #!/usr/bin/env Rscript
+    publishDir "${params.results}/${dir}/", mode: 'copy'
+    // rmarkdown doesn't respect symlinks
+    // https://github.com/rstudio/rmarkdown/issues/1508
+    stageInMode 'copy'
 
-  rmarkdown::render('!{rmd}', output_options=list(self_contained=TRUE))
-  '''
+    input:
+    val dir
+    path x
+    path rmd
+
+    output:
+    path "*_report.html"
+
+    shell:
+    '''
+    #!/usr/bin/env Rscript
+
+    rmarkdown::render('!{rmd}', output_options=list(self_contained=TRUE))
+    '''
 }
