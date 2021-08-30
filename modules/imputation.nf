@@ -66,6 +66,7 @@ process to_bcf {
         --out F4
 	bcftools index F4.vcf.gz
     bcftools convert F4.vcf.gz -Ou -o F5.bcf
+    bcftools convert F4.vcf.gz -Ou -o F5.bcf --threads !{task.cpus}
     '''
 }
 
@@ -104,6 +105,7 @@ process bcf_to_vcf {
     '''
     bcftools sort !{bcf} | bcftools convert -Oz > F7.vcf.gz
     bcftools index F7.vcf.gz
+    bcftools sort !{bcf} | bcftools convert -Oz --threads !{task.cpus} > F7.vcf.gz
     '''
 }
 
@@ -124,6 +126,8 @@ process split_user_chrom {
     '''
     bcftools view -r !{chr} !{vcf} -Oz -o G1.vcf.gz
     bcftools index G1.vcf.gz
+    bcftools view -r !{chr} !{vcf} -Oz -o G1.vcf.gz --threads !{task.cpus}
+    bcftools index G1.vcf.gz --threads !{task.cpus}
     '''
 }
 
@@ -148,6 +152,7 @@ process phasing {
         --map chr!{chr}.b37.gmap \
         --region !{chr} \
         --thread 1 \
+        --thread !{task.cpus} \
         --output G2.vcf.gz \
         --log log_chr.txt || true     
     '''
@@ -169,6 +174,7 @@ process bcftools_index_chr {
 
 // STEP G4: Tabix reference files ----------------------------
 process tabix_chr {
+    label 'small'
     input:
     tuple val(chr), path('chr.vcf.gz')
 
@@ -194,6 +200,7 @@ process convert_imp5 {
     '''
     imp5Converter --h ref_chr.vcf.gz \
         --r !{chr} \
+	--threads !{task.cpus} \
         --o 1k_b37_reference_chr.imp5
     '''
 }
@@ -238,6 +245,7 @@ process merge_imp {
     '''
     # file order is important so use command substition
     bcftools concat -n $(ls *.vcf.gz | sort -V) -Oz -o merged_imputed.vcf.gz
+    bcftools concat -n $(ls *.vcf.gz | sort -V) -Oz -o merged_imputed.vcf.gz --threads !{task.cpus}
     '''
 }
 // Finished!

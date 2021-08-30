@@ -59,6 +59,7 @@ process individual_missingness {
 }
 
 process plot_missingness {
+  label 'small'
   publishDir "${params.results}/qc/figures", mode: 'copy'
 
   input:
@@ -113,6 +114,7 @@ process check_sex {
 }
 
 process plot_sex {
+    label 'small'
     publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input:
@@ -170,6 +172,7 @@ process heterozygosity_rate {
 }
 
 process filter_het {
+    label 'small'
     input:
     path het
 
@@ -310,6 +313,7 @@ process mpv {
 }
 
 process plot_mpv {
+  label 'small'
   publishDir "${params.results}/qc/figures/", mode: 'copy'
 
   input:
@@ -378,6 +382,7 @@ process plot_hardy {
   path sub_after
   path zoom_after
   val(threshold)
+    label 'small'
 
   output:
   path "*.png", optional: true, emit: figure
@@ -420,6 +425,7 @@ process maf {
 }
 
 process plot_maf {
+  label 'small'
   publishDir "${params.results}/qc/figures/", mode: 'copy'
   
   input:
@@ -479,6 +485,7 @@ process plot_missing_by_cohort {
   
   output:
   path "*.png", optional: true, emit: figure
+    label 'small'
 
   shell:
   '''
@@ -518,6 +525,7 @@ process pca {
 }
 
 process pca_covariates {
+    label 'small'
     input:
     path(eigenvec_user)
 
@@ -532,6 +540,7 @@ process pca_covariates {
 }
 
 process plot_pca_user_data {
+    label 'small'
     publishDir "${params.results}/qc/figures", mode: 'copy'
     
     input:
@@ -560,6 +569,7 @@ process parse_logs {
   val(dir)
   path(logs)
   val(fn)
+    label 'small'
 
   output:
   path "${fn}", emit: log
@@ -584,6 +594,7 @@ process report {
   val dir
   path x
   path rmd
+    label 'small'
 
   output:
   path "*_report.html"

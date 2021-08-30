@@ -31,6 +31,8 @@ process num_to_chr {
   bcftools annotate --rename-chr !{chr_map} !{in_vcf} \
     -Oz -o out.vcf.gz
   '''
+    bcftools annotate --rename-chr !{chr_map} !{in_vcf} \
+	-Oz -o out.vcf.gz --threads !{task.cpus}
 }
 
 // STEP B4: Run liftOver to map genome build -----------------------------------
@@ -78,6 +80,7 @@ process chr_to_num {
   # Change the chromosome ids again
   bcftools annotate --rename-chr Chr1To1.txt !{vcf} -Oz -o converted.vcf.gz
   '''
+    bcftools annotate --rename-chr Chr1To1.txt !{vcf} -Oz -o converted.vcf.gz --threads !{task.cpus}
 }
 
 // STEP B6: Convert VCF to PLINK format ---------------------------------------
