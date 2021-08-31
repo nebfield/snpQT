@@ -17,11 +17,12 @@ process set_chrom_code {
     shell:
     '''
     plink2 --bfile !{bed.baseName} \
-		--output-chr MT \
-		--make-bed \
-		--out F1  
+        --output-chr MT \
+	--make-bed \
+        --out F1  
     '''
 }
+
 // STEP F2: D2: Remove ambiguous SNPs and flip reverse SNPs -------------------------
 // note: taken care of by popstrat modules D4 now
 
@@ -64,8 +65,8 @@ process to_bcf {
     plink2 --bfile !{bed.baseName} \
         --export vcf bgz \
         --out F4
-	bcftools index F4.vcf.gz
-    bcftools convert F4.vcf.gz -Ou -o F5.bcf
+    bcftools index F4.vcf.gz
+    bcftools convert F4.vcf.gz -Ou -o F5.bcf --threads !{task.cpus}
     '''
 }
 
@@ -85,7 +86,7 @@ process check_ref_allele {
     bcftools +fixref !{bcf} \
         -Ob -o F6.bcf -- \
         -d -f !{g37} \
-        -i !{dbsnp} 
+        -i !{dbsnp}
     '''
 }
 
@@ -102,8 +103,8 @@ process bcf_to_vcf {
 	
     shell:
     '''
-    bcftools sort !{bcf} | bcftools convert -Oz > F7.vcf.gz
-    bcftools index F7.vcf.gz
+    bcftools sort !{bcf} | bcftools convert -Oz --threads !{task.cpus} > F7.vcf.gz
+    bcftools index F7.vcf.gz 
     '''
 }
 
@@ -122,8 +123,8 @@ process split_user_chrom {
 
     shell:
     '''
-    bcftools view -r !{chr} !{vcf} -Oz -o G1.vcf.gz
-    bcftools index G1.vcf.gz
+    bcftools view -r !{chr} !{vcf} -Oz -o G1.vcf.gz --threads !{task.cpus}
+    bcftools index G1.vcf.gz --threads !{task.cpus}
     '''
 }
 
@@ -147,7 +148,7 @@ process phasing {
     shapeit4 --input G1.vcf.gz \
         --map chr!{chr}.b37.gmap \
         --region !{chr} \
-        --thread 1 \
+        --thread !{task.cpus} \
         --output G2.vcf.gz \
         --log log_chr.txt || true     
     '''
@@ -163,12 +164,14 @@ process bcftools_index_chr {
 
     shell:
     '''
-    bcftools index chr.vcf.gz
+    bcftools index chr.vcf.gz 
     '''
 }
 
 // STEP G4: Tabix reference files ----------------------------
 process tabix_chr {
+    label 'small'
+    
     input:
     tuple val(chr), path('chr.vcf.gz')
 
@@ -192,8 +195,9 @@ process convert_imp5 {
 
     shell:
     '''
-    imp5Converter --h ref_chr.vcf.gz \
+    imp5Converter!{params.impute5_version} --h ref_chr.vcf.gz \
         --r !{chr} \
+	--threads !{task.cpus} \
         --o 1k_b37_reference_chr.imp5
     '''
 }
@@ -216,8 +220,9 @@ process impute5 {
     shell:
     '''
     tar -xzf genetic_maps.b37.tar.gz
-    gunzip chr!{chr}.b37.gmap.gz # decompress the chromosome we need 
-    impute5 --h 1k_b37_reference_chr.imp5 \
+    gunzip chr!{chr}.b37.gmap.gz # decompress the chromosome we need
+
+    impute5!{params.impute5_version} --h 1k_b37_reference_chr.imp5 \
         --m chr!{chr}.b37.gmap \
         --g G2.vcf.gz \
         --r !{chr} \
@@ -237,8 +242,9 @@ process merge_imp {
     shell:
     '''
     # file order is important so use command substition
-    bcftools concat -n $(ls *.vcf.gz | sort -V) -Oz -o merged_imputed.vcf.gz
+    bcftools concat -n $(ls *.vcf.gz | sort -V) -Oz -o merged_imputed.vcf.gz --threads !{task.cpus}
     '''
 }
+
 // Finished!
 

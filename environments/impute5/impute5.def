@@ -1,6 +1,5 @@
 Bootstrap: docker
 From: ubuntu:18.04
-Stage: spython-base
 
 %files
     impute5_v1.1.4.zip /opt/
@@ -8,14 +7,10 @@ Stage: spython-base
 %post
     apt-get update && apt-get -y install unzip 
     unzip /opt/impute5_v1.1.4.zip -d /opt/
-    mkdir -p /opt/impute5
-    mv /opt/impute5_v1.1.4/impute5_1.1.4_static /opt/impute5/impute5
-    mv /opt/impute5_v1.1.4/imp5Converter_1.1.4_static /opt/impute5/imp5Converter
-    chmod +x /opt/impute5/imp5Converter /opt/impute5/impute5
-    PATH="/opt/impute5/:${PATH}"
-
+    chmod +x /opt/impute5_v1.1.4/imp5Converter_1.1.4_static /opt/impute5_v1.1.4/impute5_1.1.4_static
+    
 %environment
-    export PATH="/opt/impute5/:${PATH}"
+    export PATH="/opt/impute5_v1.1.4/:${PATH}"
   
 %runscript
     exec /bin/bash "$@"

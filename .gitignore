@@ -6,3 +6,4 @@ results
 *.zip
 *~
 db
+environments/impute5/impute5.sif
