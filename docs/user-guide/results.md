@@ -110,21 +110,21 @@ Below you can see the histograms and the scatterplots showing each metric before
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/sample_missingness_hist.png)  |  ![](.img/als_dataset/sample_missingness_hist.png)
+![](../img/toy_dataset/sample_missingness_hist.png)  |  ![](../img/als_dataset/sample_missingness_hist.png)
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/sample_missingness_scatter.png)|  ![](.img/als_dataset/sample_missingness_scatter.png)
+![](../img/toy_dataset/sample_missingness_scatter.png)|  ![](../img/als_dataset/sample_missingness_scatter.png)
 
 * Check for sex discrepancies: 
 
 ALS dataset: All                              | All
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/sexcheck_all_hist.png)|![](.img/als_dataset/sexcheck_all_scatter.png)
+![](../img/als_dataset/sexcheck_all_hist.png)|![](../img/als_dataset/sexcheck_all_scatter.png)
 
 ALS dataset: Women                           | Men
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/sexcheck_women_hist.png)|![](.img/als_dataset/sexcheck_men_hist.png)
+![](../img/als_dataset/sexcheck_women_hist.png)|![](../img/als_dataset/sexcheck_men_hist.png)
 
 
 !!!Note
@@ -134,22 +134,22 @@ ALS dataset: Women                           | Men
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/heterozygosity_rate_hist.png)  |  ![](.img/als_dataset/heterozygosity_rate_hist.png)
+![](../img/toy_dataset/heterozygosity_rate_hist.png)  |  ![](../img/als_dataset/heterozygosity_rate_hist.png)
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/heterozygosity_rate_scatter.png)|  ![](.img/als_dataset/heterozygosity_rate_scatter.png)
+![](../img/toy_dataset/heterozygosity_rate_scatter.png)|  ![](../img/als_dataset/heterozygosity_rate_scatter.png)
 
 
 These are the removed samples and variants for the toy and the ALS datasets through all the steps of the sample QC:
 
 Toy removed samples log in sample QC                 |  Toy removed variants log in sample QC
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/toy_dataset/sample_qc_log_samples.png)    |  ![](.img/toy_dataset/sample_qc_log_variants.png)
+![](../img/toy_dataset/sample_qc_log_samples.png)    |  ![](../img/toy_dataset/sample_qc_log_variants.png)
 
 ALS removed samples log in sample QC                 |  ALS removed variants log in sample QC
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/als_dataset/sample_qc_log_samples.png)  |  ![](.img/als_dataset/sample_qc_log_variants.png)
+![](../img/als_dataset/sample_qc_log_samples.png)  |  ![](../img/als_dataset/sample_qc_log_variants.png)
 
 It is normal to expect a drop in the number of variants between C1 and C2 steps, as poor quality variants are removed in B1 (`--geno 0.1`) and if `--keep-sex-chroms false` is used then a decrease between C4 and C5 is expected, as in B4 sex chromosomes are excluded. Accordingly, in the same steps of the sample log plot you observe a flat line.
 
@@ -165,21 +165,21 @@ Below you can see the histograms and the scatterplots showing each metric before
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/variant_missingness_hist.png)  |  ![](.img/als_dataset/variant_missingness_hist.png)
+![](../img/toy_dataset/variant_missingness_hist.png)  |  ![](../img/als_dataset/variant_missingness_hist.png)
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/variant_missingness_scatter.png)|  ![](.img/als_dataset/variant_missingness_scatter.png)
+![](../img/toy_dataset/variant_missingness_scatter.png)|  ![](../img/als_dataset/variant_missingness_scatter.png)
 
 * Hardy-Weinberg equilibrium (HWE) deviation check `--hwe 1e-7`:
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/hwe_sub.png)                  |  ![](.img/als_dataset/hwe_sub.png)
+![](../img/toy_dataset/hwe_sub.png)                  |  ![](../img/als_dataset/hwe_sub.png)
 
 Toy dataset zoomed                                    |  ALS dataset zoomed
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/hwe_zoom.png)  |  ![](.img/als_dataset/hwe_zoom.png)
+![](../img/toy_dataset/hwe_zoom.png)  |  ![](../img/als_dataset/hwe_zoom.png)
 
 Since the preferred threshold is usually very low and concerns only a small fraction of the cohort, we generate two kinds of plots, one showing the distribution for the entire cohort and another one showing the distribution for samples with lower p-values (i.e. <1e-3).
 
@@ -187,31 +187,31 @@ Since the preferred threshold is usually very low and concerns only a small frac
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/maf.png)  |  ![](.img/als_dataset/maf.png)
+![](../img/toy_dataset/maf.png)  |  ![](../img/als_dataset/maf.png)
 
 * Missingness in case/ control status check `--exclude` variants with p-value less than 1e-7:
 
 Toy dataset                                          |  ALS dataset 
 :---------------------------------------------------:|:-------------------------:
-![](.img/toy_dataset/maf.png)  |  ![](.img/als_dataset/missingness_per_cohort.png)
+![](../img/toy_dataset/maf.png)  |  ![](../img/als_dataset/missingness_per_cohort.png)
 
 * PCA plots using only the user's data, along with case/control labels:
 
 ALS dataset: PC1vsPC2                        |ALS dataset: PC1vsPC3
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/PC1vsPC2_onlyUsersData.png)|![](.img/als_dataset/PC1vsPC3_onlyUsersData.png)
+![](../img/als_dataset/PC1vsPC2_onlyUsersData.png)|![](../img/als_dataset/PC1vsPC3_onlyUsersData.png)
 
 ALS dataset: PC2vsPC3                         |ALS dataset: 3D PCA
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/PC2vsPC3_onlyUsersData.png)|![](.img/als_dataset/als.png)
+![](../img/als_dataset/PC2vsPC3_onlyUsersData.png)|![](../img/als_dataset/als.png)
 
 Toy dataset: PC1vsPC2                        |Toy dataset: PC1vsPC3
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/PC1vsPC2_onlyUsersData.png)|![](.img/toy_dataset/PC1vsPC3_onlyUsersData.png)
+![](../img/toy_dataset/PC1vsPC2_onlyUsersData.png)|![](../img/toy_dataset/PC1vsPC3_onlyUsersData.png)
 
 Toy dataset: PC2vsPC3                         |Toy dataset: 3D PCA
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/PC2vsPC3_onlyUsersData.png)| ![](.img/toy_dataset/toy.png)
+![](../img/toy_dataset/PC2vsPC3_onlyUsersData.png)| ![](../img/toy_dataset/toy.png)
 
 !!!Note
 	Since we have used `--pop_strat`, the Principal Component Analysis in the Variant QC workflow is run AFTER population stratification. This means that the PCA plots at this stage reflect genetically homogenous samples. If you didn't use `--pop_strat` then variant QC would still run, producing in the end PCA plots potentially with outliers.
@@ -220,11 +220,11 @@ These are the removed samples and variants for the toy and the ALS datasets thro
 
 Toy removed samples log in variant QC                 |  Toy removed variants log in variant QC
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/toy_dataset/variant_qc_log_samples.png)   |  ![](.img/toy_dataset/variant_qc_log_variants.png)
+![](../img/toy_dataset/variant_qc_log_samples.png)   |  ![](../img/toy_dataset/variant_qc_log_variants.png)
 
 ALS removed samples log in variant QC                 |  ALS removed variants log in variant QC
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/als_dataset/variant_qc_log_samples.png)   |  ![](.img/als_dataset/variant_qc_log_variants.png)
+![](../img/als_dataset/variant_qc_log_samples.png)   |  ![](../img/als_dataset/variant_qc_log_variants.png)
 
 !!!Note
 	To remember the codes for each step visit the [Workflow Descriptions](https://tutorial-snpqt.readthedocs.io/en/latest/user-guide/workflows/#log-steps-table) section.
@@ -241,48 +241,48 @@ Below you can see the 2D and 3D Principal Component Analysis plots including use
 
 Toy dataset: PC1vsPC2 before removal         |Toy dataset: PC1vsPC2 after removal
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/popStrat/PC1vsPC2_before.png)|![](.img/toy_dataset/popStrat/PC1vsPC2_after.png)
+![](../img/toy_dataset/popStrat/PC1vsPC2_before.png)|![](../img/toy_dataset/popStrat/PC1vsPC2_after.png)
 
 Toy dataset: PC1vsPC3 before removal         |Toy dataset: PC1vsPC3 after removal
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/popStrat/PC1vsPC3_before.png)|![](.img/toy_dataset/popStrat/PC1vsPC3_after.png)
+![](../img/toy_dataset/popStrat/PC1vsPC3_before.png)|![](../img/toy_dataset/popStrat/PC1vsPC3_after.png)
 
 Toy dataset: PC2vsPC3 before removal         |Toy dataset: PC2vsPC3 after removal
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/popStrat/PC2vsPC3_before.png)|![](.img/toy_dataset/popStrat/PC2vsPC3_after.png)
+![](../img/toy_dataset/popStrat/PC2vsPC3_before.png)|![](../img/toy_dataset/popStrat/PC2vsPC3_after.png)
 
 Toy dataset: 3D PCA before removal           |Toy dataset: 3D PCA after removal
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/popStrat/3d_toy_before.png)|![](.img/toy_dataset/popStrat/3d_toy_after.png)
+![](../img/toy_dataset/popStrat/3d_toy_before.png)|![](../img/toy_dataset/popStrat/3d_toy_after.png)
 
 !!!Note
 	The PCA topology of the toy dataset is quite different from that of the ALS dataset, since the toy dataset is artificially made by plink2 as well as containing only a few thousand genotypes of chromosome 1, which are subsequently pruned, leaving a few hundred independent SNPs merged with 1,000 human genomes data. Keep in mind that your PCA should more likely resemble the topology of the merged ALS and 1,000 genome data.
 	
 ALS dataset: PC1vsPC2 before removal         |ALS dataset: PC1vsPC2 after removal
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/popStrat/PC1vsPC2_before.png)|![](.img/als_dataset/popStrat/PC1vsPC2_after.png)
+![](../img/als_dataset/popStrat/PC1vsPC2_before.png)|![](../img/als_dataset/popStrat/PC1vsPC2_after.png)
 
 ALS dataset: PC1vsPC3 before removal         |ALS dataset: PC1vsPC3 after removal
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/popStrat/PC1vsPC3_before.png)|![](.img/als_dataset/popStrat/PC1vsPC3_after.png)
+![](../img/als_dataset/popStrat/PC1vsPC3_before.png)|![](../img/als_dataset/popStrat/PC1vsPC3_after.png)
 
 ALS dataset: PC2vsPC3 before removal         |ALS dataset: PC2vsPC3 after removal
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/popStrat/PC2vsPC3_before.png)|![](.img/als_dataset/popStrat/PC2vsPC3_after.png)
+![](../img/als_dataset/popStrat/PC2vsPC3_before.png)|![](../img/als_dataset/popStrat/PC2vsPC3_after.png)
 
 ALS dataset: 3D PCA before removal           |ALS dataset: 3D PCA after removal
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/popStrat/before_3d_popstrat.png)|![](.img/als_dataset/popStrat/after_3d_popstrat.png)
+![](../img/als_dataset/popStrat/before_3d_popstrat.png)|![](../img/als_dataset/popStrat/after_3d_popstrat.png)
 
 These are the removed samples and variants for the toy and the ALS datasets through all the steps of the population stratification:
 
 Toy removed samples log in population stratification|  Toy removed variants log in population stratification
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/toy_dataset/popStrat/pop_strat_log_samples.png)   |  ![](.img/toy_dataset/popStrat/pop_strat_log_variants.png)
+![](../img/toy_dataset/popStrat/pop_strat_log_samples.png)   |  ![](../img/toy_dataset/popStrat/pop_strat_log_variants.png)
 
 ALS removed samples log in population stratification |  ALS removed variants log in population stratification
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/als_dataset/popStrat/pop_strat_log_samples.png)   |  ![](.img/als_dataset/popStrat/pop_strat_log_variants.png)
+![](../img/als_dataset/popStrat/pop_strat_log_samples.png)   |  ![](../img/als_dataset/popStrat/pop_strat_log_variants.png)
 
 !!!Note
 	To remember the codes for each step visit the [Workflow Descriptions](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#log-steps-table) section.
@@ -297,20 +297,20 @@ Within the `results_toy/gwas/` folder you will see:
 
 Toy dataset: Manhattan plot                  |Toy dataset: Manhattan plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/gwas/logistic_results_manhattan.png)|![](.img/toy_dataset/gwas/logistic_results_nocovars_manhattan.png)
+![](../img/toy_dataset/gwas/logistic_results_manhattan.png)|![](../img/toy_dataset/gwas/logistic_results_nocovars_manhattan.png)
 
 ALS dataset: Manhattan plot                  |ALS dataset: Manhattan plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/gwas/logistic_results_manhattan.png)|![](.img/als_dataset/gwas/logistic_results_nocovars_manhattan.png)
+![](../img/als_dataset/gwas/logistic_results_manhattan.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_manhattan.png)
 
 
 Toy dataset: Q-Q plot                  |Toy dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/gwas/logistic_results_qqplot.png)|![](.img/toy_dataset/gwas/logistic_results_nocovars_qqplot.png)
+![](../img/toy_dataset/gwas/logistic_results_qqplot.png)|![](../img/toy_dataset/gwas/logistic_results_nocovars_qqplot.png)
 
 ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/gwas/logistic_results_qqplot.png)|![](.img/als_dataset/gwas/logistic_results_nocovars_qqplot.png)
+![](../img/als_dataset/gwas/logistic_results_qqplot.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_qqplot.png)
 
 !!!Note 
 	The Q-Q plot for ALS data with covariates has a lower lambda value, much closer to 1, which reflects a clean and good quality dataset. This is not the case for the ALS dataset where covariates were not used, which demonstrates that population stratification is an important step, accounting for inner population structure.
@@ -336,11 +336,11 @@ When `--impute` workflow parameter is used, pre-imputation, local imputation and
 
 Toy: Number of variants per step in Post-Imputation  |  Toy: Number of samples per step in Post-Imputation
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/toy_dataset/postImpute_log_variants.png)   |  ![](.img/toy_dataset/postImpute_log_samples.png)
+![](../img/toy_dataset/postImpute_log_variants.png)   |  ![](../img/toy_dataset/postImpute_log_samples.png)
 
 ALS: Number of variants per step in Post-Imputation  |  ALS: Number of samples per step in Post-Imputation
 :---------------------------------------------------:|:---------------------------------------:
-![](.img/als_dataset/variant_qc_log_samples.png)   |  ![](.img/als_dataset/variant_qc_log_variants.png)
+![](../img/als_dataset/variant_qc_log_samples.png)   |  ![](../img/als_dataset/variant_qc_log_variants.png)
 
 !!!Note
 	- You can inspect the exact number of variants and samples per step in the `results_toy/post_imputation/logs/post_impute_log.txt`
@@ -357,20 +357,20 @@ Below we demonstrate the GWAS results of the imputed toy and ALS datasets:
 
 Toy dataset: Manhattan plot                  |Toy dataset: Manhattan plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/imputation-GWAS/logistic_results_manhattan.png)|![](.img/toy_dataset/imputation-GWAS/logistic_results_nocovars_manhattan.png)
+![](../img/toy_dataset/imputation-GWAS/logistic_results_manhattan.png)|![](../img/toy_dataset/imputation-GWAS/logistic_results_nocovars_manhattan.png)
 
 ALS dataset: Manhattan plot                  |ALS dataset: Manhattan plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/gwas/logistic_results_manhattan.png)|![](.img/als_dataset/gwas/logistic_results_nocovars_manhattan.png)
+![](../img/als_dataset/gwas/logistic_results_manhattan.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_manhattan.png)
 
 
 Toy dataset: Q-Q plot                  |Toy dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/toy_dataset/imputation-GWAS/logistic_results_qqplot.png)|![](.img/toy_dataset/imputation-GWAS/logistic_results_nocovars_qqplot.png)
+![](../img/toy_dataset/imputation-GWAS/logistic_results_qqplot.png)|![](../img/toy_dataset/imputation-GWAS/logistic_results_nocovars_qqplot.png)
 
 ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 :-------------------------------------------:|:--------------:
-![](.img/als_dataset/gwas/logistic_results_qqplot.png)|![](.img/als_dataset/gwas/logistic_results_nocovars_qqplot.png)
+![](../img/als_dataset/gwas/logistic_results_qqplot.png)|![](../img/als_dataset/gwas/logistic_results_nocovars_qqplot.png)
 
 
 ## Pre-Imputation
