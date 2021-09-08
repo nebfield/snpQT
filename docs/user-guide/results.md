@@ -283,9 +283,8 @@ outliersigmathresh: 4
 
 To use an external parfile in population stratification, you can run the following command:
 
-```
-nextflow run nebfield/snpqt -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/ --parfile parfile.txt
-```
+`nextflow run nebfield/snpqt -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/ --parfile parfile.txt`
+
 
 
 These are the removed samples and variants for the toy and the ALS datasets through all the steps of the population stratification:
