@@ -274,6 +274,20 @@ ALS dataset: 3D PCA before removal           |ALS dataset: 3D PCA after removal
 :-------------------------------------------:|:--------------:
 ![](../img/als_dataset/popStrat/before_3d_popstrat.png)|![](../img/als_dataset/popStrat/after_3d_popstrat.png)
 
+You can notice that the ALS dataset still contains some outliers after the automatic outlier removal, this is because we used the default parameters of `smartpca`. This behaviour can be altered providing an external parfile as explained [here](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#population-stratification). Below we show an example of a more strict outlier removal using the following parfile:
+
+```
+numoutlierevec: 7
+outliersigmathresh: 4
+```
+
+To use an external parfile in population stratification, you can run the following command:
+
+```
+nextflow run nebfield/snpqt -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/ --parfile parfile.txt
+```
+
+
 These are the removed samples and variants for the toy and the ALS datasets through all the steps of the population stratification:
 
 Toy removed samples log in population stratification|  Toy removed variants log in population stratification
@@ -332,11 +346,11 @@ If you wish to run Imputation locally you should run the following line of code:
 	
 ### Pre-Imputation, Imputation & Post-Imputation `--impute`
 
-When `--impute` workflow parameter is used, pre-imputation, local imputation and post-imputation are performed. When [Imputation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#phasing-imputation) is finished the toy dataset contains 6,500,533 variants located in chromosome 1. Those variants are then further processed and filtered in the [Post-Imputation QC](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control) workflow. You can see below log graphs illustrating the number of the remaining variants and samples for each step. All the checks in Post-Imputation are performed in variants, but to ensure again that nothing went wrong we also provide details about the number of samples (which remain the same).
+When `--impute` workflow parameter is used, pre-imputation, local imputation and post-imputation are performed. In our servers, all the imputation- related workflows and GWAS took less than 10 minutes to complete using the toy dataset. When [Imputation](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#phasing-imputation) is finished the toy dataset contains 6,500,533 variants located in chromosome 1. Those variants are then further processed and filtered in the [Post-Imputation QC](https://snpqt.readthedocs.io/en/latest/user-guide/workflows/#post-imputation-quality-control) workflow. You can see below log graphs illustrating the number of the remaining variants and samples for each step. All the checks in Post-Imputation are performed in variants, but to ensure again that nothing went wrong we also provide details about the number of samples (which remain the same).
 
 Toy: Number of variants per step in Post-Imputation  |  Toy: Number of samples per step in Post-Imputation
 :---------------------------------------------------:|:---------------------------------------:
-![](../img/toy_dataset/postImpute_log_variants.png)   |  ![](../img/toy_dataset/postImpute_log_samples.png)
+![](../img/toy_dataset/post_impute_log_variants.png)   |  ![](../img/toy_dataset/post_impute_log_samples.png)
 
 ALS: Number of variants per step in Post-Imputation  |  ALS: Number of samples per step in Post-Imputation
 :---------------------------------------------------:|:---------------------------------------:
