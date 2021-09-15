@@ -55,6 +55,7 @@ The following table summarizes the functions and the dependencies of all the imp
 | `--db`              | Path to the local directory of the core and impute databases | none |
 | `--bed`, `--bim`, `--fam` | Path to input binary PLINK files [.bed](https://www.cog-genomics.org/plink2/formats#bed), [.bim](https://www.cog-genomics.org/plink2/formats#bim) and [.fam](https://www.cog-genomics.org/plink2/formats#fam) | `--qc`|
 | `--vcf` | Path to a [Variant Call Format](https://samtools.github.io/hts-specs/VCFv4.1.pdf) file | `--convert_build`|
+| `--cores` | Assign the maximum CPUs per process | `--convert_build`|
 | `--input_build [38 (default),37]` | Assign which built your input data are aligned | `--convert_build` |
 | `--output_build [37 (default),38]` | Assign which built your output data are going to be aligned | `--convert_build` |
 | `--mem [16 (default)]` | Assign the memory size that the LiftoverVCF utility can use | `--convert_build` |

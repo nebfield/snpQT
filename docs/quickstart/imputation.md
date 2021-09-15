@@ -10,8 +10,6 @@ To set up imputation with Singularity, firstly copy `impute5 v1.1.4` to the
 `environments/impute5` directory:
 
 ```
-$ pwd
-$HOME/.nextflow/assets/nebfield/snpqt
 $ cd environments/impute5/
 $ cp ~/Downloads/impute5_v1.1.4.zip . 
 ```
@@ -70,8 +68,6 @@ Docker requires root access to build and run containers, so isn't an option for
 many people. However, it's simple to build a docker image from the Dockerfile:
 
 ```
-$ pwd
-$HOME/.nextflow/assets/nebfield/snpqt
 $ cd environments/impute5/
 $ cp ~/Downloads/impute5_v1.1.4.zip .
 $ sudo docker build -t impute5 . 

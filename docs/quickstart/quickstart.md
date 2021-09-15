@@ -9,7 +9,7 @@ Assuming you've been able to:
 You're now ready to run `snpQT`:
 
 ```
-nextflow run nebfield/snpqt -params-file <path_to_params_file> -profile standard,singularity -w <path_to_work_dir> -resume
+nextflow run main.nf -params-file <path_to_params_file> -profile standard,singularity -w <path_to_work_dir> -resume
 ```
 
 * `<path_to_params_file>` is the filepath of a parameter file that you have
@@ -25,18 +25,14 @@ published to the `--results` directory you specified in the parameter file.
 A simple full example using the provided toy dataset (stored in `data/` directory) including a Sample and Variant QC:
 
 ```
-$ nextflow info nebfield/snpqt
-$ nextflow run nebfield/snpqt -params-file $HOME/.nextflow/assets/nebfield/snpqt/parameters.yaml -profile standard,conda -w $HOME/work
-$ cp -r $HOME/.nextflow/assets/nebfield/snpqt/results $HOME/snpqt_toy_results
+$ nextflow run main.nf -params-file $HOME/parameters.yaml -profile standard,conda -w $HOME/work
 ```
 
 !!! Tip
-	* If you've followed the [clone development installation](https://snpqt.readthedocs.io/en/latest/user-guide/installation/#clone-development-version), 
-	then you can run snpQT using `nextflow run main.nf` instead of `nextflow run nebfield/snpqt`. 
-	* Using a parameter file is a good practise however, if you prefer using arguments on the command-line, the equivalent
-	command would be: `nextflow run nebfield/snpqt --db db/ --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --results results_toy/ --qc  -profile standard,conda -w $HOME/work`.
+	* Using a parameter file is a good practise, if you prefer using arguments on the command-line, the equivalent
+	command would be: `nextflow run main.nf --db db/ --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --results results/ --qc  -profile standard,conda -w $HOME/work`.
  
-Feel free to inspect the reports generated in `$HOME/snpqt_toy_results`. The
+Feel free to inspect the reports generated in `$HOME/results`. The
 reports will look a bit odd because the input data is synthetic. For a more detailed exploration of all the implemented
 workflows on the toy dataset, as well as a real-life ALS- Control Cohort visit our [Tutorial](https://snpqt.readthedocs.io/en/latest/user-guide/results/) page.
 

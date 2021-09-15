@@ -45,6 +45,9 @@ To make things easier we have provided an example parameters.yaml file with
   
   # workflow parameters --------------------------------------------------------
   
+  # maximimum cpus per process
+  cores: 10
+
   # change a workflow parameter to true, if you want to use it
   # check how you can combine multiple workflows at:
   #   https://snpqt.readthedocs.io/en/latest/user-guide/background/

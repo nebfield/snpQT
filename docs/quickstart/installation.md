@@ -18,10 +18,10 @@ Make sure to add `nextflow` to [PATH](https://unix.stackexchange.com/a/26059) so
 you can run nextflow in your terminal from anywhere. Then simply run:
 
 ```
-$ nextflow run nebfield/snpqt -r v0.1.5
+$ git clone --branch v0.1.5 https://github.com/nebfield/snpQT.git
 ```
 
-Where `-r v0.1.5` reflects the latest release of `snpQT`. You can find different
+Where `--branch v0.1.5` reflects the current latest release of `snpQT`. You can find different
 releases of snpQT on our [releases
 page](https://github.com/nebfield/snpQT/releases).  You should see a helpful
 message in your terminal if everything went well. In case you wish to pull the latest changes to the snpQT 
@@ -29,25 +29,16 @@ repository check our [Advanced Installation](https://snpqt.readthedocs.io/en/lat
 
 Finally, you must download some reference data
 ([10.5281/zenodo.4916468](https://doi.org/10.5281/zenodo.4916468)) for snpQT to
-work:
-
-Identify the local path (by default
-`$HOME/.nextflow/assets/nebfield/snpqt`):
+work. Download the reference files to the local path:
 
 ```
-$ nextflow info nebfield/snpqt
-```
-
-Download the reference files to the local path:
-
-```
-$ cd $HOME/.nextflow/assets/nebfield/snpqt
+$ cd snpQT
 $ mkdir db
 $ wget 'https://zenodo.org/record/4916469/files/core.tar.gz?download=1' -O db/core.tar.gz
 $ cd db && tar -xvf core.tar.gz 
 ```
 
-And, optionally (in the same directory):
+And, if you wish to perform imputation you can download the reference files (in the same directory) using the following commands:
 
 ```
 $ wget 'https://zenodo.org/record/4916469/files/impute.tar.gz?download=1' -O impute.tar.gz

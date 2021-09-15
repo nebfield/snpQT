@@ -1,7 +1,7 @@
 # Tutorial
 
 This tutorial will guide you through the `snpQT` Quality Control pipeline, explaining the steps and showing the results  of our software using two different datasets. 
-We assume that you followed the [Quickstart Installation](https://snpqt.readthedocs.io/en/latest/quickstart/installation/) and/or the [Advanced Installation](https://snpqt.readthedocs.io/en/latest/user-guide/installation/) and the guides and you have set up `snpQT` successfully.
+We assume that you followed the [Quickstart Installation](https://snpqt.readthedocs.io/en/latest/quickstart/installation/) or the [Advanced Installation](https://snpqt.readthedocs.io/en/latest/user-guide/installation/) and you have set up `snpQT` successfully.
 Below we provide examples using the latest release of snpQT and `standard,singularity` as the chosen profiles,suitable for users who wish to run their experiments in a normal computer, and want to include imputation in their list of analyses. HPC users expect to use the same commands with the difference that they should 
 use `-profile cluster,singularity` or `-profile cluster,modules` instead. Lastly, for the tutorial purposes we use the arguments directly on the command-line, if you prefer you can edit your YAML parameter file and use `-params-file parameter.yaml` instead.
 
@@ -13,7 +13,7 @@ One of the two datasets is an artificial toy dataset which is available with `sn
 	# Make a randomized dataset using plink2
     plink2 --dummy 100 6517 acgt --make-bed --out toy 
     
-    # Updating the snp ids using the first 6517 SNPs from 1,000 human genome data
+    # Updating the snp ids using the first 6,517 SNPs from 1,000 human genome data
     cut -f2  toy.bim > snp_dummy.txt
 	cut -f2  chrom1.txt > snp_1000.txt
 	paste snp_dummy.txt snp_1000.txt > update_snpids.txt
@@ -46,13 +46,13 @@ In the `data/` directory you will find three binary plink files and a vcf.gz fil
 One reason that this workflow can be helpful for users, is when you have completed the `snpQT` QC and population stratification, and you wish to upload your data to an external imputation server that uses a reference panel that is aligned in b38. Or you wish to convert your data to b38 for any other reason, in general.
 You can convert the genomic build of the available toy dataset aligned in b37 to b38, running the following line of code:
 
-`nextflow run nebfield/snpqt -profile standard,conda --vcf data/toy.vcf --fam data/toy.fam --convert_build --input_build 37 --output_build 38 -resume --results convert_build_toy/`
+`nextflow run main.nf -profile standard,conda --vcf data/toy.vcf --fam data/toy.fam --convert_build --input_build 37 --output_build 38 -resume --results convert_build_toy/`
 
 When this job is run successfully, you will see a new folder named `convert_build_toy/` which contains a `files/` subfolder where there are three binary filtered plink files (the .fam file contains updated phenotype information) compatible with the other `snpQT` workflows and a "unfiltered" .vcf.gz file for the users who prefer this format for other purposes. The filters include removing multi-allelic variants and keeping only autosomal and sex chromosomes.
 
 If your initial data are built on b38, you can also use this workflow to convert this genomic build to b37, which is the current supporting build for `snpQT`. You can achieve that by running the following line of code:
 
-`nextflow run nebfield/snpqt -profile standard,conda --vcf covertBuild_toy/files/out.vcf --fam covertBuild_toy/converted.fam --convert_build --input_build 38 --output_build 37 -resume --results covertBuild2_toy/`
+`nextflow run main.nf -profile standard,conda --vcf covertBuild_toy/files/out.vcf --fam covertBuild_toy/converted.fam --convert_build --input_build 38 --output_build 37 -resume --results covertBuild2_toy/`
 
 !!!Tip
 	If you run two or more jobs using the same `-results results/` folder, then your previous results will be overwritten. So, if you want to keep your results, make sure you change the name of the results folder each time you run `snpQT`.
@@ -65,13 +65,13 @@ Let's assume for a start that you want to perform Sample and Variant QC, check f
 
 The toy dataset does not contain sex chromosomes so to avoid `plink` producing an error when running a sex check using the `--check-sex` flag, it is important to add `--sexcheck false` as an extra parameter for this dataset. You can run the following command:
  
-`nextflow run nebfield/snpqt -profile standard,conda --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --gwas --pop_strat -resume --results results_toy/ --sexcheck false`
+`nextflow run main.nf -profile standard,conda --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --gwas --pop_strat -resume --results results_toy/ --sexcheck false`
 
 ** Amyotrophic Lateral Sclerosis (ALS) dataset **
 
 The ALS dataset is aligned using the human genome build 37, so again we did not need to use the `--convert_build` workflow. We run the same command as for the toy dataset (except `--sexcheck false`):
 
-`nextflow run nebfield/snpqt -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/`
+`nextflow run main.nf -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/`
 
 !!! Note
 	In the previous example I used `-profile standard,conda`. You can alternatively use `-profile standard,singularity`, `-profile cluster,singularity`, depending on your needs.
@@ -283,7 +283,7 @@ outliersigmathresh: 4
 
 To use an external parfile in population stratification, you can run the following command:
 
-`nextflow run nebfield/snpqt -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/ --parfile parfile.txt`
+`nextflow run main.nf -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/ --parfile parfile.txt`
 
 
 
@@ -334,7 +334,7 @@ ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 
 If you wish to run Imputation locally you should run the following line of code:
 
-`nextflow run nebfield/snpqt -profile standard,singularity --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --gwas --impute -resume --results results_toy_imputed/ --sexcheck false`
+`nextflow run main.nf -profile standard,singularity --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --gwas --impute -resume --results results_toy_imputed/ --sexcheck false`
 
 !!!Tip
 	- You can use `-profile docker`, `-profile singularity` or `-profile modules` to run imputation.
@@ -390,7 +390,7 @@ ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 
 If you wish to perform imputation in an external imputation server or you want to use another reference panel than the latest release of 1,000 human genome data, `snpQT` is designed to process your data both before and after imputation, with pre-imputation and post-imputation QC workflows, respectively. If you want to clean your dataset and prepare it for imputation, you can run the following line of code:
 
-`nextflow run nebfield/snpqt -profile standard,singularity --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --pre_impute -resume --results results_toy/ --sexcheck false`
+`nextflow run main.nf -profile standard,singularity --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --pre_impute -resume --results results_toy/ --sexcheck false`
 
 Pre-imputation makes an extra `results_toy/preImputation/files/` directory which contains 2,612 variants stored in `D11.vcf.gz` and an indexed `D11.vcf.gz.csi` file. 
 
@@ -441,7 +441,7 @@ NS	non-biallelic	0
 
 `--post_impute` workflow is designed for users that have imputed data and they wish to perform post-imputation QC. If you wish to perform post-imputation, you can run the following line of code:
 
-`nextflow run nebfield/snpqt -profile standard,singularity --vcf imputed.vcf.gz --fam toy.fam --post_impute -resume --results results_toy/ --sexcheck false`
+`nextflow run main.nf -profile standard,singularity --vcf imputed.vcf.gz --fam toy.fam --post_impute -resume --results results_toy/ --sexcheck false`
 
 You can add `--info [0.7]` and `--impute_maf [0.01]` parameters to tailor the processing of your imputed data.
 
