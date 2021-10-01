@@ -1,7 +1,9 @@
 // STEPS D1,D2 are performed in database set up
 // STEP D3: QC and preparation of user's data: filter by missing call rate, minor allele frequency and pruning ------------------
 process filter_maf {
-    input:
+    label 'plink'
+
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -48,7 +50,9 @@ process filter_maf {
 // STEP D4: Fix strand errors and remove ambiguous SNPs ------------------------
 process run_snpflip {
     label 'small'
+	label 'snpflip'
     memory '8GB'
+	
 
     input: 
     path(bed)
@@ -71,7 +75,9 @@ process run_snpflip {
 }
 
 process flip_snps {  
-    input:
+    label 'plink'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -102,7 +108,9 @@ process flip_snps {
 
 // STEP D5: Align the reference allele according to 1k reference genome --------
 process align {
-    input:
+    label 'plink'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -130,7 +138,9 @@ process align {
 
 // STEP D6: Merge user's dataset with reference genome and preparation for PCA----------------------
 process merge {
-    input:
+    label 'plink'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -190,7 +200,9 @@ process merge {
 }
 
 process pca_prep {    
-    input:
+    label 'plink'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -242,7 +254,9 @@ process popfile {
 
 // STEP D8: Eigensoft ----------------------------------------------------------------
 process eigensoft {
-    input:
+    label 'eigensoft'
+	
+	input:
     path bed
     path bim
     path fam
@@ -285,7 +299,9 @@ process eigensoft {
 }
 
 process pca_plink {
-    input:
+    label 'plink'
+	
+	input:
     path bed
     path bim
     path fam
@@ -330,7 +346,9 @@ process plot_plink_pca {
 
 // STEP D9: Extract a homogenous group ------------------------------------------------------
 process extract_homogenous {
-    publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
+    label 'plink'
+	
+	publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
     
     input:
     path(bed)

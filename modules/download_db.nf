@@ -2,6 +2,9 @@
 
 // STEP A1: QC and preparation of the reference data -------------------------
 process qc_ref_data {
+  label 'plink'
+  label 'samtools'
+	
   input:
   path(thousand_pgen)
   path(thousand_psam)
@@ -79,6 +82,8 @@ process decompress {
 
 // STEP A3: Remove duplicate records in reference file -------------------------
 process qc {
+  label 'bcftools'
+	
   input:
   tuple val(chr), path(vcf), path(g37)
 
@@ -108,6 +113,9 @@ process unzip_shapeit4 {
 
 // STEP A5: Annotate the variant ids of the reference file -------------------------
 process annotate_ids {
+  label 'bcftools'
+  label 'tabix'
+	
   input:
   tuple val(chr), path(vcf)
 

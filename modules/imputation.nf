@@ -3,7 +3,9 @@
 
 // STEP F1: Set chromosome codes ---------------------------------------------
 process set_chrom_code {
-    input:
+    label 'plink2'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -18,7 +20,7 @@ process set_chrom_code {
     '''
     plink2 --bfile !{bed.baseName} \
         --output-chr MT \
-	--make-bed \
+	    --make-bed \
         --out F1  
     '''
 }
@@ -28,7 +30,9 @@ process set_chrom_code {
 
 // STEP F3: Remove one of each pair of duplicated SNPs 
 process fix_duplicates {
-    input:
+    label 'plink2'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -51,7 +55,9 @@ process fix_duplicates {
 
 // STEP F4: Convert Plink file to .bcf file ---------------------------------
 process to_bcf {
-    input:
+    label 'plink2_bcftools'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -72,7 +78,9 @@ process to_bcf {
 
 // STEP F5: Check and fix the REF allele --------------------------------------
 process check_ref_allele {
-    input:
+    label 'bcftools'
+	
+	input:
     path(bcf)
     path(dbsnp)
     path(dbsnp_idx)
@@ -92,6 +100,8 @@ process check_ref_allele {
 
 // STEP F6: Sort BCF, convert .bcf file to .vcf.gz file and index the vcf.gz -------------------------------
 process bcf_to_vcf {
+	label 'bcftools'
+	
 	publishDir "${params.results}/preImputation/files", mode: 'copy'
 
     input:
@@ -113,7 +123,9 @@ process bcf_to_vcf {
 
 // STEP G1: Split vcf.gz file in chromosomes and index all chroms ---------------------------------
 process split_user_chrom {
-    input:
+    label 'bcftools'
+	
+	input:
     path(vcf)
     path(idx)
     each chr
@@ -130,6 +142,8 @@ process split_user_chrom {
 
 // STEP G2: Perform phasing using shapeit4 --------------------------
 process phasing {
+	label 'shapeit'
+	
     input:
     tuple val(chr), file('G1.vcf.gz'), file('G1.vcf.gz.csi'), \
         file('genetic_maps.b37.tar.gz')  
@@ -156,7 +170,9 @@ process phasing {
 
 // STEP G3: Index phased chromosomes --------------------------
 process bcftools_index_chr {
-    input:
+    label 'bcftools'
+	
+	input:
     tuple val(chr), path('chr.vcf.gz')
 
     output:
@@ -171,7 +187,9 @@ process bcftools_index_chr {
 // STEP G4: Tabix reference files ----------------------------
 process tabix_chr {
     label 'small'
-    
+    label 'tabix'
+	
+	
     input:
     tuple val(chr), path('chr.vcf.gz')
 
@@ -186,6 +204,8 @@ process tabix_chr {
 
 // STEP G5: Convert vcf reference genome into a .imp5 format for each chromosome
 process convert_imp5 {
+	label 'impute5'
+	
     input:
     tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.tbi')
 
@@ -197,7 +217,7 @@ process convert_imp5 {
     '''
     imp5Converter!{params.impute5_version} --h ref_chr.vcf.gz \
         --r !{chr} \
-	--threads !{task.cpus} \
+	    --threads !{task.cpus} \
         --o 1k_b37_reference_chr.imp5
     '''
 }
@@ -208,7 +228,8 @@ process convert_imp5 {
 
 process impute5 {
     label 'bigmem'
-
+	label 'impute5'
+	
     input:
     tuple val(chr), file('1k_b37_reference_chr.imp5'), \
         file('1k_b37_reference_chr.imp5.idx'), file('G2.vcf.gz'), \
@@ -233,7 +254,9 @@ process impute5 {
 
 // STEP G7: Merge all imputed chromosomes with bcftools, so that multi-allelics can be merged, -n is used since files are already sorted after imputation
 process merge_imp {
-    input:
+    label 'bcftools'
+	
+	input:
     path(imp)
     
     output:

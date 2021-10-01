@@ -1,6 +1,8 @@
 // STEP H1: Convert vcf to binary plink files and filter all poorly imputed variants based on info score
 process filter_imp {
-    input:
+    label 'plink2'
+	
+	input:
     path(imp)
 
     output:
@@ -20,7 +22,9 @@ process filter_imp {
 
 // STEP H2: Filter based on MAF 
 process filter_maf {
-    input:
+    label 'plink2'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -42,6 +46,8 @@ process filter_maf {
 
 // STEP H3: Identify and remove duplicated variants
 process duplicates_cat1 {
+    label 'plink2' 
+ 
     input:
     path(bed)
     path(bim)
@@ -65,7 +71,9 @@ process duplicates_cat1 {
 
 // STEP H4: Identify and remove multi-allelics
 process duplicates_cat2 {
-    input:
+    label 'plink'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -96,6 +104,8 @@ process duplicates_cat2 {
 
 // STEP H5: Identify and remove merged variants
 process duplicates_cat3 {
+    label 'plink'
+ 
     input:
     path(bed)
     path(bim)
@@ -131,16 +141,18 @@ process duplicates_cat3 {
           --make-bed \
           --out H5   
     else
-        plink -bfile !{bim.baseName} \
-            --make-bed \
-            --out H5
+      plink -bfile !{bim.baseName} \
+          --make-bed \
+          --out H5
     fi
     '''
 }
 
 // STEP H6: update ids information
 process update_ids {    
-    input:
+    label 'plink2'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
@@ -167,7 +179,9 @@ process update_ids {
 
 // STEP H7: update phenotype information
 process update_phenotype {
-    publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
+    label 'plink2'
+	
+	publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
     
     input:
     path(bed)

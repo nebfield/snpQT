@@ -1,6 +1,8 @@
 // Step I1: Run logistic regression, adjusting for covariates
 process run_gwas {    
-    publishDir "${params.results}/gwas/files/", mode: 'copy'
+    label 'plink'
+	
+	publishDir "${params.results}/gwas/files/", mode: 'copy'
 
     input:
     path(bed)

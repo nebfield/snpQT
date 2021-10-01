@@ -9,7 +9,7 @@ dependencies:
   - plink2>=2.00a2.3
   - r-tidyverse>=1.2.1
   - r-gridextra>=2.3
-  - bcftools>=1.11
+  - bcftools>=1.9
   - samtools>=1.11
   - picard>=2.24.0
   - r-plotly>=4.9.3

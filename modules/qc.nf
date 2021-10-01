@@ -2,7 +2,8 @@
 
 // STEP C1: Remove SNPs < 90% missingness --------------------------------------
 process variant_missingness {
-
+  label 'plink'
+  
   input:
   path(in_bed)
   path(in_bim)
@@ -29,6 +30,8 @@ process variant_missingness {
 
 // STEP C2: Check missingness rate ---------------------------------------------
 process individual_missingness {
+  label 'plink'
+  
   input:
   path(C1_bed)
   path(C1_bim)
@@ -80,6 +83,8 @@ process plot_missingness {
 // --check-sex requires at least one X chromosome so it has to be completed
 // before excluding non-automosomal SNPs
 process check_sex {
+    label 'plink'
+	
     input:
     path(C2_bed)
     path(C2_bim)
@@ -132,7 +137,9 @@ process plot_sex {
 
 // STEP C4: Remove sex chromosomes ---------------------------------------------
 process extract_autosomal {
-    input:
+    label 'plink2'
+	
+	input:
     path(C3_bed)   
     path(C3_bim)
     path(C3_fam)
@@ -155,7 +162,9 @@ process extract_autosomal {
 
 // STEP C5: Remove SNPs with extreme heterozygosity ----------------------------
 process heterozygosity_rate {
-    input:
+    label 'plink'
+	
+	input:
     path(C4_bed)
     path(C4_bim)
     path(C4_fam)
@@ -204,7 +213,9 @@ process plot_heterozygosity {
 }
 
 process heterozygosity_prune {
-    input:
+    label 'plink'
+	
+	input:
     path(C4_bed)
     path(C4_bim)
     path(C4_fam)
@@ -242,6 +253,8 @@ process heterozygosity_prune {
 
 // STEP B6: Check for cryptic relatedness -----------------------------------
 process relatedness {
+    label 'plink2'  
+
     input:
     path(C5_bed)
     path(C5_bim)
@@ -264,6 +277,8 @@ process relatedness {
 
 // STEP C7: Remove samples with missing phenotypes -----------------------------
 process missing_phenotype {
+    label 'plink'
+ 
     input:
     path(C6_bed)
     path(C6_bim)
@@ -286,7 +301,9 @@ process missing_phenotype {
 
 // STEP E8: Check missingness per variant --------------------------------------------
 process mpv {
-    input:
+    label 'plink'
+	
+	input:
     path(E7_bed)
     path(E7_bim)
     path(E7_fam)
@@ -315,26 +332,28 @@ process mpv {
 }
 
 process plot_mpv {
-  label 'small'
-  publishDir "${params.results}/qc/figures/", mode: 'copy'
+    label 'small'
+    publishDir "${params.results}/qc/figures/", mode: 'copy'
 
-  input:
-  path lmiss_before
-  path lmiss_after
-  val(threshold)
+    input:
+    path lmiss_before
+    path lmiss_after
+    val(threshold)
 
-  output:
-  path "*.png", emit: figure
+    output:
+    path "*.png", emit: figure
     
-  shell:
-  '''
-  plot_variant_missingness.R !{lmiss_before} !{lmiss_after} !{threshold} 
-  '''
+    shell:
+    '''
+    plot_variant_missingness.R !{lmiss_before} !{lmiss_after} !{threshold} 
+    '''
 }
 
 // STEP E9: Check deviation from Hardy_Weinberg equilibrium (HWE) ----------------------------
 process hardy {
-    input:
+    label 'plink'
+	
+	input:
     path(E8_bed)
     path(E8_bim)
     path(E8_fam)
@@ -397,7 +416,9 @@ process plot_hardy {
 
 // STEP E10: Remove low minor allele frequency (MAF) ---------------------------
 process maf {  
-    input:
+    label 'plink'
+	
+	input:
     path(E9_bed)
     path(E9_bim)
     path(E9_fam)
@@ -426,26 +447,27 @@ process maf {
 }
 
 process plot_maf {
-  label 'small'
-  publishDir "${params.results}/qc/figures/", mode: 'copy'
-  
-  input:
-  path maf_before
-  path maf_after
-  val(threshold)
+    label 'small'
+    publishDir "${params.results}/qc/figures/", mode: 'copy'
+   
+    input:
+    path maf_before
+    path maf_after
+    val(threshold)
 
-  output:
-  path "*.png", emit: figure
+    output:
+    path "*.png", emit: figure
   
-  shell:
-  '''
-  plot_maf.R !{maf_before} !{maf_after} !{threshold} 
-  '''
+    shell:
+    '''
+    plot_maf.R !{maf_before} !{maf_after} !{threshold} 
+    '''
 }
 
 // STEP E11: Check missingness in case / control status -------------------------
 process test_missing {
-    publishDir "${params.results}/qc/bfiles/", pattern: "E11.*",  mode: 'copy'
+    label 'plink'
+	publishDir "${params.results}/qc/bfiles/", pattern: "E11.*",  mode: 'copy'
 
     input:
     path(E10_bed)
@@ -496,7 +518,9 @@ process plot_missing_by_cohort {
 
 // STEP E12: Create covariates and plot PCA -------------------------
 process pca {
-    input:
+    label 'plink'
+	
+	input:
     path(bed)
     path(bim)
     path(fam)
