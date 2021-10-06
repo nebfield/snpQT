@@ -41,7 +41,13 @@
   post_impute: false
   # GWAS workflow
   gwas: false
-
+  # Download and prepare a core database passing "core"
+  # or an imputation-related database passing "impute"
+  # (not recommended, as it is slow, instead download the database directly from zenodo)
+  download_db: false
+  # help workflow
+  help: false
+  
   # build conversion parameters ------------------------------------------------
   
   # set to 37 or 38, if the input data are aligned in build 37 or 38,
@@ -152,6 +158,4 @@
   
   # dummy parameters to silence nextflow warnings ------------------------------
   
-  help: false
-  download_db: false
   impute5_version: '_1.1.4_static'
