@@ -71,9 +71,9 @@ process duplicates_cat1 {
 
 // STEP H4: Identify and remove multi-allelics
 process duplicates_cat2 {
-    label 'plink'
+    label 'plink2'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -95,7 +95,7 @@ process duplicates_cat2 {
 	    --make-bed \
 	    --out H4
         else
-        plink -bfile !{bim.baseName} \
+        plink2 --bfile !{bim.baseName} \
 	    --make-bed \
 	    --out H4
     fi
@@ -104,7 +104,7 @@ process duplicates_cat2 {
 
 // STEP H5: Identify and remove merged variants
 process duplicates_cat3 {
-    label 'plink'
+    label 'plink1'
  
     input:
     path(bed)
@@ -123,15 +123,15 @@ process duplicates_cat3 {
 
     if [[ $(wc -l < merged_variants.txt) -gt 0 ]]
     then
-      plink2 --bfile !{bim.baseName} \
-          -extract merged_variants.txt \
+      plink --bfile !{bim.baseName} \
+          --extract merged_variants.txt \
           --make-bed \
           --out merged_snps
-      plink2 --bfile !{bim.baseName} \
+      plink --bfile !{bim.baseName} \
           --exclude merged_variants.txt \
           --make-bed \
           --out excluded_snps
-      plink2 --bfile merged_snps \
+      plink --bfile merged_snps \
           --set-all-var-ids @:#:\\$r:\\$a \
           --new-id-max-allele-len 300 missing\
           --make-bed \
