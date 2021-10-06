@@ -4,11 +4,13 @@
 nextflow.enable.dsl = 2
 
 // import modules
-include {qc_ref_data} from '../modules/download_db.nf' // A1
-include {decompress; decompress as decompress_otherBuild} from '../modules/download_db.nf' // A2
-include {qc} from '../modules/download_db.nf' // A3
-include {unzip_shapeit4} from '../modules/download_db.nf' // A4
-include {annotate_ids} from '../modules/download_db.nf' // A5
+include {prep_ref_data} from '../modules/download_db.nf' // A1
+include {qc_ref_data} from '../modules/download_db.nf' // A2
+include {decompress; decompress as decompress_otherBuild} from '../modules/download_db.nf' // A3
+include {qc} from '../modules/download_db.nf' // A4
+include {unzip_shapeit4} from '../modules/download_db.nf' // A5
+include {annotate_ids} from '../modules/download_db.nf' // A6
+//include {index_vcf} from '../modules/download_db.nf' // A7
 
 // workflow component for snpqt pipeline
 workflow download_core {
@@ -30,9 +32,12 @@ workflow download_core {
     Channel
       .fromPath("$baseDir/bootstrap/PCA.exclude.regions.b37.txt")
       .set{exclude_regions}
-      
-    // processing of core data 
-    qc_ref_data(thousand_pgen, thousand_psam, thousand_pvar, h37, exclude_regions)
+    
+	// preparation of core data 
+    prep_ref_data(h37)
+	
+    // qc of core data 
+    qc_ref_data(thousand_pgen, thousand_psam, thousand_pvar, exclude_regions)
 
     // misc files
     // build conversion
@@ -69,7 +74,7 @@ workflow download_core {
     // publish to db directory    
     println "Downloading core database files..."
     qc_ref_data.out.bed
-      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, qc_ref_data.out.h37, qc_ref_data.out.h37_idx, exclude_regions, hg19, hg38, chr, decompress.out.file, decompress_otherBuild.out.file, panel, dbsnp, dbsnp_idx)
+      .concat(qc_ref_data.out.bim, qc_ref_data.out.fam, prep_ref_data.out.h37, prep_ref_data.out.h37_idx, exclude_regions, hg19, hg38, chr, decompress.out.file, decompress_otherBuild.out.file, panel, dbsnp, dbsnp_idx)
       .collectFile(storeDir: "${params.db}")
 }
 
@@ -103,6 +108,7 @@ workflow download_impute {
 
     qc(urls.combine(g37))
     annotate_ids(qc.out.vcf)
+	//index_vcf(annotate_ids.out.vcf)
 	
     // publish to db directory
     println "Downloading database files for imputation, this might take a while! Go and have a cup of tea :)"

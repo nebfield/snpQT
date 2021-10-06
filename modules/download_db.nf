@@ -1,21 +1,13 @@
 // Note: step C2 from population stratification workflow
 
-// STEP A1: QC and preparation of the reference data -------------------------
-process qc_ref_data {
-  label 'plink'
+// STEP A1: Preparation of the reference data -------------------------
+process prep_ref_data {
   label 'samtools'
 	
   input:
-  path(thousand_pgen)
-  path(thousand_psam)
-  path(thousand_pvar)
   path(h37)
-  path(exclude_region)
 
   output:
-  path "all_phase3_1.bed", emit: bed
-  path "all_phase3_1.bim", emit: bim
-  path "all_phase3_1.fam", emit: fam
   path "h37_squeezed.fasta", emit: h37
   path "h37_squeezed.fasta.fai", emit: h37_idx
   
@@ -29,7 +21,26 @@ process qc_ref_data {
   # Fix formatting in the file or plink explodes
   tr -s ':' < human_g1k_v37.fasta | tr -s '\n' > h37_squeezed.fasta
   samtools faidx h37_squeezed.fasta
+  '''
+}
+
+// STEP A2: QC of the reference data -------------------------
+process qc_ref_data {
+  label 'plink2'
+	
+  input:
+  path(thousand_pgen)
+  path(thousand_psam)
+  path(thousand_pvar)
+  path(exclude_region)
+
+  output:
+  path "all_phase3_1.bed", emit: bed
+  path "all_phase3_1.bim", emit: bim
+  path "all_phase3_1.fam", emit: fam
   
+  shell:
+  '''
   # Fix psam name
   mv !{thousand_psam} all_phase3.psam 
   plink2 --zst-decompress all_phase3.pgen.zst > all_phase3.pgen
@@ -66,8 +77,10 @@ process qc_ref_data {
   '''
 }
 
-// STEP A2: Decompress chain files -------------------------
+// STEP A3: Decompress chain files -------------------------
 process decompress {
+  label 'samtools'
+  
   input:
   path(x)
 
@@ -80,7 +93,7 @@ process decompress {
   '''
 }
 
-// STEP A3: Remove duplicate records in reference file -------------------------
+// STEP A4: Remove duplicate records in reference file -------------------------
 process qc {
   label 'bcftools'
 	
@@ -92,11 +105,11 @@ process qc {
   
   shell:
   '''
-  bcftools norm -m-any --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup exact -o !{chr}_norm.vcf.gz
+  bcftools norm -m-any --check-ref w -f !{g37} !{vcf} | bcftools norm -Oz --rm-dup none -o !{chr}_norm.vcf.gz
   '''
 }
 
-// STEP A4: Unzip genetic maps for phasing -----------------------------------------
+// STEP A5: Unzip genetic maps for phasing -----------------------------------------
 process unzip_shapeit4 {
   input:
   path(x)
@@ -111,23 +124,35 @@ process unzip_shapeit4 {
   '''
 }
 
-// STEP A5: Annotate the variant ids of the reference file -------------------------
+// STEP A6: Annotate the variant ids of the reference file -------------------------
 process annotate_ids {
   label 'bcftools'
-  label 'tabix'
-	
+  
   input:
   tuple val(chr), path(vcf)
 
   output:
   path "*.vcf.gz", emit: vcf
-  path "*.tbi", emit: idx
  
   shell:
   '''
   bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT'  !{vcf} -Oz -o !{chr}.vcf.gz
-  tabix !{chr}.vcf.gz
   '''
 }
 
+// STEP A7: Index VCFs -------------------------
+process index_vcf {
+  label 'tabix'
+	
+  input:
+  path(vcf)
+
+  output:
+  path "*.tbi", emit: idx
+ 
+  shell:
+  '''
+  tabix !{vcf}
+  '''
+}
 
