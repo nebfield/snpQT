@@ -2,7 +2,7 @@
 
 // STEP C1: Remove SNPs < 90% missingness --------------------------------------
 process variant_missingness {
-  label 'plink'
+  label 'plink1'
   
   input:
   path(in_bed)
@@ -30,7 +30,7 @@ process variant_missingness {
 
 // STEP C2: Check missingness rate ---------------------------------------------
 process individual_missingness {
-  label 'plink'
+  label 'plink1'
   
   input:
   path(C1_bed)
@@ -83,7 +83,7 @@ process plot_missingness {
 // --check-sex requires at least one X chromosome so it has to be completed
 // before excluding non-automosomal SNPs
 process check_sex {
-    label 'plink'
+    label 'plink1'
 	
     input:
     path(C2_bed)
@@ -95,7 +95,7 @@ process check_sex {
     path "C3.bim", emit: bim
     path "C3.fam", emit: fam
     path "C3.log", emit: log
-	path "before.sexcheck", emit: sexcheck_before
+    path "before.sexcheck", emit: sexcheck_before
     path "after.sexcheck", emit: sexcheck_after
  
     
@@ -139,7 +139,7 @@ process plot_sex {
 process extract_autosomal {
     label 'plink2'
 	
-	input:
+    input:
     path(C3_bed)   
     path(C3_bim)
     path(C3_fam)
@@ -162,9 +162,9 @@ process extract_autosomal {
 
 // STEP C5: Remove SNPs with extreme heterozygosity ----------------------------
 process heterozygosity_rate {
-    label 'plink'
+    label 'plink1'
 	
-	input:
+    input:
     path(C4_bed)
     path(C4_bim)
     path(C4_fam)
@@ -182,9 +182,9 @@ process heterozygosity_rate {
 
 process filter_het {
     label 'small'
-    
+	
     input:
-    path het
+    path(het)
 
     output:
     path "het_failed_samples.txt", emit: failed
@@ -200,8 +200,8 @@ process plot_heterozygosity {
     publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input: 
-    path het_before
-    path het_after
+    path(het_before)
+    path(het_after)
 
     output:
     path "*.png", emit: figure
@@ -213,9 +213,9 @@ process plot_heterozygosity {
 }
 
 process heterozygosity_prune {
-    label 'plink'
+    label 'plink1'
 	
-	input:
+    input:
     path(C4_bed)
     path(C4_bim)
     path(C4_fam)
@@ -277,7 +277,7 @@ process relatedness {
 
 // STEP C7: Remove samples with missing phenotypes -----------------------------
 process missing_phenotype {
-    label 'plink'
+    label 'plink1'
  
     input:
     path(C6_bed)
@@ -301,9 +301,9 @@ process missing_phenotype {
 
 // STEP E8: Check missingness per variant --------------------------------------------
 process mpv {
-    label 'plink'
+    label 'plink1'
 	
-	input:
+    input:
     path(E7_bed)
     path(E7_bim)
     path(E7_fam)
@@ -319,11 +319,11 @@ process mpv {
     shell:
     '''
     plink --bfile !{E7_bed.baseName} \
-	--missing \
+        --missing \
 	--out E8_before
     plink --bfile !{E7_bed.baseName} \
         --geno !{params.variant_geno} \
-	--make-bed \
+    	--make-bed \
 	--out E8 
     plink --bfile E8 \
 	--missing \
@@ -336,8 +336,8 @@ process plot_mpv {
     publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input:
-    path lmiss_before
-    path lmiss_after
+    path(lmiss_before)
+    path(lmiss_after)
     val(threshold)
 
     output:
@@ -351,9 +351,9 @@ process plot_mpv {
 
 // STEP E9: Check deviation from Hardy_Weinberg equilibrium (HWE) ----------------------------
 process hardy {
-    label 'plink'
+    label 'plink1'
 	
-	input:
+    input:
     path(E8_bed)
     path(E8_bim)
     path(E8_fam)
@@ -375,9 +375,9 @@ process hardy {
 	--out plink_before
     # sample 1% of SNPs
     head -n1 plink_before.hwe > plink_sub_before.hwe
-    perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_before.hwe) >> plink_sub_before.hwe
+    awk 'BEGIN {srand()} !/^$/ { if (rand() <= .01) print $0}' < plink_before.hwe >> plink_sub_before.hwe
     awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
-	    plink_before.hwe > plinkzoomhwe_before.hwe
+	plink_before.hwe > plinkzoomhwe_before.hwe
     plink --bfile !{E8_bed.baseName} \
         --hwe !{params.hwe} \
         --make-bed \
@@ -387,7 +387,7 @@ process hardy {
         --out plink_after
     # sample 1% of SNPs
     head -n1 plink_after.hwe > plink_sub_after.hwe
-    perl -ne 'print if (rand() < 0.01)' <(tail -n +2 plink_after.hwe) >> plink_sub_after.hwe
+    awk 'BEGIN {srand()} !/^$/ { if (rand() <= .01) print $0}' < plink_after.hwe >> plink_sub_after.hwe
     awk '{ if ($3=="TEST" || $3=="UNAFF" && $9 <0.001) print $0 }' \
         plink_after.hwe > plinkzoomhwe_after.hwe
     '''
@@ -398,10 +398,10 @@ process plot_hardy {
     publishDir "${params.results}/qc/figures/", mode: 'copy'
 
     input:
-    path sub_before
-    path zoom_before
-    path sub_after
-    path zoom_after
+    path(sub_before)
+    path(zoom_before)
+    path(sub_after)
+    path(zoom_after)
     val(threshold)
 
     output:
@@ -416,9 +416,9 @@ process plot_hardy {
 
 // STEP E10: Remove low minor allele frequency (MAF) ---------------------------
 process maf {  
-    label 'plink'
+    label 'plink1'
 	
-	input:
+    input:
     path(E9_bed)
     path(E9_bim)
     path(E9_fam)
@@ -451,8 +451,8 @@ process plot_maf {
     publishDir "${params.results}/qc/figures/", mode: 'copy'
    
     input:
-    path maf_before
-    path maf_after
+    path(maf_before)
+    path(maf_after)
     val(threshold)
 
     output:
@@ -466,8 +466,8 @@ process plot_maf {
 
 // STEP E11: Check missingness in case / control status -------------------------
 process test_missing {
-    label 'plink'
-	publishDir "${params.results}/qc/bfiles/", pattern: "E11.*",  mode: 'copy'
+    label 'plink1'
+    publishDir "${params.results}/qc/bfiles/", pattern: "E11.*",  mode: 'copy'
 
     input:
     path(E10_bed)
@@ -518,9 +518,9 @@ process plot_missing_by_cohort {
 
 // STEP E12: Create covariates and plot PCA -------------------------
 process pca {
-    label 'plink'
+    label 'plink1'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -528,8 +528,8 @@ process pca {
 
     output:
     path "E12_indep.log", emit: log 
-	path "E12_pca.eigenvec", emit: eigenvec_user 
-	path "E12_indep.fam", emit: fam
+    path "E12_pca.eigenvec", emit: eigenvec_user 
+    path "E12_indep.fam", emit: fam
     
     shell:
     '''
@@ -570,7 +570,7 @@ process plot_pca_user_data {
     
     input:
     path(eigenvec_user)
-	path(fam)
+    path(fam)
 
     output:
     path "*.png", emit: figure
@@ -618,9 +618,9 @@ process report {
     stageInMode 'copy'
 
     input:
-    val dir
-    path x
-    path rmd
+    val(dir)
+    path(x)
+    path(rmd)
 
     output:
     path "*_report.html"
