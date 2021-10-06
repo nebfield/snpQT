@@ -10,7 +10,7 @@ def printHelp() {
 
   Nextflow arguments:
         -profile      A comma separated list e.g. standard,singularity or cluster,conda
-    	-params-file  Path to a YAML file containing all pipeline parameters e.g. parameters.yaml
+        -params-file  Path to a YAML file containing all pipeline parameters e.g. parameters.yaml
         -resume       Attempt to continue pipeline from previous checkpoint
   """.stripIndent()
 }
