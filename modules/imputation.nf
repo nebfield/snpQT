@@ -54,8 +54,8 @@ process fix_duplicates {
 }
 
 // STEP F4: Convert Plink file to .bcf file ---------------------------------
-process to_bcf {
-    label 'plink2_bcftools'
+process to_vcf {
+    label 'plink2'
 	
 	input:
     path(bed)
@@ -63,7 +63,7 @@ process to_bcf {
     path(fam)
     
     output:
-    path "F5.bcf", emit: bcf
+    path "F4.vcf.gz", emit: vcf
     path "F4.log", emit: log
 
     shell:
@@ -71,12 +71,27 @@ process to_bcf {
     plink2 --bfile !{bed.baseName} \
         --export vcf bgz \
         --out F4
-    bcftools index F4.vcf.gz
-    bcftools convert F4.vcf.gz -Ou -o F5.bcf --threads !{task.cpus}
     '''
 }
 
-// STEP F5: Check and fix the REF allele --------------------------------------
+// STEP F5: Convert Plink file to .bcf file ---------------------------------
+process to_bcf {
+    label 'bcftools'
+	
+	input:
+    path(vcf)
+    
+    output:
+    path "F5.bcf", emit: bcf
+
+    shell:
+    '''
+    bcftools index !{vcf}
+    bcftools convert !{vcf} -Ou -o F5.bcf --threads !{task.cpus}
+    '''
+}
+
+// STEP F6: Check and fix the REF allele --------------------------------------
 process check_ref_allele {
     label 'bcftools'
 	
@@ -98,7 +113,7 @@ process check_ref_allele {
     '''
 }
 
-// STEP F6: Sort BCF, convert .bcf file to .vcf.gz file and index the vcf.gz -------------------------------
+// STEP F7: Sort BCF, convert .bcf file to .vcf.gz file and index the vcf.gz -------------------------------
 process bcf_to_vcf {
 	label 'bcftools'
 	
@@ -236,7 +251,7 @@ process impute5 {
         file('G2.vcf.gz.csi'), file('genetic_maps.b37.tar.gz') 
        
     output:
-    path "imputed_chr${chr}.vcf.gz", emit: imputed
+    path "${chr}.vcf.gz", emit: imputed
 
     shell:
     '''
@@ -248,7 +263,7 @@ process impute5 {
         --g G2.vcf.gz \
         --r !{chr} \
         --out-gp-field \
-        --o imputed_chr!{chr}.vcf.gz
+        --o !{chr}.vcf.gz
     '''
 }
 
@@ -265,7 +280,7 @@ process merge_imp {
     shell:
     '''
     # file order is important so use command substition
-    bcftools concat -n $(ls *.vcf.gz | sort -V) -Oz -o merged_imputed.vcf.gz --threads !{task.cpus}
+    bcftools concat -n $(ls *.vcf.gz | sort -t . -k 1n) -Oz -o merged_imputed.vcf.gz --threads !{task.cpus}
     '''
 }
 
