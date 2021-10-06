@@ -229,7 +229,6 @@ workflow {
 	  // pre-imputation
 	  if ( params.pre_impute ) {
         preImputation(variant_qc.out.bed, variant_qc.out.bim, variant_qc.out.fam)
-		println("Go ahead and upload your VCF to an external Imputation server.")
       }
 	  // imputation & GWAS
       if ( params.impute ) {
