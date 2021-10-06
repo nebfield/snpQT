@@ -1,7 +1,7 @@
 // STEPS D1,D2 are performed in database set up
 // STEP D3: QC and preparation of user's data: filter by missing call rate, minor allele frequency and pruning ------------------
 process filter_maf {
-    label 'plink'
+    label 'plink2'
 
 	input:
     path(bed)
@@ -17,24 +17,24 @@ process filter_maf {
     
     shell:
     '''
-    plink --bfile !{bed.baseName} \
+    plink2 --bfile !{bed.baseName} \
         --geno !{params.variant_geno} \
         --make-bed \
         --out geno
       
     # MAF filtering < 5%
-    plink --bfile geno \
+    plink2 --bfile geno \
         --maf 0.05 \
         --make-bed \
         --out maf_filtered
     
     # Pruning user's dataset
-    plink --bfile maf_filtered \
+    plink2 --bfile maf_filtered \
         --exclude !{exclude_region} \
         --indep-pairwise !{params.indep_pairwise} \
         --out indepSNPs_1k
       
-    plink --bfile maf_filtered \
+    plink2 --bfile maf_filtered \
         --extract indepSNPs_1k.prune.in \
         --make-bed \
         --out maf_filtered_indep
@@ -75,7 +75,7 @@ process run_snpflip {
 }
 
 process flip_snps {  
-    label 'plink'
+    label 'plink1'
 	
 	input:
     path(bed)
@@ -108,7 +108,7 @@ process flip_snps {
 
 // STEP D5: Align the reference allele according to 1k reference genome --------
 process align {
-    label 'plink'
+    label 'plink1'
 	
 	input:
     path(bed)
@@ -138,7 +138,7 @@ process align {
 
 // STEP D6: Merge user's dataset with reference genome and preparation for PCA----------------------
 process merge {
-    label 'plink'
+    label 'plink1'
 	
 	input:
     path(bed)
@@ -200,7 +200,7 @@ process merge {
 }
 
 process pca_prep {    
-    label 'plink'
+    label 'plink2'
 	
 	input:
     path(bed)
@@ -217,13 +217,13 @@ process pca_prep {
     shell:
     '''
     # recalculate independent snps
-    plink --bfile !{bed.baseName} \
+    plink2 --bfile !{bed.baseName} \
         --exclude !{exclude_region} \
         --indep-pairwise !{params.indep_pairwise} \
         --out independent_SNPs 
 
     # Pruning on merged dataset
-    plink --bfile !{bed.baseName} \
+    plink2 --bfile !{bed.baseName} \
         --extract independent_SNPs.prune.in \
         --make-bed \
         --out D6_indep 
@@ -299,7 +299,7 @@ process eigensoft {
 }
 
 process pca_plink {
-    label 'plink'
+    label 'plink1'
 	
 	input:
     path bed
@@ -314,8 +314,8 @@ process pca_plink {
     shell:
     '''
     plink --bfile !{bed.baseName} \
-	--pca header \
-	--out before
+		--pca header \
+		--out before
     # Keep only a homogenous cohort
     awk '{print $1}' !{eigenvec} | tail -n +2 | awk -F ":" '{print $1,$2}' > keep_sample_list.txt
     plink --bfile !{bed.baseName} \
@@ -346,7 +346,7 @@ process plot_plink_pca {
 
 // STEP D9: Extract a homogenous group ------------------------------------------------------
 process extract_homogenous {
-    label 'plink'
+    label 'plink2'
 	
 	publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
     
@@ -364,7 +364,7 @@ process extract_homogenous {
     
     shell:
     '''
-    plink --bfile !{bed.baseName} \
+    plink2 --bfile !{bed.baseName} \
          --keep !{keep} \
          --make-bed \
          --out D9
