@@ -22,7 +22,7 @@ snpQT (pronounced snip-cutie) makes your single-nucleotide polymorphisms cute. A
 * genome-wide association studies
 
 within an automated nextflow pipeline. We run a collection of versioned
-bioinformatics software in Singularity containers or Anaconda environments to
+bioinformatics software in Singularity and Docker containers or Anaconda and Environment Modules environments to
 improve reliability and reproducibility.
 
 ## Who is snpQT for?
@@ -55,7 +55,7 @@ If this sounds like you, check out our online documentation at: https://snpqt.re
 
 If you find `snpQT` useful please cite:
 
-Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data [version 1; peer review: 2 approved with reservations]. F1000Research 2021, 10:567 (https://doi.org/10.12688/f1000research.53821.1)
+Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducible, and comprehensive quality control and imputation of genomic data [version 1; peer review: 2 approved with reservations]. F1000Research 2021, 10:567 [https://doi.org/10.12688/f1000research.53821.1](https://doi.org/10.12688/f1000research.53821.1)
 
 ## License and third-party software 
 
@@ -64,12 +64,13 @@ Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducibl
 | Software                                                        | Version   | Reference                                                                                                                                                                   | License            |
 |-----------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
 | [EIGENSOFT](https://www.hsph.harvard.edu/alkes-price/software/) | 7.2.1     | Price, Alkes L., et al. "Principal components analysis corrects for stratification in genome-wide association studies." Nature genetics 38.8 (2006): 904-909.               | Custom open source |
-| [impute5](https://www.dropbox.com/sh/mwnceyhir8yze2j/AADbzP6QuAFPrj0Z9_I1RSmla?dl=0)                       | 1.0       | Rubinacci, Simone, Olivier Delaneau, and Jonathan Marchini. "Genotype imputation using the positional burrows wheeler transform." PLoS Genetics 16.11 (2020): e1009049.APA  | Academic use only  |
-| [nextflow](https://nextflow.io)                                 | 20.10.0   | Di Tommaso, Paolo, et al. "Nextflow enables reproducible computational workflows." Nature biotechnology 35.4 (2017): 316-319.                                               | GPL3               |
+| [impute5](https://www.dropbox.com/sh/mwnceyhir8yze2j/AADbzP6QuAFPrj0Z9_I1RSmla?dl=0)                       | 1.1.4       | Rubinacci, Simone, Olivier Delaneau, and Jonathan Marchini. "Genotype imputation using the positional burrows wheeler transform." PLoS Genetics 16.11 (2020): e1009049.APA  | Academic use only  |
+| [nextflow](https://nextflow.io)                                 | 21.04.3   | Di Tommaso, Paolo, et al. "Nextflow enables reproducible computational workflows." Nature biotechnology 35.4 (2017): 316-319.                                               | GPL3               |
 | [picard](https://broadinstitute.github.io/picard/)              | 2.24.0    |                                                                                                                                                                             | MIT                |
 | [PLINK](https://www.cog-genomics.org/plink/1.9/)                | 1.90b6.18 | Purcell, Shaun, et al. "PLINK: a tool set for whole-genome association and population-based linkage analyses." The American journal of human genetics 81.3 (2007): 559-575. | GPL3               |
 | [PLINK2](https://www.cog-genomics.org/plink/2.0/)               | 2.00a2.3  | Chang CC, Chow CC, Tellier LCAM, Vattikuti S, Purcell SM, Lee JJ (2015) Second-generation PLINK: rising to the challenge of larger and richer datasets. GigaScience, 4.     | GPL3               |
-| [samtools](https://samtools.github.io)                          | 1.11      | Danecek,  P.et al.(2021).   Twelve  years  of  SAMtools  and  BCFtools.GigaScience,10(2), 1â€“4                                                                                                                                                                           | MIT                |
+| [samtools](https://samtools.github.io)                          | 1.11      | Danecek, Petr et al. "Twelve years of SAMtools and BCFtools." GigaScience, 10(2), 1-4, 2021                                                                                                                                                                           | MIT                |
+| [bcftools](https://samtools.github.io/bcftools/bcftools.html)   |           | Danecek, Petr et al. "Twelve years of SAMtools and BCFtools." GigaScience, 10(2), 1�4, 2021
 | [shapeit4](https://odelaneau.github.io/shapeit4/)               | 4.1.3     | Delaneau, Olivier, et al. "Accurate, scalable and integrative haplotype estimation." Nature communications 10.1 (2019): 1-10.                                               | MIT                |
 | [snpflip](https://github.com/biocore-ntnu/snpflip)              | 0.0.6     |  https://github.com/biocore-ntnu/snpflip                                                                                                                                                                           | MIT                |
 
