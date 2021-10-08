@@ -30,7 +30,7 @@ $ nextflow run main.nf -params-file $HOME/parameters.yaml -profile standard,cond
 
 !!! Tip
 	* Using a parameter file is a good practise, if you prefer using arguments on the command-line, the equivalent
-	command would be: `nextflow run main.nf --db db/ --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --results results/ --qc  -profile standard,conda -w $HOME/work`.
+	command would be: `nextflow run main.nf -profile standard,conda -params-file $HOME/parameters.yaml -w $HOME/work --qc --db db/ --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --results results/`.
  
 Feel free to inspect the reports generated in `$HOME/results`. The
 reports will look a bit odd because the input data is synthetic. For a more detailed exploration of all the implemented

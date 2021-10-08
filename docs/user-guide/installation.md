@@ -42,7 +42,7 @@ If you're feeling masochistic you can build your own reference data. This will
 take a decent chunk of computing power and time:
 
 ```
-nextflow run main.nf -profile conda --download_db core
+nextflow run main.nf -profile standard,conda --download_db core
 ```
 
 This will download the core reference files, prepare them and put them in a
@@ -51,4 +51,4 @@ to run but this may take longer depending on your network. The core dataset
 requires about ~43GB of initial storage of intermediate files in the `work/`
 that can be removed using `nextflow run main.nf --download_db core && rm -r
 work` and only 19.7GB of reference files that are stored in database directory
-`db/`.
+`db/`. If you wish to build an imputation database you can alternatively use `--download_db impute`. 
