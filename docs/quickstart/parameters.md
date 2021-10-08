@@ -23,20 +23,19 @@ To make things easier we have provided an example parameters.yaml file with
 `snpQT`:
 
 ```
----
   # input parameters -----------------------------------------------------------
   
   # set database path to the directory of the core and impute databases
-  db : 'db/'
+  db: 'db/'
   
   # fam filepath is mandatory for all workflows
   fam: 'data/toy.fam'
 
-  # if you're doing build conversion, input data needs to be a VCF filepath
+  # if you are doing build conversion, input data needs to be a VCF filepath
   # (otherwise set to false)
   vcf: false
 
-  # if you're not doing build conversion, input data needs a bed / bim filepath
+  # if you are not doing build conversion, input data needs a .bed / .bim filepath
   bed: 'data/toy.bed'
   bim: 'data/toy.bim'
   
@@ -44,20 +43,20 @@ To make things easier we have provided an example parameters.yaml file with
   results: 'results/'
   
   # workflow parameters --------------------------------------------------------
-  
-  # maximimum cpus per process
-  cores: 10
 
+  # maximimum cpus per process
+  cores: 4
+  
   # change a workflow parameter to true, if you want to use it
   # check how you can combine multiple workflows at:
-  #   https://snpqt.readthedocs.io/en/latest/user-guide/background/
+  # https://snpqt.readthedocs.io/en/latest/user-guide/background/
   
   # build conversion workflow
   convert_build: false
   # sample and variant QC workflow
   qc: true
   # population stratification workflow
-  pop_strat: true 
+  pop_strat: false 
   # local phasing and imputation workflow
   impute: false
   # pre-Imputation QC workflow
@@ -65,8 +64,14 @@ To make things easier we have provided an example parameters.yaml file with
   # post-Imputation QC workflow
   post_impute: false
   # GWAS workflow
-  gwas: true
-
+  gwas: false
+  # Download and prepare a core database passing "core"
+  # or an imputation-related database passing "impute"
+  # (not recommended, as it is slow, instead download the database directly from zenodo)
+  download_db: false
+  # help workflow
+  help: false
+  
   # build conversion parameters ------------------------------------------------
   
   # set to 37 or 38, if the input data are aligned in build 37 or 38,
@@ -160,13 +165,13 @@ To make things easier we have provided an example parameters.yaml file with
   # accepted range: 1-23
   impute_chroms: 1 
 
-  # post- imputation parameters --------------------------------------------------
+  # postimputation parameters --------------------------------------------------
   
   # change the info score which expresses the quality of imputation per marker
   # accepted range: 0-1
   info: 0.7
   
-  # change the Minor Allele Frequency threshold in post- imputation QC
+  # change the Minor Allele Frequency threshold in post-Imputation QC
   # accepted range: 0-1
   impute_maf: 0.01
   
@@ -177,8 +182,6 @@ To make things easier we have provided an example parameters.yaml file with
   
   # dummy parameters to silence nextflow warnings ------------------------------
   
-  help: false
-  download_db: false
-
+  impute5_version: '_1.1.4_static'
 ```
 
