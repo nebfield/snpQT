@@ -1,5 +1,5 @@
-// Step B1: Decompressing fasta file (workflow download_db.nf)-----------------
-// Step B2: Create a dictionary file ------------------------------------------
+// Step A1: Decompressing fasta file (workflow download_db.nf)-----------------
+// Step B1: Create a dictionary file ------------------------------------------
 process dictionary {
     label 'small'
     label 'picard'
@@ -20,7 +20,7 @@ process dictionary {
     '''
 }
 
-// STEP B3: Change the chr ids ------------------------------------------------
+// STEP B2: Change the chr ids ------------------------------------------------
 process num_to_chr {
     label 'bcftools'
   
@@ -38,7 +38,7 @@ process num_to_chr {
     '''
 }
 
-// STEP B4: Run liftOver to map genome build -----------------------------------
+// STEP B3: Run liftOver to map genome build -----------------------------------
 process liftover {
     label 'small'
     label 'picard'
@@ -66,7 +66,7 @@ process liftover {
     '''
 }
 
-// STEP B5: Reverse Chr1To1 ---------------------------------------------------
+// STEP B4: Reverse Chr1To1 ---------------------------------------------------
 process chr_to_num {  
     label 'bcftools'
     publishDir "${params.results}/convertBuild/files/", mode: 'copy'
@@ -87,7 +87,7 @@ process chr_to_num {
     '''
 }
 
-// STEP B6: Convert VCF to PLINK format ---------------------------------------
+// STEP B5: Convert VCF to PLINK format ---------------------------------------
 process vcf_to_plink {
     label 'plink2'
     publishDir "${params.results}/convertBuild/files/", mode: 'copy'

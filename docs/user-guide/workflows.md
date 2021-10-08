@@ -13,9 +13,9 @@ Build conversion workflow options:
     --fam   
 	
   Optional:	
-	--input_build [38 (default),37]
-	--output_build [37 (default),38]
-	--mem [16 (default)]
+	--input_build [38/37]
+	--output_build [37/38]
+	--mem
 ```
 
 `snpQT` assumes that your genomic data are built on human genome build 37. Even though b37 is not the most recent build, it is the most frequently used build among current public, reference genomic datasets (e.g. 1,000 Genome data, Haplotype Reference Concortium panel) and available SNP-array datasets, and for this reason we decided that `snpQT` should support b37 for the most of the workflows. However, if you wish to impute your data using an external online server that uses a reference panel in b38 like TOPMed, we provide input parameters to convert your `snpQT` clean dataset from b37 back to b38 (using `--input_build 37` and `--output_build 38`). 
@@ -38,28 +38,28 @@ Quality control workflow options:
       --bim                                   
       --fam                                   
   Optional:
-    --mind  [0.02 (default), 0-1]
-    --indep_pairwise ["50 5 0.2" (default), ""]
-    --variant_geno [0.02 (default), 0-1]
-    --hwe  [1e-7 (default), 0-1]
-    --maf [0.05 (default), 0-1]
-    --missingness [1e-7(default), 0-1]
-	--sexcheck [true (default),false]
-	--rm_missing_pheno [false (default),true]
-	--keep_sex_chroms [true (default),false]
-	--heterozygosity [true (default),false]
-	--king_cutoff [0.125 (default), 0-1]
-	--pca_covars [3 (default), 1-20]
-	--linear [false (default),true]
+    --mind  [0-1]
+    --indep_pairwise [e.g. "50 5 0.2"]
+    --variant_geno [0-1]
+    --hwe  [0-1]
+    --maf [0-1]
+    --missingness [0-1]
+	--sexcheck [true/false]
+	--rm_missing_pheno [false/true]
+	--keep_sex_chroms [true/false]
+	--heterozygosity [true/false]
+	--king_cutoff [0-1]
+	--pca_covars [1-20]
+	--linear [false/true]
 ```
 
 ### Sample quality control
 
 Below we list the checks which are followed in the Sample QC workflow:
 
-- **Missing variant call rate check**: Remove very poor quality SNPs based on call rate (`snpqt` default threshold is 0.1). This way we avoid removing samples based on very poor quality SNPs (which we would remove later in Variant QC workflow anyway). 
+- **Missing variant call rate check**: Remove very poor quality SNPs based on call rate. This way we avoid removing samples based on very poor quality SNPs (which we would remove later in Variant QC workflow anyway). 
 
-- **Missing sample call rate check**: Remove samples with lower than 98% call rate (default threshold `--mind 0.02`) and then visualize the distribution for all samples using histograms and scatterplots before and after the applied threshold. This threshold can be changed using the `--mind` parameter.
+- **Missing sample call rate check**: Remove samples with lower than 98% call rate and then visualize the distribution for all samples using histograms and scatterplots before and after the applied threshold. This threshold can be modified using the `--mind` parameter.
 
 - **Check for sex discrepancies**: Remove problematic samples for which (1) pedigree sex does not agree with the predicted sex based on sex chromosome homozygosity or (2) there is no sex phenotype.  This step is important to avoid potential sample mix-ups and/or DNA contaminations.
 
@@ -70,7 +70,7 @@ Below we list the checks which are followed in the Sample QC workflow:
 
 - **Heterozygosity check**: Identify and remove heterozygosity outliers (samples that deviate more than 3 units of Standard Deviation from the mean heterozygosity). The distribution of the samples' heterozygosity is vizualized through a histogram and scatterplot. Extreme heterozygosity implies inbreeding and/or DNA contamination. This step can be skipped using `--heterozygosity false`. This can be useful in occasions where the dataset has been already through heterozygosity once, so the user does not wish to remove samples again based on this metric.
 
-- **Check for cryptic relatedness and duplicates**: Check for cryptic pairs of relatives using `plink2`'s [relationship-based pruning](https://www.cog-genomics.org/plink/2.0/distance#king_cutoff) threshold. Relatedness is defined as 3rd degree or closer (default threshold for this step is 0.125). This threshold can be changed using the `--king_cutoff` parameter.
+- **Check for cryptic relatedness and duplicates**: Check for cryptic pairs of relatives using `plink2`'s [relationship-based pruning](https://www.cog-genomics.org/plink/2.0/distance#king_cutoff) threshold. Relatedness is defined as 3rd degree or closer. This threshold can be changed using the `--king_cutoff` parameter.
 
 - **Removal of samples with a missing phenotype**: Remove samples with missing phenotypes. As *missing phenotype* here we refer to case/control status (i.e. the last column in your PLINK .fam file). The default option in `snpQT` is to skip this step.
 
@@ -80,24 +80,24 @@ At the end of Sample QC a .log file is generated listing the number of samples, 
 
 The Variant QC workflow is the second part of the `–-qc` utility of `snpQT`. It is good practice to first filter low quality samples in order to reduce the risk of removing a potentially high-risk variant during Variant QC. For this reason, the population stratification workflow (if chosen to run by the user), which is essentially a Sample QC step, is designed to run in between Sample QC and Variant QC. Below we list the checks which are followed in the Variant QC workflow:
 
-- **Missing variant call rate check **: Remove poor quality SNPs based on a more strict call rate threshold (`snpqt` default threshold is 0.02). This threshold can be changed using the parameter `–-variant_geno`.
+- **Missing variant call rate check **: Remove poor quality SNPs based on a more strict call rate threshold. This threshold can be changed using the parameter `–-variant_geno`.
 
-- **Hardy-Weinberg equilibrium (HWE) deviation check**: Remove SNPs that significantly deviate from the Hardy-Weinberg equilibrium (HWE) (`snpqt` default threshold is hwe p-value < 10e-7), indicating a genotyping error, and visualize the distribution of SNPs with extreme deviation.  This threshold can be changed using the parameter `–-hwe`.
+- **Hardy-Weinberg equilibrium (HWE) deviation check**: Remove SNPs that significantly deviate from the Hardy-Weinberg equilibrium (HWE), indicating a genotyping error, and visualize the distribution of SNPs with extreme deviation.  This threshold can be changed using the parameter `–-hwe`.
 
-- **Minor Allele Frequency (MAF) check**: Remove SNPs with low MAF (`snpqt` default threshold is 0.05) and visualize the MAF distribution. This threshold can be changed using the `–-maf` paramater in `snpQT`. Rare SNPs (having a very low MAF) are usually considered as false-positives and need to be excluded from further analysis.
+- **Minor Allele Frequency (MAF) check**: Remove SNPs with low MAF and visualize the MAF distribution. This threshold can be modified using the `–-maf` paramater in `snpQT`. Rare SNPs (having a very low MAF) are usually considered as false-positives and need to be excluded from further analysis.
 
-- **Missingness in case/ control status check**: Remove SNPs with a statistically significant association of missingness (low call rate) and case/control status (`snpqt` default threshold is p-value < 10e-7). The threshold can be changed using the parameter `–-missingness`.
+- **Missingness in case/ control status check**: Remove SNPs with a statistically significant association of missingness (low call rate) and case/control status. The threshold can be modified using the parameter `–-missingness`.
 
 !!!Warning
 	Missingness in case/ control status check can not be performed in quantitative data. If you do not have binary data use the `--linear` parameter to skip this step.
 	
-- **Generate covariates using the first X Principal Components of each sample**: `snpQT` by default uses the first 3 Principal Components (PCs) to account for inner population structure. The number of PCs can by changed using the `--pca_covars` parameter which can take as input a number from 1 to 20, with 1 starting from the first Principal Component of the PCA. Output from this step is used in the `--gwas` workflow, in order to account for potential inner population structure (it is best used along with `--pop_strat`).
+- **Generate covariates using the first X Principal Components of each sample**: The number of Principal Components (PCs) to account for inner population structure can be tailored using the `--pca_covars` parameter which can take as input a number from 1 to 20, with 1 starting from the first Principal Component of the PCA. Output from this step is used in the `--gwas` workflow, in order to account for potential inner population structure (it is best used along with `--pop_strat`).
 
 At the end of Variant QC we provide an .html report containing the following: 
 
-- Before-and-after applying the chosen thesholds plots for all the aforementioned steps
+- Before-and-after applying the chosen thesholds plots for all the aforementioned steps.
 
-- Three 2D PCA plots (PC1vsPC2, PC1vsPC3 and PC2vsPC3) of the user's data annotated with case/control status
+- Three 2D PCA plots (PC1vsPC2, PC1vsPC3 and PC2vsPC3) of the user's data annotated with case/control status.
 
 - 3D interactive PCA plot of only the user's data annotated with case/control status.
 
@@ -113,11 +113,11 @@ Population stratification options:
     --qc
   
   Optional:
-    --variant_geno [0.02 (default), 0-1]
-    --indep-pairwise ["50 5 0.2" (default), ""]
-    --popfile [super (default), sub]
-	--parfile [false (default), parfile.txt]
-	--popcode [""(default), "EUR"/"AFR"/"SAS"... ]
+    --variant_geno [0-1]
+    --indep-pairwise [e.g. 50 5 0.2]
+    --popfile [super/sub]
+	--parfile [false/parfile.txt]
+	--popcode [EUR/AFR/SAS]
 ```
 
 This workflow aims to identify and remove outliers using [EBI's phased latest release 1,000 human genome reference panel](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/) aligned in human genome build 37, as well as account for potential inner population structure in the later GWAS workflow.  Population stratification is an essential step in QC analysis, since it minimizes the possibility that the difference in the allele frequencies is caused by the different ancestry of the samples.
@@ -139,19 +139,19 @@ The first step in `--pop_strat` is to prepare and merge 1,000 human genome data 
 
 - Removing samples with low call rate (>98%)
 
-- Removing poorly genotyped variants in a second more stringent threshold (`--variant_geno 0.02`)
+- Removing poorly genotyped variants in a second more stringent threshold (`--variant_geno`)
 
 - Removing rare variants
 
-- Keeping only highly independent SNPs by excluding regions with high linkage equilibrium and pruning using `--indep-pairwise 50 5 0.2`.
+- Keeping only highly independent SNPs by excluding regions with high linkage equilibrium and pruning using `--indep-pairwise`.
 
 The next step is to prepare the user's dataset (samples having already been processed through the Sample QC workflow):
 
-- Removing poorly genotyped variants in a second more stringent threshold (`--variant_geno 0.02`)
+- Removing poorly genotyped variants in a second more stringent threshold (`--variant_geno`)
 
 - Removing rare variants
 
-- Keeping only highly independent SNPs by excluding regions with high linkage equilibrium and pruning using `--indep-pairwise 50 5 0.2`.
+- Keeping only highly independent SNPs by excluding regions with high linkage equilibrium and pruning using `--indep-pairwise`.
 
 - Checking that all alleles are on the forward strand
 
@@ -163,7 +163,7 @@ When both datasets are prepared, the next step is merging: keeping only mutual S
 
 Then we make a popfile summarizing the samples of the merged dataset adding a third column labelling the population origin of each sample. User's samples are automatically labelled as "OWN". The population label for 1,000 human genome data is defined by the `--popfile` flag, having as a default to use super population labels (e.g. EUR, AFR, AMR). If you want to use subpopulation labels then you should add the `--popfile sub` parameter.
 
-When the popfile and the merged dataset are ready, it is time to run Eigensoft's `smartpca` software. `smartpca` needs a set of parameters in order to run, which are in the form of a file (parfile). We provide the option to change this parfile according to the users' needs (you can have a look at the parameters of the parfile [here](https://github.com/DReichLab/EIG/tree/master/POPGEN)). Our default parameters for the parfile are the following:
+When the popfile and the merged dataset are ready, it is time to run Eigensoft's `smartpca` software. `smartpca` needs a set of parameters in order to run, which are in the form of a file (parfile). We provide the option to change this parfile according to the users' needs (you can have a look at the parameters of the parfile [here](https://github.com/DReichLab/EIG/tree/master/POPGEN)). Our suggested parameters for the parfile are the following:
 
 ```
 	genotypename: C6_indep.bed
@@ -191,9 +191,9 @@ The user can change/add/remove parameters by passing a file to the `--parfile [f
 
 When `--pop_strat` has finished, we provide the following PCA results in a .html report:
 
-- 3D interactive PCA plot of merged dataset containing all samples **before and after outlier removal**
+- 3D interactive PCA plot of merged dataset containing all samples **before and after outlier removal**.
 
-- 2D PCA plots of merged dataset containing all samples
+- 2D PCA plots of merged dataset containing all samples.
 
 The last and most important step in `--pop_strat` is the:
 
@@ -225,7 +225,7 @@ The main aims of this workflow are:
 A clean and properly prepared for imputation vcf file and a index file are stored in `./pre_imputation/files/` directory.
 
 !!!Warning
-	* Pre-Imputation workflow can not be combined with `--gwas`, as its purpose is to upload a properly prepared vcf file to an external imputation server
+	* Pre-Imputation workflow can not be combined with `--gwas`, as its purpose is to upload a properly prepared VCF file to an external imputation server
 	* Pre-imputation and post-imputation workflows are run internally when `--impute` is used to run imputation locally. So, you do not have to combine `--impute` with `--pre_impute` and `--post_impute` workflow parameters. If you do, `snpQT` is designed to throw an error.
 
 ## Phasing & Imputation
@@ -238,21 +238,21 @@ Imputation workflow options:
       --qc
 	 
 	 Optional:
-	  --impute_maf [0.01 (default), 0-1]
-	  --info [0.7 (default), 0-1]
-	  --impute_chroms [1(default), 1-23]
+	  --impute_maf [0-1]
+	  --info [0-1]
+	  --impute_chroms [1-23]
 
 ```
 
 This workflow has three main parts:
 
-- **Phasing**: Perform phasing using `shapeit4` and index all phased chromosomes
+- **Phasing**: Perform phasing using `shapeit4` and index all phased chromosomes.
 
 - **Imputation**: Perfom local imputation using `impute5`, following the steps below:
 	
-	* Convert reference genome (1,000 human genome) into a `.imp5` format for each chromosome, using 	imp5Converter
+	* Convert reference genome (1,000 human genome) into a `.imp5` format for each chromosome, using `imp5Converter`.
 	* Run `impute5` using the converted reference genome, genetic maps and user's prepared phased data.
-	* Using the parameter `--impute_chroms [1(default), 1-23]` you can control the number of chromosomes that are imputed at the same time. As higher the number of chromosomes is, the more RAM your machine will need to use.
+	* Using the parameter `--impute_chroms [1-23]` you can control the number of chromosomes that are imputed at the same time. As higher the number of chromosomes is, the more RAM your machine will need to use.
 		
 ## Post-imputation quality control
 
@@ -265,20 +265,20 @@ Post-imputation workflow options:
 	  --fam
 	
 	Optional:
-	  --impute_maf [0.01 (default), 0-1]
-	  --info [0.7 (default), 0-1]
+	  --impute_maf [0-1]
+	  --info [0-1]
 
 ```
 Tha main aims of this workflow are:
 
-- **Merge all imputed chromosomes with `bcftools`**
+- **Merge all imputed chromosomes with `bcftools`**.
 
 !!! Warning
 	We use `-n` parameter during concatenation which makes the process run much faster but assumes that your .vcf.gz files are sorted.
 	
-- **Filter variants**: We filter all poorly imputed variants based on info score (default is 0.7 - if you want to change the threshold use `--info`) and filter based on MAF (default is 0.01 - if you want to change the threshold use `--maf`)
+- **Filter variants**: We filter all poorly imputed variants based on info score (default is 0.7 - if you want to change the threshold use `--info`) and filter based on MAF (default is 0.01 - if you want to change the threshold use `--maf`).
 
-- **Annotate missing SNP ids**: The annotation of the missing SNPs is in this format Chromosome:Position:Reference_Allele:Alternative_Allele
+- **Annotate missing SNP ids**: The annotation of the missing SNPs is in this format Chromosome:Position:Reference_Allele:Alternative_Allele.
 
 - **Handle all categories of "duplicated" SNP ids**: 
 
@@ -306,16 +306,16 @@ GWAS workflow options:
     Optional:
 	  --pop_strat
       --impute  
-	  --covar_file [false (default), covar.txt]
-	  --pca_covars [3 (default), 1-20]
-	  --linear [false (default),true]
+	  --covar_file [false/covar.txt]
+	  --pca_covars [1-20]
+	  --linear [false/true]
 ```
 
 The Genome-Wide Association Studies (GWAS) workflow aims to identify markers with a statistically significant association with the trait of interest. This workflow performs logistic or linear regression (depending on the phenotype) with and without covariates (calculated at the end of the `---qc` workflow and passed to the GWAS workflow). The `---gwas` workflow illustrates the results of Generalized Linear Regression (`plink2`'s `--glm`) in the forms of a Manhattan plot and a Q-Q plot. The main processes of this workflow include:
 
 - **Run logistic or linear regression**: 
 
-	* Adjusting for covariates accounting for fine-scale population structure. The covariates can either be imported by the user using the `--covar_file covar.txt` parameter or can be generated in `--qc` workflow (for better results combine with `--pop_strat`) using the first X Principal Components of the generated PCA using the `--pca_covars [3 (default), 1-20]` parameter.
+	* Adjusting for covariates accounting for fine-scale population structure. The covariates can either be imported by the user using the `--covar_file covar.txt` parameter or can be generated in `--qc` workflow (for better results combine with `--pop_strat`) using the first X Principal Components of the generated PCA using the `--pca_covars` parameter.
 	
 	* Not adjusting for covariates.
 	
@@ -337,16 +337,16 @@ The table below links every step with a log code which can be useful for users w
 | Code     | Step                                       | Flag |  Workflow|
 |----------|--------------------------------------------|------|----------|
 | A1       | Download and process reference files |`--download_db`| Database set up|
-| A2       | Decompress reference files |`--download_db`| Database set up|
-| A3       | Remove duplicate records in reference files |`--download_db`| Database set up|
-| A4       | Download and unzip genetic maps for phasing |`--download_db`| Database set up|
-| A5       | Annotate variants to a "chr:pos:ref:alt" format |`--download_db`| Database set up|
-| B1       | Decompress FASTA file                             | `--convert_build` | Build Conversion |
-| B2       | Create a dictionary file                          | `--convert_build` | Build Conversion |
-| B3       | Change the chromosome ids                         | `--convert_build` | Build Conversion |
-| B4       | Run LiftOver to map genome build                  | `--convert_build` | Build Conversion |
-| B5       | Change the chromosome ids                         | `--convert_build` | Build Conversion |
-| B6       | Convert VCF to PLINK format and update phenotypes | `--convert_build` | Build Conversion |
+| A2       | QC in reference files |`--download_db`| Database set up|
+| A3       | Decompress reference files |`--download_db`| Database set up|
+| A4       | Remove duplicate records in reference files |`--download_db`| Database set up|
+| A5       | Unzip genetic maps for phasing |`--download_db`| Database set up|
+| A6       | Annotate variants to a "chr:pos:ref:alt" format |`--download_db`| Database set up|
+| B1       | Create a dictionary file                          | `--convert_build` | Build Conversion |
+| B2       | Change the chromosome ids                         | `--convert_build` | Build Conversion |
+| B3       | Run LiftOver to map genome build                  | `--convert_build` | Build Conversion |
+| B4       | Change the chromosome ids                         | `--convert_build` | Build Conversion |
+| B5       | Convert VCF to PLINK format and update phenotypes | `--convert_build` | Build Conversion |
 | C1       | Missing variant call rate check            |`--qc`|Sample QC|
 | C2       | Missing sample call rate check             |`--qc`|Sample QC |
 | C3       | Check for sex discrepancies                |`--qc`|Sample QC |
@@ -371,9 +371,10 @@ The table below links every step with a log code which can be useful for users w
 | F1       | Set appropriate chromosome codes |`--impute`, `--pre_impute`| Pre-Imputation|
 | F2/D4    | Check for strand issues and remove ambiguous SNPs|`--impute`, `--pre_impute`| Pre-Imputation|
 | F3       | Remove one of each pair of duplicated SNPs  |`--impute`, `--pre_impute`| Pre-Imputation|
-| F4       | Convert Plink file into BCF |`--impute`, `--pre_impute`| Pre-Imputation|
-| F5       | Check and fix the REF allele `bcftools +fixref` |`--impute`, `--pre_impute`| Pre-Imputation|
-| F6       | Sort the BCF, Convert `.bcf` file to `.vcf.gz` and index |`--impute`, `--pre_impute`| Pre-Imputation|
+| F4       | Convert Plink file into VCF |`--impute`, `--pre_impute`| Pre-Imputation|
+| F5       | Convert VCF file into BCF |`--impute`, `--pre_impute`| Pre-Imputation|
+| F6       | Check and fix the REF allele `bcftools +fixref` |`--impute`, `--pre_impute`| Pre-Imputation|
+| F7       | Sort the BCF, Convert `.bcf` file to `.vcf.gz` and index |`--impute`, `--pre_impute`| Pre-Imputation|
 | A6       | Annotate user's variants to a "chr:pos:ref:alt" format | `--impute`| Imputation|
 | G1       | Split vcf.gz file in chromosomes and index them |`--impute`| Imputation|
 | G2       | Perform phasing using `shapeit4`  |`--impute`| Imputation|
