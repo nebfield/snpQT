@@ -47,7 +47,7 @@ $ tar -xvf impute.tar.gz --strip-components=1
 
 !!! tip
 
-    The combined size of these files is around 70GB. Make sure you have plenty
+    The combined size of these files is around 37GB. Make sure you have plenty
     of hard drive space in your home directory. They can take some time to
     download from zenodo.
 

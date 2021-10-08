@@ -14,10 +14,9 @@ You must pick one of these profiles to run `snpQT`. Most people will use the
 `standard` profile.
 
 To configure the `cluster` profile you will need to edit the
-`conf/cluster.config` file, which is in the `snpQT` local path. Use `nextflow
-info nebfield/snpqt` to find the local path. We have configured `cluster.config`
-to run on the [Northern Ireland High Performance Centre by
-default](https://www.ni-hpc.ac.uk):
+`conf/cluster.config` file, which is in the `snpQT` local path.We have configured `cluster.config`
+to run on the [Northern Ireland High Performance Centre](https://www.ni-hpc.ac.uk) by
+default:
 
 ```
 process {
