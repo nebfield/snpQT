@@ -417,7 +417,10 @@ process plot_hardy {
 // STEP E10: Remove low minor allele frequency (MAF) ---------------------------
 process maf {  
     label 'plink1'
-	
+    if (params.linear == true){
+       publishDir "${params.results}/qc/bfiles/", pattern: "E10.*",  mode: 'copy'
+    }
+
     input:
     path(E9_bed)
     path(E9_bim)
