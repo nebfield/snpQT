@@ -186,16 +186,16 @@ The user can change/add/remove parameters by passing a file to the `--parfile [f
 	indivname:    C6_indep.pedind
 	evecoutname:  eigenvec
 	evaloutname:  eigenval
-	outlieroutname: excluded_outliers.txt
-        poplistname: poplist.txt
+        outlieroutname: excluded_outliers.txt
+	poplistname: poplist.txt
 ```
 
 A parfile.txt example would look something like this:
 
 
 ```
-        numthreads:   10
-        numoutlierevec: 4
+	numthreads:   10
+	numoutlierevec: 4
 ```
 
 When `--pop_strat` has finished, we provide the following PCA results in a .html report:
