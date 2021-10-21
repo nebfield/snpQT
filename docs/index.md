@@ -55,7 +55,7 @@ Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducibl
 
 ## License and third-party software 
 
-`snpQT` is distributed under [a GPL3 license](https://github.com/nebfield/snpQT/blob/master/LICENSE.md). Our pipeline wouldn't be possible without the following amazing third-party software:
+`snpQT` is distributed under [a MIT license](https://github.com/nebfield/snpQT/blob/master/LICENSE.md). Our pipeline wouldn't be possible without the following amazing third-party software:
 
 | Software                                                        | Version   | Reference                                                                                                                                                                   | License            |
 |-----------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
