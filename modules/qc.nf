@@ -590,7 +590,6 @@ process plot_pca_user_data {
 // STEP E13: Parse all log files and combine them into a .txt file -----------------
 process parse_logs {
     label 'small'
-
     publishDir "${params.results}/${dir}/figures", mode: 'copy', pattern: "*.png"
     publishDir "${params.results}/${dir}/logs", mode: 'copy', pattern: "*.txt"
 

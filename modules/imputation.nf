@@ -5,7 +5,7 @@
 process set_chrom_code {
     label 'plink2'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -20,7 +20,7 @@ process set_chrom_code {
     '''
     plink2 --bfile !{bed.baseName} \
         --output-chr MT \
-	    --make-bed \
+	--make-bed \
         --out F1  
     '''
 }
@@ -32,7 +32,7 @@ process set_chrom_code {
 process fix_duplicates {
     label 'plink2'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -57,7 +57,7 @@ process fix_duplicates {
 process to_vcf {
     label 'plink2'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -78,7 +78,7 @@ process to_vcf {
 process to_bcf {
     label 'bcftools'
 	
-	input:
+    input:
     path(vcf)
     
     output:
@@ -95,7 +95,7 @@ process to_bcf {
 process check_ref_allele {
     label 'bcftools'
 	
-	input:
+    input:
     path(bcf)
     path(dbsnp)
     path(dbsnp_idx)
@@ -115,9 +115,8 @@ process check_ref_allele {
 
 // STEP F7: Sort BCF, convert .bcf file to .vcf.gz file and index the vcf.gz -------------------------------
 process bcf_to_vcf {
-	label 'bcftools'
-	
-	publishDir "${params.results}/preImputation/files", mode: 'copy'
+    label 'bcftools'
+    publishDir "${params.results}/preImputation/files", mode: 'copy'
 
     input:
     path(bcf)
@@ -140,7 +139,7 @@ process bcf_to_vcf {
 process split_user_chrom {
     label 'bcftools'
 	
-	input:
+    input:
     path(vcf)
     path(idx)
     each chr
@@ -157,7 +156,7 @@ process split_user_chrom {
 
 // STEP G2: Perform phasing using shapeit4 --------------------------
 process phasing {
-	label 'shapeit'
+    label 'shapeit'
 	
     input:
     tuple val(chr), file('G1.vcf.gz'), file('G1.vcf.gz.csi'), \
@@ -187,7 +186,7 @@ process phasing {
 process bcftools_index_chr {
     label 'bcftools'
 	
-	input:
+    input:
     tuple val(chr), path('chr.vcf.gz')
 
     output:
@@ -219,7 +218,7 @@ process tabix_chr {
 
 // STEP G5: Convert vcf reference genome into a .imp5 format for each chromosome
 process convert_imp5 {
-	label 'impute5'
+    label 'impute5'
 	
     input:
     tuple val(chr), file('ref_chr.vcf.gz'), file('ref_chr.vcf.gz.tbi')
@@ -232,7 +231,7 @@ process convert_imp5 {
     '''
     imp5Converter!{params.impute5_version} --h ref_chr.vcf.gz \
         --r !{chr} \
-	    --threads !{task.cpus} \
+	--threads !{task.cpus} \
         --o 1k_b37_reference_chr.imp5
     '''
 }
@@ -243,7 +242,7 @@ process convert_imp5 {
 
 process impute5 {
     label 'bigmem'
-	label 'impute5'
+    label 'impute5'
 	
     input:
     tuple val(chr), file('1k_b37_reference_chr.imp5'), \
@@ -271,7 +270,7 @@ process impute5 {
 process merge_imp {
     label 'bcftools'
 	
-	input:
+    input:
     path(imp)
     
     output:

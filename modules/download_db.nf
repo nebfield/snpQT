@@ -61,7 +61,7 @@ process qc_ref_data {
   # Remove variants based on MAF
   plink2 --pfile 'vzs' all_phase3_1 \
     --maf 0.05 \
-	--set-missing-var-ids @:#:\\$r:\\$a \
+    --set-missing-var-ids @:#:\\$r:\\$a \
     --make-bed \
     --out all_phase3_2
 	

@@ -2,7 +2,7 @@
 process filter_imp {
     label 'plink2'
 	
-	input:
+    input:
     path(imp)
 
     output:
@@ -24,7 +24,7 @@ process filter_imp {
 process filter_maf {
     label 'plink2'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -152,7 +152,7 @@ process duplicates_cat3 {
 process update_ids {    
     label 'plink2'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -180,8 +180,7 @@ process update_ids {
 // STEP H7: update phenotype information
 process update_phenotype {
     label 'plink2'
-	
-	publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
+    publishDir "${params.results}/post_imputation/bfiles", mode: 'copy'
     
     input:
     path(bed)

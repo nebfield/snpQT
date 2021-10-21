@@ -3,7 +3,7 @@
 process filter_maf {
     label 'plink2'
 
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -76,7 +76,7 @@ process run_snpflip {
 process flip_snps {  
     label 'plink1'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -109,7 +109,7 @@ process flip_snps {
 process align {
     label 'plink1'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -139,7 +139,7 @@ process align {
 process merge {
     label 'plink1'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -201,7 +201,7 @@ process merge {
 process pca_prep {    
     label 'plink2'
 	
-	input:
+    input:
     path(bed)
     path(bim)
     path(fam)
@@ -256,7 +256,7 @@ process eigensoft {
     label 'eigensoft'
     label 'medium'
 
-	input:
+    input:
     path bed
     path bim
     path fam
@@ -301,7 +301,7 @@ process eigensoft {
 process pca_plink {
     label 'plink1'
 	
-	input:
+    input:
     path bed
     path bim
     path fam
@@ -314,8 +314,8 @@ process pca_plink {
     shell:
     '''
     plink --bfile !{bed.baseName} \
-		--pca header \
-		--out before
+	--pca header \
+	--out before
     # Keep only a homogenous cohort
     awk '{print $1}' !{eigenvec} | tail -n +2 | awk -F ":" '{print $1,$2}' > keep_sample_list.txt
     plink --bfile !{bed.baseName} \
@@ -347,8 +347,7 @@ process plot_plink_pca {
 // STEP D9: Extract a homogenous group ------------------------------------------------------
 process extract_homogenous {
     label 'plink2'
-	
-	publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
+    publishDir "${params.results}/pop_strat/bfiles", mode: 'copy'
     
     input:
     path(bed)
