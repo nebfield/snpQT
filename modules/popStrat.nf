@@ -49,9 +49,8 @@ process filter_maf {
 
 // STEP D4: Fix strand errors and remove ambiguous SNPs ------------------------
 process run_snpflip {
-    label 'small'
-	label 'snpflip'
-    memory '8GB'
+    label 'medium'
+    label 'snpflip'
 	
 
     input: 
@@ -255,7 +254,8 @@ process popfile {
 // STEP D8: Eigensoft ----------------------------------------------------------------
 process eigensoft {
     label 'eigensoft'
-	
+    label 'medium'
+
 	input:
     path bed
     path bim
