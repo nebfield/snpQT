@@ -1,5 +1,5 @@
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A521.04.3-brightgreen.svg)](http://nextflow.io)
-[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
+[![MIT license](https://img.shields.io/github/license/nebfield/snpqt)](https://raw.githubusercontent.com/nebfield/snpQT/master/LICENSE.md)
 [![Documentation Status](https://readthedocs.org/projects/ansicolortags/badge/?version=latest)](https://snpqt.readthedocs.io/en/latest/)
 [![DOI](https://zenodo.org/badge/227099400.svg)](https://zenodo.org/badge/latestdoi/227099400)
 
@@ -70,7 +70,7 @@ Vasilopoulou C, Wingfield B, Morris AP and Duddy W. snpQT: flexible, reproducibl
 | [PLINK](https://www.cog-genomics.org/plink/1.9/)                | 1.90b6.18 | Purcell, Shaun, et al. "PLINK: a tool set for whole-genome association and population-based linkage analyses." The American journal of human genetics 81.3 (2007): 559-575. | GPL3               |
 | [PLINK2](https://www.cog-genomics.org/plink/2.0/)               | 2.00a2.3  | Chang CC, Chow CC, Tellier LCAM, Vattikuti S, Purcell SM, Lee JJ (2015) Second-generation PLINK: rising to the challenge of larger and richer datasets. GigaScience, 4.     | GPL3               |
 | [samtools](https://samtools.github.io)                          | 1.11      | Danecek, Petr et al. "Twelve years of SAMtools and BCFtools." GigaScience, 10(2), 1-4, 2021                                                                                                                                                                           | MIT                |
-| [bcftools](https://samtools.github.io/bcftools/bcftools.html)   |           | Danecek, Petr et al. "Twelve years of SAMtools and BCFtools." GigaScience, 10(2), 1–4, 2021
+| [bcftools](https://samtools.github.io/bcftools/bcftools.html)   |           | Danecek, Petr et al. "Twelve years of SAMtools and BCFtools." GigaScience, 10(2), 1â€“4, 2021
 | [shapeit4](https://odelaneau.github.io/shapeit4/)               | 4.1.3     | Delaneau, Olivier, et al. "Accurate, scalable and integrative haplotype estimation." Nature communications 10.1 (2019): 1-10.                                               | MIT                |
 | [snpflip](https://github.com/biocore-ntnu/snpflip)              | 0.0.6     |  https://github.com/biocore-ntnu/snpflip                                                                                                                                                                           | MIT                |
 
