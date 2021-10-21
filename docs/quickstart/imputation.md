@@ -35,20 +35,7 @@ run `module avail` and search for `impute5`. On our cluster, `impute5` is
 installed as `impute/5_1.1.4`. If your cluster is different, you will need to
 edit `conf/modules.config`:
 
-```
-process {
-  // modules need conda too 
-  conda = "$baseDir/environments/snpqt/environment.yml"  
-  withName: run_snpflip {
-    conda = "$baseDir/environments/snpflip/environment.yml"
-  }
-  withName: 'pca_prep|eigensoft' {
-    conda = "bioconda::eigensoft=7.2.1 bioconda::plink=1.90b6.18"
-  }
-  withName: phasing {
-    conda = 'bioconda::shapeit4=4.1.3'    
-  }
-  
+```  
   // imputation with environment modules
   // http://modules.sourceforge.net
   // https://www.nextflow.io/docs/latest/process.html#module
@@ -56,7 +43,6 @@ process {
   withName: 'convert_imp5|impute5' {
     module = 'impute/5_1.1.4'
   }
-}
 ```
 
 And change `impute/5_1.1.4` to whatever is listed in `module avail`. `-profile
