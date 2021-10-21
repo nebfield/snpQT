@@ -186,7 +186,7 @@ The user can change/add/remove parameters by passing a file to the `--parfile [f
 	indivname:    C6_indep.pedind
 	evecoutname:  eigenvec
 	evaloutname:  eigenval
-        outlieroutname: excluded_outliers.txt
+	outlieroutname: excluded_outliers.txt
 	poplistname: poplist.txt
 ```
 
