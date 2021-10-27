@@ -22,7 +22,7 @@ workflow imputation {
     // annotate id needs a tuple of [id, path], so use a dummy value
     in_vcf = Channel.from('user').combine(ch_vcf)
     annotate_ids(in_vcf)
-	index_vcf(annotate_ids.out.vcf)
+    index_vcf(annotate_ids.out.vcf)
     // OK, things start to get a bit complicated here
     // because we're working with individual chromosomes it's easiest to work with
     // tuples like [chr_num, chr.fa.gz, chr.fa.gz.tbi, etc...]

@@ -23,7 +23,7 @@ workflow postImputation {
     duplicates_cat2(duplicates_cat1.out.bed, duplicates_cat1.out.bim, duplicates_cat1.out.fam)
     duplicates_cat3(duplicates_cat2.out.bed, duplicates_cat2.out.bim, duplicates_cat2.out.fam)
     update_ids(duplicates_cat3.out.bed, duplicates_cat3.out.bim, duplicates_cat3.out.fam, ch_fam)
-	update_phenotype(update_ids.out.bed, update_ids.out.bim, update_ids.out.fam, ch_fam)
+    update_phenotype(update_ids.out.bed, update_ids.out.bim, update_ids.out.fam, ch_fam)
     logs = filter_imp.out.log.concat(filter_maf.out.log, duplicates_cat1.out.log, duplicates_cat2.out.log, duplicates_cat3.out.log, update_ids.out.log, update_phenotype.out.log).collect()
     parse_logs("post_imputation", logs, "post_impute_log.txt")
 

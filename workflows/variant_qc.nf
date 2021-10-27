@@ -32,7 +32,7 @@ workflow variant_qc {
     plot_hardy(hardy.out.sub_before, hardy.out.zoom_before, hardy.out.sub_after, hardy.out.zoom_after, params.hwe)
     maf(hardy.out.bed, hardy.out.bim, hardy.out.fam)
     plot_maf(maf.out.before, maf.out.after, params.maf)
-	if (params.linear == false){
+    if (params.linear == false){
     test_missing(maf.out.bed, maf.out.bim, maf.out.fam)
     plot_missing_by_cohort(test_missing.out.before, test_missing.out.after, params.missingness)
     Channel
@@ -40,7 +40,7 @@ workflow variant_qc {
       .set{ exclude }
     pca(test_missing.out.bed, test_missing.out.bim, test_missing.out.fam, exclude)
     plot_pca_user_data(pca.out.eigenvec_user, pca.out.fam)
-	if (params.covar_file == false) {
+    if (params.covar_file == false) {
 	  pca_covariates(pca.out.eigenvec_user)
 	  covar = pca_covariates.out.covar
     }else{
@@ -48,7 +48,7 @@ workflow variant_qc {
         .fromPath(params.covar_file, checkIfExists: true)
         .set{ covar }
     }
-	logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
+    logs = mpv.out.log.concat(hardy.out.log, maf.out.log, test_missing.out.log).collect()
     parse_logs("qc", logs, "variant_qc_log.txt")
     figures = plot_mpv.out.figure
       .concat(plot_hardy.out.figure, plot_maf.out.figure, plot_missing_by_cohort.out.figure, plot_pca_user_data.out.figure, plot_pca_user_data.out.rds ,parse_logs.out.figure)
@@ -62,7 +62,7 @@ workflow variant_qc {
     bim = test_missing.out.bim
     fam = test_missing.out.fam
 
-	} else {
+    } else {
 		Channel
 		  .fromPath("${params.db}/PCA.exclude.regions.b37.txt", checkIfExists: true)
 		  .set{ exclude }
@@ -90,7 +90,7 @@ workflow variant_qc {
 		bim = maf.out.bim
 		fam = maf.out.fam
 
-	}
+    }
 	
   emit:
     bed
