@@ -3,7 +3,10 @@
 This tutorial will guide you through the `snpQT` Quality Control pipeline, explaining the steps and showing the results  of our software using two different datasets. 
 We assume that you followed the [Quickstart Installation](https://snpqt.readthedocs.io/en/latest/quickstart/installation/) or the [Advanced Installation](https://snpqt.readthedocs.io/en/latest/user-guide/installation/) and you have set up `snpQT` successfully.
 Below we provide examples using the latest release of snpQT and `standard,singularity` as the chosen profiles, suitable for users who wish to run their experiments in a normal computer, and want to include imputation in their list of analyses. HPC users expect to use the same commands with the difference that they should 
-use `-profile cluster,singularity` or `-profile cluster,modules` instead. Lastly, for the tutorial purposes we use the arguments directly on the command-line, if you prefer you can edit your YAML parameter file and use only `-params-file parameter.yaml` instead.
+use `-profile cluster,singularity` or `-profile cluster,modules` instead. Lastly, for the tutorial purposes we use the arguments directly on the command-line alongside the parameters file, if you prefer you can only edit your YAML parameter file and use `-params-file parameter.yaml` instead (recommended).
+
+!!! Note
+	The examples below assume you are using the example parameter.yaml file provided in our [GitHub repository](https://github.com/nebfield/snpQT/blob/master/parameters.yaml). 
 
 ## The datasets 
 
@@ -46,13 +49,13 @@ In the `data/` directory you will find three binary plink files and a vcf.gz fil
 One reason that this workflow can be helpful for users, is when you have completed the `snpQT` QC and population stratification, and you wish to upload your data to an external imputation server that uses a reference panel that is aligned in b38. Or you wish to convert your data to b38 for any other reason, in general.
 You can convert the genomic build of the available toy dataset aligned in b37 to b38, running the following line of code:
 
-`nextflow run main.nf -profile standard,conda -params-file parameter.yaml --vcf data/toy.vcf --fam data/toy.fam --convert_build --input_build 37 --output_build 38 -resume --results convert_build_toy/`
+`nextflow run main.nf -profile standard,conda -params-file parameters.yaml --vcf data/toy.vcf --fam data/toy.fam --convert_build --input_build 37 --output_build 38 -resume --results convert_build_toy/`
 
 When this job is run successfully, you will see a new folder named `convert_build_toy/` which contains a `files/` subfolder where there are three binary filtered plink files (the .fam file contains updated phenotype information) compatible with the other `snpQT` workflows and a "unfiltered" .vcf.gz file for the users who prefer this format for other purposes. The filters include removing multi-allelic variants and keeping only autosomal and sex chromosomes.
 
 If your initial data are built on b38, you can also use this workflow to convert this genomic build to b37, which is the current supporting build for `snpQT`. You can achieve that by running the following line of code:
 
-`nextflow run main.nf -profile standard,conda -params-file parameter.yaml --vcf convert_build_toy/files/out.vcf --fam covertBuild_toy/converted.fam --convert_build --input_build 38 --output_build 37 -resume --results covertBuild2_toy/`
+`nextflow run main.nf -profile standard,conda -params-file parameters.yaml --vcf convert_build_toy/files/out.vcf --fam covertBuild_toy/converted.fam --convert_build --input_build 38 --output_build 37 -resume --results covertBuild2_toy/`
 
 !!!Tip
 	If you run two or more jobs using the same `--results results/` folder and same workflows, then your previous results will be overwritten. So, if you want to keep your results, make sure you change the name of the results folder each time you run `snpQT`.
@@ -66,13 +69,16 @@ This way you can first inspect the plots and the distributions of each metric an
 
 The toy dataset does not contain sex chromosomes so to avoid `plink` producing an error when running a sex check using the `--check-sex` flag, it is important to add `--sexcheck false` as an extra parameter for this dataset. You can run the following command:
  
-`nextflow run main.nf -profile standard,conda -params-file parameter.yaml --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --gwas --pop_strat -resume --results results_toy/ --sexcheck false`
+`nextflow run main.nf -profile standard,conda -params-file parameters.yaml --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --gwas --pop_strat -resume --results results_toy/ --sexcheck false`
+
+!!! Note
+	The following parameters: `--bed data/toy.bed`, `--bim data/toy.bim`, `--fam data/toy.fam` and `--qc` could have been omitted from the command above, as they are aready have these values in the parameters file, but we display them here for emphasis.
 
 ** Amyotrophic Lateral Sclerosis (ALS) dataset **
 
 The ALS dataset is aligned using the human genome build 37, so again we did not need to use the `--convert_build` workflow. We run the same command as for the toy dataset (except `--sexcheck false`):
 
-`nextflow run main.nf -profile standard,conda --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/`
+`nextflow run main.nf -profile standard,conda -params-file parameters.yaml --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/`
 
 !!! Note
 	In the previous example I used `-profile standard,conda`. You can alternatively use `-profile standard,singularity`, `-profile cluster,singularity`, depending on your needs.
@@ -284,7 +290,7 @@ outliersigmathresh: 4
 
 To use an external parfile in population stratification, you can run the following command:
 
-`nextflow run main.nf -profile standard,conda -params-file parameter.yaml --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/ --parfile parfile.txt`
+`nextflow run main.nf -profile standard,conda -params-file parameters.yaml --bed als.bed --bim als.bim --fam als.fam --qc --gwas --pop_strat -resume --results results_als/ --parfile parfile.txt`
 
 
 
@@ -335,14 +341,18 @@ ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 
 If you wish to run Imputation locally you should run the following line of code:
 
-`nextflow run main.nf -profile standard,singularity -params-file parameter.yaml --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --gwas --impute -resume --results results_toy_imputed/ --sexcheck false`
+`nextflow run main.nf -profile standard,singularity -params-file parameters.yaml --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --gwas --impute -resume --results results_toy_imputed/ --sexcheck false`
 
 !!!Tip
-	- You can use `-profile docker`, `-profile singularity` or `-profile modules` to run imputation.
+	- You can use `-profile standard,docker` (Docker requires root access so you can use it only on a standard laptop), `-profile [standard/cluster],singularity` or `-profile cluster,modules` to run imputation. 
 	- Imputation needs `--qc` to run (`--pop_strat` is optional but it is recommended).
 	- Use `--gwas` if you want to acquire genotype-phenotype associations in the imputed data.
 	- If you have already used `--qc`, `--pop_strat` and `--gwas`, you can use `-resume` to save `snpQT` from spending valuable time by picking up the analysis where you left it, using nextflow's continuous points.
 	- The `--impute` workflow runs automatically the pre-imputation and post-imputation QC workflows.
+
+!!! Note
+	The following parameters: `--bed data/toy.bed`, `--bim data/toy.bim`, `--fam data/toy.fam` and `--qc` could have been omitted from the command above, as they are aready have these values in the parameters file, but we display them here for emphasis.
+
 	
 ### Pre-Imputation, Imputation & Post-Imputation `--impute`
 
@@ -391,7 +401,10 @@ ALS dataset: Q-Q plot                 |ALS dataset: Q-Q plot with no covariates
 
 If you wish to perform imputation in an external imputation server or you want to use another reference panel than the latest release of 1,000 human genome data, `snpQT` is designed to process your data both before and after imputation, with pre-imputation and post-imputation QC workflows, respectively. If you want to clean your dataset and prepare it for imputation, you can run the following line of code:
 
-`nextflow run main.nf -profile standard,singularity -params-file parameter.yaml --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --pre_impute -resume --results results_toy/ --sexcheck false`
+`nextflow run main.nf -profile standard,singularity -params-file parameters.yaml --bed data/toy.bed --bim data/toy.bim --fam data/toy.fam --qc --pop_strat --pre_impute -resume --results results_toy/ --sexcheck false`
+
+!!! Note
+	The following parameters: `--bed data/toy.bed`, `--bim data/toy.bim`, `--fam data/toy.fam` and `--qc` could have been omitted from the command above, as they are aready have these values in the parameters file, but we display them here for emphasis.
 
 Pre-imputation makes an extra `results_toy/preImputation/files/` directory which contains 2,612 variants stored in `D11.vcf.gz` and an indexed `D11.vcf.gz.csi` file. 
 
@@ -437,20 +450,22 @@ NS	non-biallelic	0
 ```
 
 !!!Warning
-	`--pre_impute` workflow can only be used along with `--qc` and can not be linked to `--gwas`.
+	`--pre_impute` workflow can only be used along with `--qc` and can not be linked to `--gwas`. You add `qc: true` and `gwas: false` in your parameter file or use `--qc` and `--gwas false`.
 	
 ## Post-Imputation 
 
-`--post_impute` workflow is designed for users that have imputed data and they wish to perform post-imputation QC. If you wish to perform post-imputation, you can run the following line of code:
+`--post_impute` workflow is designed for users that have imputed data and they wish to perform post-imputation QC. If you wish to perform a post-imputation QC independently on an already imputed VCF file which contains an INFO column, you may run the following line of code:
 
-`nextflow run main.nf -profile standard,singularity -params-file parameters.yaml --vcf imputed.vcf.gz --fam toy.fam --post_impute -resume --results results_toy/ --sexcheck false`
+`nextflow run main.nf -profile standard,singularity -params-file parameters.yaml --vcf $WORK_PATH/merged_imputed.vcf.gz --fam results_toy_imputed/qc/bfiles/E11.fam --post_impute --qc false -resume --results results_postImpute_toy/`
 
-You can add `--info 0.7` and `--impute_maf 0.01` parameters to tailor the processing of your imputed data.
+!!! Tip
+	* To retrieve the imputed VCF toy file `merged_imputed.vcf.gz`, you can navigate to the work/ directory of `imputation:merge_imp` process when running the Imputation workflow (see [example above](https://snpqt.readthedocs.io/en/latest/user-guide/results/#imputation)).
+	* You can add `--info 0.7` and `--impute_maf 0.01` parameters to tailor the processing of your imputed data.
 
-Post-imputation makes an extra `results_toy/post_imputation/` directory which contains three folders `logs/`, `figures/` and `bfiles/`.  
+Post-imputation makes an extra `results_toy/post_imputation/` directory which contains three folders `logs/`, `figures/` and `bfiles/`.
 
 !!!Warning
-	* The `--post_impute` parameter can not be linked to any other workflow.
-	* The `.vcf.gz` should have an INFO column.
-	* The `.fam` file should contain the exact same samples as the VCF file (B11.fam -the output file of the `--qc` pipeline would be ideal for this purpose).
+	* The `--post_impute` parameter can not be linked to any other workflow. For this reason we have added `--qc false`, to override the `qc: true` parameter specified in parameters.yaml.
+	* The `.vcf.gz` should have an INFO column. If not, you should expect to see a PLINK error message that your input dataset does not contain an INFO column.
+	* The `.fam` file should contain the exact same samples as the VCF file (E11.fam -the output file of the `--qc` pipeline would be ideal for this purpose).
 
