@@ -18,10 +18,10 @@ Make sure to add `nextflow` to [PATH](https://unix.stackexchange.com/a/26059) so
 you can run nextflow in your terminal from anywhere. Then simply run:
 
 ```
-$ git clone --branch v0.1.5 https://github.com/nebfield/snpQT.git
+$ git clone --branch v0.1.6 https://github.com/nebfield/snpQT.git
 ```
 
-Where `--branch v0.1.5` reflects the current latest release of `snpQT`. You can find different
+Where `--branch v0.1.6` reflects the current latest release of `snpQT`. You can find different
 releases of snpQT on our [releases
 page](https://github.com/nebfield/snpQT/releases).  You should see a helpful
 message in your terminal if everything went well. In case you wish to pull the latest changes to the snpQT 
