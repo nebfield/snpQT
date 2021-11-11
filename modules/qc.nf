@@ -253,7 +253,8 @@ process heterozygosity_prune {
 
 // STEP B6: Check for cryptic relatedness -----------------------------------
 process relatedness {
-    label 'plink2'  
+    label 'plink2' 
+    label 'medium' 
 
     input:
     path(C5_bed)
