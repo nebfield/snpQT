@@ -1,7 +1,7 @@
 def printHelp() {
   log.info"""
   Usage:
-    nextflow run main.nf -profile ([standard,cluster][singularity,docker,conda]) -params-file parameters.yaml
+    nextflow run main.nf -profile ([standard,cluster][singularity,docker,conda,modules]) -params-file parameters.yaml
  
   Description:
     Make your single-nucleotide polymorphisms cute with snpQT. A pipeline for quality control, population stratification, imputation, and GWAS of human genomic variants.
